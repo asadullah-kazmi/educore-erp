@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net48</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <AssemblyName>SchoolERP</AssemblyName>
+    <RootNamespace>SchoolERP</RootNamespace>
+  </PropertyGroup>
+</Project>
