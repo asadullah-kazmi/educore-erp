@@ -16,7 +16,7 @@
             <DockPanel>
                 <StackPanel DockPanel.Dock="Left">
                     <TextBlock Text="School ERP Dashboard" FontSize="28" FontWeight="Bold" Foreground="White" />
-                    <TextBlock x:Name="WelcomeTextBlock" Text="Welcome" Foreground="#CBD5E1" Margin="0,6,0,0" />
+                    <TextBlock Text="{Binding WelcomeMessage}" Foreground="#CBD5E1" Margin="0,6,0,0" />
                 </StackPanel>
                 <TextBlock DockPanel.Dock="Right" VerticalAlignment="Center" Foreground="#94A3B8" Text="Finance • Attendance • Students • Staff" />
             </DockPanel>

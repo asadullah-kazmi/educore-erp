@@ -1,6 +1,7 @@
 <Window x:Class="SchoolERP.LoginWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:helpers="clr-namespace:SchoolERP.Helpers"
         Title="School ERP - Login"
         Height="620"
         Width="1040"
@@ -82,20 +83,20 @@
                     <TextBlock Text="Sign in to continue to the School ERP dashboard." Foreground="#475569" Margin="0,8,0,24" TextWrapping="Wrap" />
 
                     <TextBlock Text="Username" Foreground="#0F172A" FontWeight="SemiBold" />
-                    <TextBox x:Name="UsernameTextBox" />
+                    <TextBox Text="{Binding Username, UpdateSourceTrigger=PropertyChanged}" />
 
                     <TextBlock Text="Password" Foreground="#0F172A" FontWeight="SemiBold" />
-                    <PasswordBox x:Name="PasswordBox" />
+                    <PasswordBox helpers:PasswordBoxHelper.BoundPassword="{Binding Password, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
 
-                    <CheckBox x:Name="RememberMeCheckBox" Content="Remember me" Foreground="#334155" Margin="0,0,0,10" />
+                    <CheckBox Content="Remember me" Foreground="#334155" Margin="0,0,0,10" />
 
-                    <Button x:Name="LoginButton" Content="Sign In" Click="LoginButton_Click">
+                    <Button Content="Sign In" Command="{Binding LoginCommand}" IsDefault="True">
                         <Button.Background>
                             <StaticResource ResourceKey="AccentGradient" />
                         </Button.Background>
                     </Button>
 
-                    <TextBlock x:Name="StatusTextBlock" Foreground="#DC2626" Margin="0,14,0,0" TextWrapping="Wrap" />
+                    <TextBlock Text="{Binding StatusMessage}" Foreground="#DC2626" Margin="0,14,0,0" TextWrapping="Wrap" />
                 </StackPanel>
             </Border>
         </Grid>
