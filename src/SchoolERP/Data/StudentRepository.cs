@@ -1,28 +1,42 @@
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
+using System.Threading.Tasks;
 using SchoolERP.Models;
 
 namespace SchoolERP.Data
 {
     public class StudentRepository
     {
-        public List<Student> GetAll()
+        private const string SelectColumns = @"
+SELECT s.StudentID,
+       s.RegistrationNo,
+       s.Name,
+       s.FatherName,
+       s.DOB,
+       s.ClassID,
+       c.ClassName,
+       s.Address,
+       s.Phone,
+       s.AdmissionDate
+FROM dbo.Students s
+LEFT JOIN dbo.Classes c ON s.ClassID = c.ClassID";
+
+        public async Task<List<Student>> GetAllStudentsAsync()
         {
-            const string sql = @"
-SELECT StudentID, RegistrationNo, Name, FatherName, DOB, Class, Address, Phone, AdmissionDate
-FROM dbo.Students
-ORDER BY StudentID DESC;";
+            const string sql = SelectColumns + @"
+ORDER BY s.StudentID DESC;";
 
             var students = new List<Student>();
 
             using (var connection = Database.GetConnection())
             using (var command = new SqlCommand(sql, connection))
             {
-                connection.Open();
-                using (var reader = command.ExecuteReader())
+                await connection.OpenAsync().ConfigureAwait(false);
+
+                using (var reader = await command.ExecuteReaderAsync().ConfigureAwait(false))
                 {
-                    while (reader.Read())
+                    while (await reader.ReadAsync().ConfigureAwait(false))
                     {
                         students.Add(MapStudent(reader));
                     }
@@ -32,22 +46,20 @@ ORDER BY StudentID DESC;";
             return students;
         }
 
-        public Student GetById(int studentId)
+        public async Task<Student> GetStudentByIdAsync(int studentId)
         {
-            const string sql = @"
-SELECT StudentID, RegistrationNo, Name, FatherName, DOB, Class, Address, Phone, AdmissionDate
-FROM dbo.Students
-WHERE StudentID = @StudentID;";
+            const string sql = SelectColumns + @"
+WHERE s.StudentID = @StudentID;";
 
             using (var connection = Database.GetConnection())
             using (var command = new SqlCommand(sql, connection))
             {
                 command.Parameters.AddWithValue("@StudentID", studentId);
-                connection.Open();
+                await connection.OpenAsync().ConfigureAwait(false);
 
-                using (var reader = command.ExecuteReader())
+                using (var reader = await command.ExecuteReaderAsync().ConfigureAwait(false))
                 {
-                    if (reader.Read())
+                    if (await reader.ReadAsync().ConfigureAwait(false))
                     {
                         return MapStudent(reader);
                     }
@@ -57,39 +69,7 @@ WHERE StudentID = @StudentID;";
             return null;
         }
 
-        public List<Student> Search(string query)
-        {
-            const string sql = @"
-SELECT StudentID, RegistrationNo, Name, FatherName, DOB, Class, Address, Phone, AdmissionDate
-FROM dbo.Students
-WHERE RegistrationNo LIKE @Query
-   OR Name LIKE @Query
-   OR FatherName LIKE @Query
-   OR Class LIKE @Query
-ORDER BY Name;";
-
-            var students = new List<Student>();
-            var searchTerm = "%" + (query ?? string.Empty).Trim() + "%";
-
-            using (var connection = Database.GetConnection())
-            using (var command = new SqlCommand(sql, connection))
-            {
-                command.Parameters.AddWithValue("@Query", searchTerm);
-                connection.Open();
-
-                using (var reader = command.ExecuteReader())
-                {
-                    while (reader.Read())
-                    {
-                        students.Add(MapStudent(reader));
-                    }
-                }
-            }
-
-            return students;
-        }
-
-        public int Add(Student student)
+        public async Task<bool> AddStudentAsync(Student student)
         {
             if (student == null)
             {
@@ -97,20 +77,19 @@ ORDER BY Name;";
             }
 
             const string sql = @"
-INSERT INTO dbo.Students (RegistrationNo, Name, FatherName, DOB, Class, Address, Phone, AdmissionDate)
-VALUES (@RegistrationNo, @Name, @FatherName, @DOB, @Class, @Address, @Phone, @AdmissionDate);
-SELECT CAST(SCOPE_IDENTITY() AS INT);";
+INSERT INTO dbo.Students (RegistrationNo, Name, FatherName, DOB, ClassID, Class, Address, Phone, AdmissionDate)
+VALUES (@RegistrationNo, @Name, @FatherName, @DOB, @ClassID, @Class, @Address, @Phone, @AdmissionDate);";
 
             using (var connection = Database.GetConnection())
             using (var command = new SqlCommand(sql, connection))
             {
                 AddStudentParameters(command, student);
-                connection.Open();
-                return (int)command.ExecuteScalar();
+                await connection.OpenAsync().ConfigureAwait(false);
+                return await command.ExecuteNonQueryAsync().ConfigureAwait(false) > 0;
             }
         }
 
-        public bool Update(Student student)
+        public async Task<bool> UpdateStudentAsync(Student student)
         {
             if (student == null)
             {
@@ -123,6 +102,7 @@ SET RegistrationNo = @RegistrationNo,
     Name = @Name,
     FatherName = @FatherName,
     DOB = @DOB,
+    ClassID = @ClassID,
     Class = @Class,
     Address = @Address,
     Phone = @Phone,
@@ -134,12 +114,12 @@ WHERE StudentID = @StudentID;";
             {
                 AddStudentParameters(command, student);
                 command.Parameters.AddWithValue("@StudentID", student.StudentID);
-                connection.Open();
-                return command.ExecuteNonQuery() > 0;
+                await connection.OpenAsync().ConfigureAwait(false);
+                return await command.ExecuteNonQueryAsync().ConfigureAwait(false) > 0;
             }
         }
 
-        public bool Delete(int studentId)
+        public async Task<bool> DeleteStudentAsync(int studentId)
         {
             const string sql = "DELETE FROM dbo.Students WHERE StudentID = @StudentID;";
 
@@ -147,9 +127,58 @@ WHERE StudentID = @StudentID;";
             using (var command = new SqlCommand(sql, connection))
             {
                 command.Parameters.AddWithValue("@StudentID", studentId);
-                connection.Open();
-                return command.ExecuteNonQuery() > 0;
+                await connection.OpenAsync().ConfigureAwait(false);
+                return await command.ExecuteNonQueryAsync().ConfigureAwait(false) > 0;
             }
+        }
+
+        public async Task<bool> RegistrationNoExistsAsync(string regNo, int? excludeStudentId = null)
+        {
+            const string sql = @"
+SELECT COUNT(1)
+FROM dbo.Students
+WHERE RegistrationNo = @RegistrationNo
+  AND (@ExcludeStudentId IS NULL OR StudentID <> @ExcludeStudentId);";
+
+            using (var connection = Database.GetConnection())
+            using (var command = new SqlCommand(sql, connection))
+            {
+                command.Parameters.AddWithValue("@RegistrationNo", regNo ?? string.Empty);
+                command.Parameters.AddWithValue("@ExcludeStudentId", (object)excludeStudentId ?? DBNull.Value);
+                await connection.OpenAsync().ConfigureAwait(false);
+                var count = (int)await command.ExecuteScalarAsync().ConfigureAwait(false);
+                return count > 0;
+            }
+        }
+
+        public async Task<List<Class>> GetAllClassesAsync()
+        {
+            const string sql = @"
+SELECT ClassID, ClassName
+FROM dbo.Classes
+ORDER BY ClassName;";
+
+            var classes = new List<Class>();
+
+            using (var connection = Database.GetConnection())
+            using (var command = new SqlCommand(sql, connection))
+            {
+                await connection.OpenAsync().ConfigureAwait(false);
+
+                using (var reader = await command.ExecuteReaderAsync().ConfigureAwait(false))
+                {
+                    while (await reader.ReadAsync().ConfigureAwait(false))
+                    {
+                        classes.Add(new Class
+                        {
+                            ClassID = reader.GetInt32(reader.GetOrdinal("ClassID")),
+                            ClassName = reader["ClassName"] as string
+                        });
+                    }
+                }
+            }
+
+            return classes;
         }
 
         private static void AddStudentParameters(SqlCommand command, Student student)
@@ -158,7 +187,8 @@ WHERE StudentID = @StudentID;";
             command.Parameters.AddWithValue("@Name", (object)student.Name ?? DBNull.Value);
             command.Parameters.AddWithValue("@FatherName", (object)student.FatherName ?? DBNull.Value);
             command.Parameters.AddWithValue("@DOB", (object)student.DOB ?? DBNull.Value);
-            command.Parameters.AddWithValue("@Class", (object)student.Class ?? DBNull.Value);
+            command.Parameters.AddWithValue("@ClassID", (object)student.ClassID ?? DBNull.Value);
+            command.Parameters.AddWithValue("@Class", (object)student.ClassName ?? DBNull.Value);
             command.Parameters.AddWithValue("@Address", (object)student.Address ?? DBNull.Value);
             command.Parameters.AddWithValue("@Phone", (object)student.Phone ?? DBNull.Value);
             command.Parameters.AddWithValue("@AdmissionDate", (object)student.AdmissionDate ?? DBNull.Value);
@@ -173,7 +203,8 @@ WHERE StudentID = @StudentID;";
                 Name = reader["Name"] as string,
                 FatherName = reader["FatherName"] as string,
                 DOB = reader["DOB"] == DBNull.Value ? (DateTime?)null : Convert.ToDateTime(reader["DOB"]),
-                Class = reader["Class"] as string,
+                ClassID = reader["ClassID"] == DBNull.Value ? (int?)null : Convert.ToInt32(reader["ClassID"]),
+                ClassName = reader["ClassName"] as string,
                 Address = reader["Address"] as string,
                 Phone = reader["Phone"] as string,
                 AdmissionDate = reader["AdmissionDate"] == DBNull.Value ? (DateTime?)null : Convert.ToDateTime(reader["AdmissionDate"])

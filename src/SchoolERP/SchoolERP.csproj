@@ -6,4 +6,8 @@
     <AssemblyName>SchoolERP</AssemblyName>
     <RootNamespace>SchoolERP</RootNamespace>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="System.Configuration" />
+  </ItemGroup>
 </Project>

@@ -1,0 +1,12 @@
+<UserControl x:Class="SchoolERP.Views.FeesView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Background="Transparent">
+    <Grid>
+        <TextBlock Text="Fees"
+                FontSize="20"
+                Foreground="#475569"
+                VerticalAlignment="Center"
+                HorizontalAlignment="Center"/>
+    </Grid>
+</UserControl>

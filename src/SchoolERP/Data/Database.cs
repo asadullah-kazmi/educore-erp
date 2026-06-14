@@ -1,12 +1,12 @@
-using System;
+using System.Configuration;
 using System.Data.SqlClient;
 
 namespace SchoolERP.Data
 {
     public static class Database
     {
-        // Update the connection string in app config when ready
-        public static string ConnectionString = "Server=.;Database=SchoolERP;Trusted_Connection=True;";
+        public static string ConnectionString =>
+            ConfigurationManager.ConnectionStrings["SchoolERP"].ConnectionString;
 
         public static SqlConnection GetConnection()
         {

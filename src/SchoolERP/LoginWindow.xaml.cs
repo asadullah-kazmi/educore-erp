@@ -19,6 +19,10 @@ namespace SchoolERP
         private void ViewModel_LoginSucceeded(object sender, System.EventArgs e)
         {
             var dashboard = new MainWindow();
+            if (Application.Current != null)
+            {
+                Application.Current.MainWindow = dashboard;
+            }
             dashboard.Show();
             Close();
         }

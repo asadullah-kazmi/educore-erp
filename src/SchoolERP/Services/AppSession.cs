@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace SchoolERP.Services
 {
@@ -9,6 +10,8 @@ namespace SchoolERP.Services
 
         public static AppSession Current { get; private set; }
 
+        public static string CurrentRole => Current?.ResolveCurrentRole() ?? "Viewer";
+
         public int UserId { get; }
         public string Username { get; }
         public string FullName { get; }
@@ -16,6 +19,26 @@ namespace SchoolERP.Services
         public DateTime LoggedInAt { get; }
 
         public bool IsAuthenticated => UserId > 0;
+
+        public bool HasRole(string role)
+        {
+            return Roles != null && Roles.Any(r => string.Equals(r, role, StringComparison.OrdinalIgnoreCase));
+        }
+
+        private string ResolveCurrentRole()
+        {
+            if (HasRole("Admin"))
+            {
+                return "Admin";
+            }
+
+            if (HasRole("Staff") || HasRole("Receptionist"))
+            {
+                return "Staff";
+            }
+
+            return "Viewer";
+        }
 
         private AppSession(int userId, string username, string fullName, IReadOnlyList<string> roles)
         {
