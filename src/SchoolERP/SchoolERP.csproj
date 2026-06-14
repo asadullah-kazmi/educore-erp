@@ -10,4 +10,8 @@
   <ItemGroup>
     <Reference Include="System.Configuration" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Assets\logo.png" />
+  </ItemGroup>
 </Project>

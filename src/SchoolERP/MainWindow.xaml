@@ -5,8 +5,10 @@
         xmlns:local="clr-namespace:SchoolERP"
         xmlns:views="clr-namespace:SchoolERP.Views"
         Title="School ERP - Dashboard"
-        Height="860"
-        Width="1366"
+        Height="700"
+        Width="1200"
+        MinWidth="900"
+        MinHeight="600"
         WindowStartupLocation="CenterScreen"
         Background="#EEF2F7"
         FontFamily="Segoe UI">
@@ -161,7 +163,7 @@
                                                         Height="44"
                                                         Background="Transparent"
                                                         Margin="0,0,14,0">
-                                                <controls:SchoolLogo Width="44" Height="44" />
+                                                <Image Source="pack://application:,,,/Assets/logo.png" Width="40" Height="40" Stretch="Uniform" />
                                         </Border>
                     <StackPanel VerticalAlignment="Center">
                         <TextBlock Text="GRAMMAR PUBLIC SCHOOL, GHAZIKOT, MANSEHRA"
@@ -172,9 +174,6 @@
                                 Margin="0,4,0,0">
                             <TextBlock Text="{Binding WelcomeMessage}"
                                     Foreground="#D6E2F2"
-                                    FontSize="12.5"/>
-                            <TextBlock Text="   Finance • Attendance • Students • Staff"
-                                    Foreground="#9FB2CD"
                                     FontSize="12.5"/>
                         </StackPanel>
                     </StackPanel>

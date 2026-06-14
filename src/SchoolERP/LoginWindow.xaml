@@ -93,7 +93,7 @@
                     <Grid Margin="56">
                         <StackPanel VerticalAlignment="Center">
                             <Border Width="118" Height="118" Background="Transparent" Margin="0,0,0,22">
-                                <controls:SchoolLogo Width="118" Height="118" />
+                                <Image Source="pack://application:,,,/Assets/logo.png" Width="64" Height="64" Stretch="Uniform" />
                             </Border>
 
                             <TextBlock Text="GRAMMAR PUBLIC SCHOOL, GHAZIKOT, MANSEHRA"
@@ -120,7 +120,7 @@
                                         <TextBlock Text="&#xE928;" FontFamily="Segoe MDL2 Assets" FontSize="18" Foreground="#14C78D" HorizontalAlignment="Center" VerticalAlignment="Center" />
                                     </Border>
                                     <StackPanel Grid.Column="1">
-                                        <TextBlock Text="Offline-first" FontSize="19" FontWeight="SemiBold" Foreground="White" />
+                                        <TextBlock Text="Biometric Attendance" FontSize="19" FontWeight="SemiBold" Foreground="White" />
                                         <TextBlock Text="Designed for stable local usage with biometric attendance support." FontSize="13.5" Foreground="{StaticResource SoftTextBrush}" TextWrapping="Wrap" Margin="0,6,0,0" />
                                     </StackPanel>
                                 </Grid>
