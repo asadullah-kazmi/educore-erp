@@ -78,8 +78,8 @@ WHERE s.StudentID = @StudentID;";
             }
 
             const string sql = @"
-INSERT INTO dbo.Students (RegistrationNo, Name, FatherName, DOB, ClassID, Class, Address, Phone, AdmissionDate)
-VALUES (@RegistrationNo, @Name, @FatherName, @DOB, @ClassID, @Class, @Address, @Phone, @AdmissionDate);";
+INSERT INTO dbo.Students (RegistrationNo, Name, FatherName, DOB, ClassID, Class, Address, Phone, AdmissionDate, MonthlyFee)
+VALUES (@RegistrationNo, @Name, @FatherName, @DOB, @ClassID, @Class, @Address, @Phone, @AdmissionDate, @MonthlyFee);";
 
             using (var connection = Database.GetConnection())
             using (var command = new SqlCommand(sql, connection))
@@ -194,6 +194,7 @@ ORDER BY ClassName;";
             command.Parameters.AddWithValue("@Address", (object)student.Address ?? DBNull.Value);
             command.Parameters.AddWithValue("@Phone", (object)student.Phone ?? DBNull.Value);
             command.Parameters.AddWithValue("@AdmissionDate", (object)student.AdmissionDate ?? DBNull.Value);
+            command.Parameters.AddWithValue("@MonthlyFee", student.MonthlyFee);
         }
 
         private static Student MapStudent(SqlDataReader reader)
@@ -209,7 +210,8 @@ ORDER BY ClassName;";
                 ClassName = reader["ClassName"] as string,
                 Address = reader["Address"] as string,
                 Phone = reader["Phone"] as string,
-                AdmissionDate = reader["AdmissionDate"] == DBNull.Value ? (DateTime?)null : Convert.ToDateTime(reader["AdmissionDate"])
+                AdmissionDate = reader["AdmissionDate"] == DBNull.Value ? (DateTime?)null : Convert.ToDateTime(reader["AdmissionDate"]),
+                MonthlyFee = reader["MonthlyFee"] == DBNull.Value ? 0m : Convert.ToDecimal(reader["MonthlyFee"])
             };
         }
     }

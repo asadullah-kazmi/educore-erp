@@ -89,14 +89,26 @@ namespace SchoolERP.Views
                 }
                 else
                 {
-                    TxtTitle.Text = "Add Fee Record";
+                    TxtTitle.Text = "Record Payment";
                     ComboMonth.SelectedItem = DateTime.Now.ToString("MMM yyyy");
 
                     foreach (ComboBoxItem item in ComboStatus.Items)
                     {
-                        if (string.Equals(item.Content.ToString(), "Due", StringComparison.OrdinalIgnoreCase))
+                        if (string.Equals(item.Content.ToString(), "Paid", StringComparison.OrdinalIgnoreCase))
                         {
                             ComboStatus.SelectedItem = item;
+                            break;
+                        }
+                    }
+
+                    DpPaymentDate.SelectedDate = DateTime.Today;
+                    ComboStatus.IsEnabled = false;
+
+                    foreach (ComboBoxItem item in ComboFeeType.Items)
+                    {
+                        if (string.Equals(item.Content.ToString(), "Monthly Tuition", StringComparison.OrdinalIgnoreCase))
+                        {
+                            ComboFeeType.SelectedItem = item;
                             break;
                         }
                     }
@@ -190,9 +202,38 @@ namespace SchoolERP.Views
             }
         }
 
+        private Student GetSelectedStudent()
+        {
+            if (ComboStudent.SelectedItem is Student selected)
+            {
+                return selected;
+            }
+
+            var text = ComboStudent.Text?.Trim();
+            if (string.IsNullOrEmpty(text) || allStudents == null)
+            {
+                return null;
+            }
+
+            var exactMatch = allStudents.FirstOrDefault(s =>
+                string.Equals(s.Name, text, StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(s.RegistrationNo, text, StringComparison.OrdinalIgnoreCase));
+            if (exactMatch != null)
+            {
+                return exactMatch;
+            }
+
+            var matches = allStudents.Where(s =>
+                (!string.IsNullOrEmpty(s.Name) && s.Name.IndexOf(text, StringComparison.OrdinalIgnoreCase) >= 0) ||
+                (!string.IsNullOrEmpty(s.RegistrationNo) && s.RegistrationNo.IndexOf(text, StringComparison.OrdinalIgnoreCase) >= 0))
+                .ToList();
+
+            return matches.Count == 1 ? matches[0] : null;
+        }
+
         private async void Save_Click(object sender, RoutedEventArgs e)
         {
-            var student = ComboStudent.SelectedItem as Student;
+            var student = GetSelectedStudent();
             if (student == null)
             {
                 MessageBox.Show("Please select a student.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
@@ -240,16 +281,13 @@ namespace SchoolERP.Views
                 bool success;
                 if (editingFee == null)
                 {
-                    var newFee = new FeeRecord
+                    var markResult = await FindAndMarkPaidAsync(student.StudentID, month, feeType, amount, paymentDate).ConfigureAwait(true);
+                    if (markResult == null)
                     {
-                        StudentID = student.StudentID,
-                        Month = month,
-                        FeeType = feeType,
-                        Amount = amount,
-                        Status = status,
-                        PaymentDate = paymentDate
-                    };
-                    success = await feeRepository.AddFeeAsync(newFee).ConfigureAwait(true);
+                        return;
+                    }
+
+                    success = markResult.Value;
                 }
                 else
                 {
@@ -276,6 +314,23 @@ namespace SchoolERP.Views
             {
                 MessageBox.Show("An error occurred while saving: " + ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
+        }
+
+        private async Task<bool?> FindAndMarkPaidAsync(int studentId, string month, string feeType, decimal amount, DateTime? paymentDate)
+        {
+            var dueFees = await feeRepository.GetAllFeesAsync(studentId: studentId, month: month?.Trim(), status: "Due").ConfigureAwait(true);
+            var fee = dueFees.FirstOrDefault(f => string.Equals(f.FeeType?.Trim(), feeType?.Trim(), StringComparison.OrdinalIgnoreCase));
+
+            if (fee == null)
+            {
+                MessageBox.Show("No due record found for this student, month, and fee type.", "Not Found", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return null;
+            }
+
+            fee.Amount = amount;
+            fee.Status = "Paid";
+            fee.PaymentDate = paymentDate;
+            return await feeRepository.UpdateFeeAsync(fee).ConfigureAwait(true);
         }
 
         private void Cancel_Click(object sender, RoutedEventArgs e)

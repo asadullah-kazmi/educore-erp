@@ -23,7 +23,12 @@ namespace SchoolERP.ViewModels
                 return true;
             }
 
-            return parameter is T typed && canExecute(typed);
+            if (parameter is T typed)
+            {
+                return canExecute(typed);
+            }
+
+            return canExecute(default(T));
         }
 
         public void Execute(object parameter)

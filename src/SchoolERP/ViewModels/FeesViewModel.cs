@@ -41,10 +41,10 @@ namespace SchoolERP.ViewModels
             MarkAsPaidCommand = new RelayCommand<FeeRecord>(async fee => await OnMarkAsPaidAsync(fee));
             AddFeeCommand = new RelayCommand(_ => OnAddFee());
             EditFeeCommand = new RelayCommand<FeeRecord>(fee => OnEditFee(fee));
-            DeleteFeeCommand = new RelayCommand<FeeRecord>(async fee => await OnDeleteFeeAsync(fee), _ => IsAdmin);
+            DeleteFeeCommand = new RelayCommand<FeeRecord>(async fee => await OnDeleteFeeAsync(fee));
 
             StatusFilter = "All";
-            DisplayMonthFilter = "All Months";
+            DisplayMonthFilter = DateTime.Now.ToString("MMM yyyy");
 
             // Execute the load command
             LoadFeesCommand.Execute(null);
@@ -249,6 +249,10 @@ namespace SchoolERP.ViewModels
                     if (success)
                     {
                         await LoadFeesAsync().ConfigureAwait(true);
+                    }
+                    else
+                    {
+                        MessageBox.Show("Failed to delete fee record.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                     }
                 }
                 catch (Exception ex)
