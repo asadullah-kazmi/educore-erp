@@ -1,4 +1,5 @@
 using System.Windows.Controls;
+using SchoolERP.ViewModels;
 
 namespace SchoolERP.Views
 {
@@ -7,6 +8,7 @@ namespace SchoolERP.Views
         public FeesView()
         {
             InitializeComponent();
+            DataContext = new FeesViewModel();
         }
     }
 }

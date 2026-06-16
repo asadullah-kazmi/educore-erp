@@ -6,6 +6,7 @@ namespace SchoolERP.ViewModels
 {
     public class MainViewModel : ObservableObject
     {
+        private FeesViewModel _feesViewModel;
         private string welcomeMessage;
         private bool canSeeStudents;
         private bool canSeeFees;
