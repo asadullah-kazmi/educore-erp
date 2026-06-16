@@ -83,6 +83,12 @@
                               SelectedValue="{Binding SelectedClassId}"
                               Style="{StaticResource FieldComboStyle}"/>
 
+                    <TextBlock Text="Monthly Fee (Rs)" Style="{StaticResource FieldLabelStyle}" Margin="0,12,0,6"/>
+                    <TextBox x:Name="MonthlyFeeTextBox"
+                             Text="{Binding MonthlyFee, UpdateSourceTrigger=PropertyChanged}"
+                             Style="{StaticResource FieldInputStyle}"
+                             PreviewTextInput="MonthlyFeeTextBox_PreviewTextInput"/>
+
                     <TextBlock Text="Address" Style="{StaticResource FieldLabelStyle}" Margin="0,12,0,6"/>
                     <TextBox Text="{Binding Address, UpdateSourceTrigger=PropertyChanged}"
                              Style="{StaticResource FieldInputStyle}"

@@ -17,6 +17,7 @@ namespace SchoolERP.ViewModels
         private string fatherName;
         private DateTime? dob;
         private int? selectedClassId;
+        private decimal monthlyFee;
         private string address;
         private string phone;
         private DateTime? admissionDate = DateTime.Today;
@@ -93,6 +94,12 @@ namespace SchoolERP.ViewModels
             set => SetProperty(ref admissionDate, value);
         }
 
+        public decimal MonthlyFee
+        {
+            get => monthlyFee;
+            set => SetProperty(ref monthlyFee, value);
+        }
+
         public string RegistrationNoError
         {
             get => registrationNoError;
@@ -136,6 +143,7 @@ namespace SchoolERP.ViewModels
                         FatherName = student.FatherName;
                         DOB = student.DOB;
                         SelectedClassId = student.ClassID;
+                        MonthlyFee = student.MonthlyFee;
                         Address = student.Address;
                         Phone = student.Phone;
                         AdmissionDate = student.AdmissionDate ?? DateTime.Today;
@@ -190,6 +198,7 @@ namespace SchoolERP.ViewModels
                     DOB = DOB,
                     ClassID = SelectedClassId,
                     ClassName = selectedClass?.ClassName,
+                    MonthlyFee = MonthlyFee,
                     Address = string.IsNullOrWhiteSpace(Address) ? null : Address.Trim(),
                     Phone = string.IsNullOrWhiteSpace(Phone) ? null : Phone.Trim(),
                     AdmissionDate = AdmissionDate ?? DateTime.Today

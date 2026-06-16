@@ -92,8 +92,8 @@
                 <Grid Background="{StaticResource NavyGradient}">
                     <Grid Margin="56">
                         <StackPanel VerticalAlignment="Center">
-                            <Border Width="118" Height="118" Background="Transparent" Margin="0,0,0,22">
-                                <Image Source="pack://application:,,,/Assets/logo.png" Width="64" Height="64" Stretch="Uniform" />
+                            <Border Width="160" Height="160" Background="Transparent" Margin="0,0,0,22">
+                                <Image Source="pack://application:,,,/Assets/logo1.png" Width="160" Height="160" Stretch="Uniform" />
                             </Border>
 
                             <TextBlock Text="GRAMMAR PUBLIC SCHOOL, GHAZIKOT, MANSEHRA"

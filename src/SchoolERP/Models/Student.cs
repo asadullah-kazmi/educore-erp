@@ -14,5 +14,6 @@ namespace SchoolERP.Models
         public string Address { get; set; }
         public string Phone { get; set; }
         public DateTime? AdmissionDate { get; set; }
+        public decimal MonthlyFee { get; set; }
     }
 }

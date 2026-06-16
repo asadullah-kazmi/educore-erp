@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
-using SchoolERP.Controls;
 using SchoolERP.Data;
 using SchoolERP.Services;
 using SchoolERP.Views;
@@ -22,8 +21,33 @@ namespace SchoolERP.ViewModels
             FilteredStudents = new ObservableCollection<StudentViewModel>();
 
             AddStudentCommand = new RelayCommand(_ => OpenAddStudent(), _ => CanAddStudent);
-            EditStudentCommand = new RelayCommand<StudentViewModel>(OpenEditStudent, _ => CanManageStudents);
-            DeleteStudentCommand = new RelayCommand<StudentViewModel>(student => DeleteStudent(student), _ => CanManageStudents);
+            LoadStudentsCommand = new RelayCommand(async _ => await LoadStudentsAsync());
+            EditStudentCommand = new RelayCommand<StudentViewModel>(student =>
+            {
+                if (student == null) return;
+                var window = new AddEditStudentWindow(student.StudentID)
+                {
+                    Owner = Application.Current.MainWindow
+                };
+                if (window.ShowDialog() == true)
+                {
+                    LoadStudentsCommand.Execute(null);
+                }
+            });
+            DeleteStudentCommand = new RelayCommand<StudentViewModel>(async student =>
+            {
+                if (student == null) return;
+                var result = MessageBox.Show(
+                    $"Are you sure you want to delete {student.Name}?",
+                    "Confirm Delete",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Warning);
+                if (result == MessageBoxResult.Yes)
+                {
+                    await repository.DeleteStudentAsync(student.StudentID);
+                    LoadStudentsCommand.Execute(null);
+                }
+            });
 
             _ = LoadStudentsAsync();
         }
@@ -53,10 +77,12 @@ namespace SchoolERP.ViewModels
         public string StatusText => $"Showing {FilteredStudents.Count} of {Students.Count} students";
 
         public ICommand AddStudentCommand { get; }
+        
+        public ICommand LoadStudentsCommand { get; }
 
-        public ICommand EditStudentCommand { get; }
+        public RelayCommand<StudentViewModel> EditStudentCommand { get; }
 
-        public ICommand DeleteStudentCommand { get; }
+        public RelayCommand<StudentViewModel> DeleteStudentCommand { get; }
 
         public async Task LoadStudentsAsync()
         {
@@ -105,56 +131,7 @@ namespace SchoolERP.ViewModels
             window.Owner = Application.Current.MainWindow;
             if (window.ShowDialog() == true)
             {
-                _ = LoadStudentsAsync();
-            }
-        }
-
-        private void OpenEditStudent(StudentViewModel student)
-        {
-            if (student == null)
-            {
-                return;
-            }
-
-            var window = new AddEditStudentWindow(student.StudentID);
-            window.Owner = Application.Current.MainWindow;
-            if (window.ShowDialog() == true)
-            {
-                _ = LoadStudentsAsync();
-            }
-        }
-
-        private async void DeleteStudent(StudentViewModel student)
-        {
-            if (student == null)
-            {
-                return;
-            }
-
-            var confirmed = ConfirmationDialog.Show(
-                $"Are you sure you want to delete student \"{student.Name}\"?",
-                "Confirm Delete");
-
-            if (!confirmed)
-            {
-                return;
-            }
-
-            try
-            {
-                var deleted = await repository.DeleteStudentAsync(student.StudentID).ConfigureAwait(true);
-                if (deleted)
-                {
-                    await LoadStudentsAsync().ConfigureAwait(true);
-                }
-                else
-                {
-                    MessageBox.Show("Unable to delete the selected student.", "Students", MessageBoxButton.OK, MessageBoxImage.Warning);
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Failed to delete student: " + ex.Message, "Students", MessageBoxButton.OK, MessageBoxImage.Error);
+                LoadStudentsCommand.Execute(null);
             }
         }
     }

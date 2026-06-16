@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
-using SchoolERP.Controls;
 using SchoolERP.Data;
 using SchoolERP.Services;
 using SchoolERP.Views;
@@ -22,8 +21,33 @@ namespace SchoolERP.ViewModels
             FilteredStaff = new ObservableCollection<StaffViewModel>();
 
             AddStaffCommand = new RelayCommand(_ => OpenAddStaff(), _ => CanAddStaff);
-            EditStaffCommand = new RelayCommand<StaffViewModel>(OpenEditStaff, _ => CanManageStaff);
-            DeleteStaffCommand = new RelayCommand<StaffViewModel>(member => DeleteStaff(member), _ => CanManageStaff);
+            LoadStaffCommand = new RelayCommand(async _ => await LoadStaffAsync());
+            EditStaffCommand = new RelayCommand<StaffViewModel>(staff =>
+            {
+                if (staff == null) return;
+                var window = new AddEditStaffWindow(staff.TeacherID)
+                {
+                    Owner = Application.Current.MainWindow
+                };
+                if (window.ShowDialog() == true)
+                {
+                    LoadStaffCommand.Execute(null);
+                }
+            });
+            DeleteStaffCommand = new RelayCommand<StaffViewModel>(async staff =>
+            {
+                if (staff == null) return;
+                var result = MessageBox.Show(
+                    $"Are you sure you want to delete {staff.Name}?",
+                    "Confirm Delete",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Warning);
+                if (result == MessageBoxResult.Yes)
+                {
+                    await repository.DeleteStaffAsync(staff.TeacherID);
+                    LoadStaffCommand.Execute(null);
+                }
+            });
 
             _ = LoadStaffAsync();
         }
@@ -52,10 +76,12 @@ namespace SchoolERP.ViewModels
         public string StatusText => $"Showing {FilteredStaff.Count} of {Staff.Count} staff";
 
         public ICommand AddStaffCommand { get; }
+        
+        public ICommand LoadStaffCommand { get; }
 
-        public ICommand EditStaffCommand { get; }
+        public RelayCommand<StaffViewModel> EditStaffCommand { get; }
 
-        public ICommand DeleteStaffCommand { get; }
+        public RelayCommand<StaffViewModel> DeleteStaffCommand { get; }
 
         public async Task LoadStaffAsync()
         {
@@ -103,56 +129,7 @@ namespace SchoolERP.ViewModels
             window.Owner = Application.Current.MainWindow;
             if (window.ShowDialog() == true)
             {
-                _ = LoadStaffAsync();
-            }
-        }
-
-        private void OpenEditStaff(StaffViewModel member)
-        {
-            if (member == null)
-            {
-                return;
-            }
-
-            var window = new AddEditStaffWindow(member.TeacherID);
-            window.Owner = Application.Current.MainWindow;
-            if (window.ShowDialog() == true)
-            {
-                _ = LoadStaffAsync();
-            }
-        }
-
-        private async void DeleteStaff(StaffViewModel member)
-        {
-            if (member == null)
-            {
-                return;
-            }
-
-            var confirmed = ConfirmationDialog.Show(
-                $"Are you sure you want to delete staff member \"{member.Name}\"?",
-                "Confirm Delete");
-
-            if (!confirmed)
-            {
-                return;
-            }
-
-            try
-            {
-                var deleted = await repository.DeleteStaffAsync(member.TeacherID).ConfigureAwait(true);
-                if (deleted)
-                {
-                    await LoadStaffAsync().ConfigureAwait(true);
-                }
-                else
-                {
-                    MessageBox.Show("Unable to delete the selected staff member.", "Staff", MessageBoxButton.OK, MessageBoxImage.Warning);
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Failed to delete staff: " + ex.Message, "Staff", MessageBoxButton.OK, MessageBoxImage.Error);
+                LoadStaffCommand.Execute(null);
             }
         }
     }

@@ -15,6 +15,7 @@ namespace SchoolERP.ViewModels
         public string Address { get; set; }
         public string Phone { get; set; }
         public DateTime? AdmissionDate { get; set; }
+        public decimal MonthlyFee { get; set; }
 
         public string AdmissionDateDisplay =>
             AdmissionDate.HasValue ? AdmissionDate.Value.ToString("dd MMM yyyy") : string.Empty;
@@ -54,7 +55,8 @@ namespace SchoolERP.ViewModels
                 ClassName = ClassName,
                 Address = Address,
                 Phone = Phone,
-                AdmissionDate = AdmissionDate
+                AdmissionDate = AdmissionDate,
+                MonthlyFee = MonthlyFee
             };
         }
     }

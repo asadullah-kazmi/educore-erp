@@ -1,4 +1,7 @@
+using System;
 using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Input;
 using SchoolERP.ViewModels;
 
 namespace SchoolERP.Views
@@ -17,6 +20,13 @@ namespace SchoolERP.Views
                 Close();
             };
             DataContext = viewModel;
+        }
+
+        private void MonthlyFeeTextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        {
+            var textBox = (TextBox)sender;
+            var newText = textBox.Text.Insert(textBox.SelectionStart, e.Text);
+            e.Handled = !decimal.TryParse(newText, out _);
         }
     }
 }

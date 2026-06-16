@@ -90,29 +90,41 @@
             
             <StackPanel Orientation="Horizontal" DockPanel.Dock="Right" FlowDirection="RightToLeft" VerticalAlignment="Center">
                 <Button Content="Add Fee"
-                        Style="{StaticResource PrimaryButtonStyle}"
                         Command="{Binding AddFeeCommand}"
-                        Margin="12,0,0,0" FlowDirection="LeftToRight"/>
+                        Padding="16,10"
+                        Margin="8,0,0,0"
+                        Background="#22C55E"
+                        Foreground="White"
+                        FontWeight="SemiBold"
+                        FontSize="13"
+                        BorderThickness="0"
+                        Cursor="Hand"
+                        FlowDirection="LeftToRight">
+                    <Button.Resources>
+                        <Style TargetType="Border">
+                            <Setter Property="CornerRadius" Value="6"/>
+                        </Style>
+                    </Button.Resources>
+                </Button>
 
                 <Button Content="Generate Monthly Fees"
-                        Style="{StaticResource PrimaryButtonStyle}"
                         Command="{Binding GenerateMonthlyFeesCommand}"
+                        Padding="16,10"
+                        Margin="8,0,0,0"
+                        Background="#0F172A"
+                        Foreground="White"
+                        FontWeight="SemiBold"
+                        FontSize="13"
+                        BorderThickness="0"
+                        Cursor="Hand"
                         Visibility="{Binding IsAdmin, Converter={StaticResource BoolToVisibility}}"
-                        Margin="12,0,0,0" FlowDirection="LeftToRight"/>
-
-                <ComboBox Width="130" 
-                          Height="38" 
-                          ItemsSource="{Binding Months}" 
-                          SelectedItem="{Binding SelectedMonth}"
-                          VerticalContentAlignment="Center" 
-                          Margin="12,0,0,0" FlowDirection="LeftToRight"/>
-
-                <Label Content="Month:" 
-                       VerticalAlignment="Center" 
-                       FontSize="14" 
-                       FontWeight="SemiBold" 
-                       Foreground="#64748B" 
-                       Margin="0,0,0,0" FlowDirection="LeftToRight"/>
+                        FlowDirection="LeftToRight">
+                    <Button.Resources>
+                        <Style TargetType="Border">
+                            <Setter Property="CornerRadius" Value="6"/>
+                        </Style>
+                    </Button.Resources>
+                </Button>
             </StackPanel>
         </DockPanel>
 
@@ -167,11 +179,13 @@
                 </DockPanel>
             </Border>
 
-            <ComboBox Width="120" Height="36" SelectedValue="{Binding StatusFilter}" SelectedValuePath="Content" VerticalContentAlignment="Center">
+            <ComboBox Width="120" Height="36" SelectedValue="{Binding StatusFilter}" SelectedValuePath="Content" VerticalContentAlignment="Center" Margin="0,0,12,0">
                 <ComboBoxItem Content="All"/>
                 <ComboBoxItem Content="Due"/>
                 <ComboBoxItem Content="Paid"/>
             </ComboBox>
+
+            <ComboBox Width="120" Height="36" ItemsSource="{Binding MonthOptions}" SelectedItem="{Binding DisplayMonthFilter}" VerticalContentAlignment="Center"/>
         </StackPanel>
 
         <!-- DataGrid -->

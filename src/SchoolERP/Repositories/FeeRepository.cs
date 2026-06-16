@@ -233,7 +233,7 @@ ORDER BY f.Month DESC;";
 
             const string sql = @"
 INSERT INTO dbo.Fees (StudentID, Month, FeeType, Amount, Status, PaymentDate)
-SELECT s.StudentID, @Month, @FeeType, COALESCE(c.MonthlyFee, 0), 'Due', NULL
+SELECT s.StudentID, @Month, @FeeType, COALESCE(s.MonthlyFee, 0), 'Due', NULL
 FROM dbo.Students s
 LEFT JOIN dbo.Classes c ON s.ClassID = c.ClassID
 WHERE NOT EXISTS (
@@ -270,10 +270,10 @@ WHERE NOT EXISTS (
         public async Task<decimal> GetTotalCollectedAsync(string month)
         {
             const string sql = @"
-SELECT COALESCE(SUM(Amount), 0)
+SELECT ISNULL(SUM(Amount), 0)
 FROM dbo.Fees
 WHERE Status = 'Paid'
-  AND Month = @Month;";
+  AND LTRIM(RTRIM(Month)) = LTRIM(RTRIM(@Month));";
 
             using (var connection = Database.GetConnection())
             using (var command = new SqlCommand(sql, connection))
@@ -282,14 +282,14 @@ WHERE Status = 'Paid'
 
                 await connection.OpenAsync().ConfigureAwait(false);
                 var result = await command.ExecuteScalarAsync().ConfigureAwait(false);
-                return Convert.ToDecimal(result ?? 0);
+                return result == DBNull.Value ? 0 : Convert.ToDecimal(result);
             }
         }
 
         public async Task<decimal> GetTotalOutstandingAsync()
         {
             const string sql = @"
-SELECT COALESCE(SUM(Amount), 0)
+SELECT ISNULL(SUM(Amount), 0)
 FROM dbo.Fees
 WHERE Status = 'Due';";
 
@@ -298,7 +298,7 @@ WHERE Status = 'Due';";
             {
                 await connection.OpenAsync().ConfigureAwait(false);
                 var result = await command.ExecuteScalarAsync().ConfigureAwait(false);
-                return Convert.ToDecimal(result ?? 0);
+                return result == DBNull.Value ? 0 : Convert.ToDecimal(result);
             }
         }
 
@@ -315,8 +315,8 @@ WHERE Status = 'Due';";
                 FeeType = reader["FeeType"] as string,
                 Amount = reader.GetDecimal(reader.GetOrdinal("Amount")),
                 Status = reader["Status"] as string,
-                PaymentDate = reader.IsDBNull(reader.GetOrdinal("PaymentDate")) 
-                    ? (DateTime?)null 
+                PaymentDate = reader.IsDBNull(reader.GetOrdinal("PaymentDate"))
+                    ? (DateTime?)null
                     : reader.GetDateTime(reader.GetOrdinal("PaymentDate"))
             };
         }

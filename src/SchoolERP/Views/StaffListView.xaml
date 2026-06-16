@@ -81,11 +81,23 @@
                        VerticalAlignment="Center"
                        DockPanel.Dock="Left"/>
             <Button Content="Add Staff"
-                    Style="{StaticResource PrimaryButtonStyle}"
                     Command="{Binding AddStaffCommand}"
                     DockPanel.Dock="Right"
-                    Margin="12,0,0,0"
-                    Visibility="{Binding CanAddStaff, Converter={StaticResource BoolToVisibility}}"/>
+                    Padding="16,10"
+                    Margin="8,0,0,0"
+                    Background="#22C55E"
+                    Foreground="White"
+                    FontWeight="SemiBold"
+                    FontSize="13"
+                    BorderThickness="0"
+                    Cursor="Hand"
+                    Visibility="{Binding CanAddStaff, Converter={StaticResource BoolToVisibility}}">
+                    <Button.Resources>
+                        <Style TargetType="Border">
+                            <Setter Property="CornerRadius" Value="6"/>
+                        </Style>
+                    </Button.Resources>
+                </Button>
             <Border DockPanel.Dock="Right"
                     Width="260"
                     Background="#F8FAFC"

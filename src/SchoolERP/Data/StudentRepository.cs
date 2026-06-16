@@ -18,7 +18,8 @@ SELECT s.StudentID,
        c.ClassName,
        s.Address,
        s.Phone,
-       s.AdmissionDate
+       s.AdmissionDate,
+       s.MonthlyFee
 FROM dbo.Students s
 LEFT JOIN dbo.Classes c ON s.ClassID = c.ClassID";
 
@@ -106,7 +107,8 @@ SET RegistrationNo = @RegistrationNo,
     Class = @Class,
     Address = @Address,
     Phone = @Phone,
-    AdmissionDate = @AdmissionDate
+    AdmissionDate = @AdmissionDate,
+    MonthlyFee = @MonthlyFee
 WHERE StudentID = @StudentID;";
 
             using (var connection = Database.GetConnection())

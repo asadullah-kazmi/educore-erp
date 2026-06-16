@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
@@ -16,6 +17,8 @@ namespace SchoolERP.Views
         private readonly StudentRepository studentRepository = new StudentRepository();
         private readonly FeeRepository feeRepository = new FeeRepository();
         private readonly FeeRecord editingFee;
+        private List<Student> allStudents;
+        private ObservableCollection<Student> filteredStudents;
 
         public AddEditFeeWindow(FeeRecord fee = null)
         {
@@ -24,6 +27,16 @@ namespace SchoolERP.Views
 
             PopulateMonths();
             _ = LoadStudentsAndPrepopulateAsync();
+
+            // Subscribe to the internal TextBox's TextChanged event
+            ComboStudent.Loaded += (s, e) =>
+            {
+                var textBox = (TextBox)ComboStudent.Template.FindName("PART_EditableTextBox", ComboStudent);
+                if (textBox != null)
+                {
+                    textBox.TextChanged += (ss, ee) => FilterStudents();
+                }
+            };
         }
 
         private void PopulateMonths()
@@ -42,13 +55,14 @@ namespace SchoolERP.Views
         {
             try
             {
-                var students = await studentRepository.GetAllStudentsAsync().ConfigureAwait(true);
-                ComboStudent.ItemsSource = students;
+                allStudents = (await studentRepository.GetAllStudentsAsync().ConfigureAwait(true)).ToList();
+                filteredStudents = new ObservableCollection<Student>(allStudents);
+                ComboStudent.ItemsSource = filteredStudents;
 
                 if (editingFee != null)
                 {
                     TxtTitle.Text = "Edit Fee Record";
-                    ComboStudent.SelectedItem = students.FirstOrDefault(s => s.StudentID == editingFee.StudentID);
+                    ComboStudent.SelectedItem = allStudents.FirstOrDefault(s => s.StudentID == editingFee.StudentID);
                     ComboMonth.SelectedItem = editingFee.Month;
 
                     foreach (ComboBoxItem item in ComboFeeType.Items)
@@ -96,14 +110,49 @@ namespace SchoolERP.Views
             }
         }
 
-        private async void ComboStudent_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void FilterStudents()
         {
-            await AutoFillAmountAsync();
+            if (allStudents == null) return;
+
+            string searchText = ComboStudent.Text?.ToLower() ?? string.Empty;
+            var filtered = string.IsNullOrWhiteSpace(searchText)
+                ? allStudents
+                : allStudents.Where(s =>
+                    (!string.IsNullOrEmpty(s.Name) && s.Name.ToLower().Contains(searchText)) ||
+                    (!string.IsNullOrEmpty(s.RegistrationNo) && s.RegistrationNo.ToLower().Contains(searchText))
+                ).ToList();
+
+            filteredStudents.Clear();
+            foreach (var student in filtered)
+            {
+                filteredStudents.Add(student);
+            }
+
+            // Open dropdown if there's search text
+            if (!string.IsNullOrWhiteSpace(searchText))
+            {
+                ComboStudent.IsDropDownOpen = true;
+            }
         }
 
-        private async void ComboFeeType_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void ComboStudent_PreviewTextInput(object sender, System.Windows.Input.TextCompositionEventArgs e)
         {
-            await AutoFillAmountAsync();
+            // Filtering is handled by the internal TextBox's TextChanged event
+        }
+
+        private void ComboStudent_Pasting(object sender, DataObjectPastingEventArgs e)
+        {
+            // Filtering is handled by the internal TextBox's TextChanged event
+        }
+
+        private void ComboStudent_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            AutoFillAmountAsync();
+        }
+
+        private void ComboFeeType_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            AutoFillAmountAsync();
         }
 
         private void ComboStatus_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -128,7 +177,7 @@ namespace SchoolERP.Views
             }
         }
 
-        private async Task AutoFillAmountAsync()
+        private void AutoFillAmountAsync()
         {
             if (ComboStudent == null || ComboFeeType == null || TxtAmount == null) return;
 
@@ -137,37 +186,8 @@ namespace SchoolERP.Views
 
             if (student != null && feeTypeItem != null && string.Equals(feeTypeItem.Content.ToString(), "Monthly Tuition", StringComparison.OrdinalIgnoreCase))
             {
-                try
-                {
-                    decimal monthlyFee = await GetStudentMonthlyFeeAsync(student.StudentID).ConfigureAwait(true);
-                    TxtAmount.Text = monthlyFee.ToString("F0");
-                }
-                catch (Exception)
-                {
-                    // Fail silently or default to empty/0
-                }
+                TxtAmount.Text = student.MonthlyFee.ToString("F0");
             }
-        }
-
-        private async Task<decimal> GetStudentMonthlyFeeAsync(int studentId)
-        {
-            const string sql = @"
-                SELECT MonthlyFee 
-                FROM Classes 
-                WHERE ClassID = (SELECT ClassID FROM Students WHERE StudentID = @id)";
-
-            using (var connection = Database.GetConnection())
-            using (var command = new SqlCommand(sql, connection))
-            {
-                command.Parameters.AddWithValue("@id", studentId);
-                await connection.OpenAsync().ConfigureAwait(false);
-                var result = await command.ExecuteScalarAsync().ConfigureAwait(false);
-                if (result != null && result != DBNull.Value)
-                {
-                    return Convert.ToDecimal(result);
-                }
-            }
-            return 0;
         }
 
         private async void Save_Click(object sender, RoutedEventArgs e)

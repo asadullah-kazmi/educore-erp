@@ -17,7 +17,7 @@ namespace SchoolERP.ViewModels
         private readonly FeeRepository repository = new FeeRepository();
         private string searchText = string.Empty;
         private string statusFilter = "All";
-        private string selectedMonth;
+        private string displayMonthFilter = "All Months";
         private decimal totalCollected;
         private decimal totalOutstanding;
         private int totalRecords;
@@ -26,14 +26,14 @@ namespace SchoolERP.ViewModels
         {
             AllFees = new ObservableCollection<FeeRecord>();
             FilteredFees = new ObservableCollection<FeeRecord>();
-            Months = new List<string>();
+            MonthOptions = new ObservableCollection<string>();
 
             // Generate months Jan 2025 through Dec 2026
+            MonthOptions.Add("All Months");
             DateTime start = new DateTime(2025, 1, 1);
-            DateTime end = new DateTime(2026, 12, 1);
-            for (DateTime m = start; m <= end; m = m.AddMonths(1))
+            for (int i = 0; i < 24; i++)
             {
-                Months.Add(m.ToString("MMM yyyy"));
+                MonthOptions.Add(start.AddMonths(i).ToString("MMM yyyy"));
             }
 
             LoadFeesCommand = new RelayCommand(async _ => await LoadFeesAsync());
@@ -44,7 +44,7 @@ namespace SchoolERP.ViewModels
             DeleteFeeCommand = new RelayCommand<FeeRecord>(async fee => await OnDeleteFeeAsync(fee), _ => IsAdmin);
 
             StatusFilter = "All";
-            SelectedMonth = DateTime.Now.ToString("MMM yyyy");
+            DisplayMonthFilter = "All Months";
 
             // Execute the load command
             LoadFeesCommand.Execute(null);
@@ -52,7 +52,7 @@ namespace SchoolERP.ViewModels
 
         public ObservableCollection<FeeRecord> AllFees { get; }
         public ObservableCollection<FeeRecord> FilteredFees { get; }
-        public List<string> Months { get; }
+        public ObservableCollection<string> MonthOptions { get; }
 
         public string SearchText
         {
@@ -78,10 +78,16 @@ namespace SchoolERP.ViewModels
             }
         }
 
-        public string SelectedMonth
+        public string DisplayMonthFilter
         {
-            get => selectedMonth;
-            set => SetProperty(ref selectedMonth, value);
+            get => displayMonthFilter;
+            set
+            {
+                if (SetProperty(ref displayMonthFilter, value))
+                {
+                    ApplyFilter();
+                }
+            }
         }
 
         public decimal TotalCollected
@@ -106,10 +112,10 @@ namespace SchoolERP.ViewModels
 
         public ICommand LoadFeesCommand { get; }
         public ICommand GenerateMonthlyFeesCommand { get; }
-        public ICommand MarkAsPaidCommand { get; }
+        public RelayCommand<FeeRecord> MarkAsPaidCommand { get; }
         public ICommand AddFeeCommand { get; }
-        public ICommand EditFeeCommand { get; }
-        public ICommand DeleteFeeCommand { get; }
+        public RelayCommand<FeeRecord> EditFeeCommand { get; }
+        public RelayCommand<FeeRecord> DeleteFeeCommand { get; }
 
         public async Task LoadFeesAsync()
         {
@@ -138,6 +144,7 @@ namespace SchoolERP.ViewModels
         {
             var search = (SearchText ?? string.Empty).Trim();
             var status = StatusFilter ?? "All";
+            var displayMonth = DisplayMonthFilter ?? "All Months";
 
             FilteredFees.Clear();
 
@@ -156,6 +163,11 @@ namespace SchoolERP.ViewModels
                 query = query.Where(f => string.Equals(f.Status, status, StringComparison.OrdinalIgnoreCase));
             }
 
+            if (!string.Equals(displayMonth, "All Months", StringComparison.OrdinalIgnoreCase))
+            {
+                query = query.Where(f => string.Equals((f.Month ?? "").Trim(), displayMonth.Trim(), StringComparison.OrdinalIgnoreCase));
+            }
+
             foreach (var fee in query)
             {
                 FilteredFees.Add(fee);
@@ -166,22 +178,17 @@ namespace SchoolERP.ViewModels
 
         private async Task OnGenerateMonthlyFeesAsync()
         {
-            if (string.IsNullOrEmpty(SelectedMonth))
-            {
-                MessageBox.Show("Please select a month first.", "Generate Fees", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
-
+            string month = DateTime.Now.ToString("MMM yyyy");
             try
             {
-                bool success = await repository.GenerateMonthlyFeesAsync(SelectedMonth, "Monthly Tuition").ConfigureAwait(true);
+                bool success = await repository.GenerateMonthlyFeesAsync(month, "Monthly Tuition").ConfigureAwait(true);
                 if (success)
                 {
-                    MessageBox.Show($"Monthly fees generated for {SelectedMonth}", "Generate Fees", MessageBoxButton.OK, MessageBoxImage.Information);
+                    MessageBox.Show($"Monthly fees generated for {month}", "Generate Fees", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
                 else
                 {
-                    MessageBox.Show($"Fees already exist for {SelectedMonth}", "Generate Fees", MessageBoxButton.OK, MessageBoxImage.Information);
+                    MessageBox.Show($"Fees already exist for {month}", "Generate Fees", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
 
                 await LoadFeesAsync().ConfigureAwait(true);
