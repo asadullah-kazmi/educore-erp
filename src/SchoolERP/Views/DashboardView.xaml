@@ -25,7 +25,7 @@
                     </Border>
                     <StackPanel Grid.Column="1" VerticalAlignment="Center">
                         <TextBlock Text="Total Students" FontSize="13" Foreground="#64748B"/>
-                        <TextBlock Text="235" FontSize="26" FontWeight="Bold" Foreground="#0F172A"/>
+                        <TextBlock Text="{Binding TotalStudents}" FontSize="26" FontWeight="Bold" Foreground="#0F172A"/>
                     </StackPanel>
                 </Grid>
             </Border>
@@ -45,7 +45,7 @@
                     </Border>
                     <StackPanel Grid.Column="1" VerticalAlignment="Center">
                         <TextBlock Text="Total Teachers" FontSize="13" Foreground="#64748B"/>
-                        <TextBlock Text="38" FontSize="26" FontWeight="Bold" Foreground="#0F172A"/>
+                        <TextBlock Text="{Binding TotalTeachers}" FontSize="26" FontWeight="Bold" Foreground="#0F172A"/>
                     </StackPanel>
                 </Grid>
             </Border>
@@ -65,7 +65,7 @@
                     </Border>
                     <StackPanel Grid.Column="1" VerticalAlignment="Center">
                         <TextBlock Text="Fee Collected (Month)" FontSize="13" Foreground="#64748B"/>
-                        <TextBlock Text="Rs 12,500" FontSize="26" FontWeight="Bold" Foreground="#0F172A"/>
+                        <TextBlock Text="{Binding FeesPaidThisMonth, StringFormat='Rs {0:N0}'}" FontSize="26" FontWeight="Bold" Foreground="#0F172A"/>
                     </StackPanel>
                 </Grid>
             </Border>
@@ -84,7 +84,7 @@
                     </Border>
                     <StackPanel Grid.Column="1" VerticalAlignment="Center">
                         <TextBlock Text="Fees Outstanding" FontSize="13" Foreground="#64748B"/>
-                        <TextBlock Text="Rs 8,750" FontSize="26" FontWeight="Bold" Foreground="#0F172A"/>
+                        <TextBlock Text="{Binding FeesDueThisMonth, StringFormat='Rs {0:N0}'}" FontSize="26" FontWeight="Bold" Foreground="#0F172A"/>
                     </StackPanel>
                 </Grid>
             </Border>
@@ -112,7 +112,7 @@
                             Height="130">
                         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
                             <TextBlock Text="Teacher Present Today" FontSize="13" Foreground="#64748B" HorizontalAlignment="Center"/>
-                            <TextBlock Text="28" FontSize="34" FontWeight="Bold" Foreground="#0F172A" HorizontalAlignment="Center" Margin="0,6,0,0"/>
+                            <TextBlock Text="{Binding PresentTodayCount}" FontSize="34" FontWeight="Bold" Foreground="#0F172A" HorizontalAlignment="Center" Margin="0,6,0,0"/>
                         </StackPanel>
                     </Border>
 
@@ -123,7 +123,7 @@
                             Height="130">
                         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
                             <TextBlock Text="Teacher Absent Today" FontSize="13" Foreground="#64748B" HorizontalAlignment="Center"/>
-                            <TextBlock Text="10" FontSize="34" FontWeight="Bold" Foreground="#0F172A" HorizontalAlignment="Center" Margin="0,6,0,0"/>
+                            <TextBlock Text="{Binding AbsentTodayCount}" FontSize="34" FontWeight="Bold" Foreground="#0F172A" HorizontalAlignment="Center" Margin="0,6,0,0"/>
                         </StackPanel>
                     </Border>
                 </UniformGrid>

@@ -222,7 +222,7 @@
 
                 <DataGridTextColumn Header="Payment Date" Binding="{Binding PaymentDate, StringFormat={}{0:dd MMM yyyy}}" Width="120"/>
 
-                <DataGridTemplateColumn Header="Actions" Width="130">
+                <DataGridTemplateColumn Header="Actions" Width="165">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
@@ -232,6 +232,14 @@
                                         CommandParameter="{Binding}"
                                         ToolTip="Mark as Paid">
                                     <TextBlock Text="&#xE73E;" FontFamily="Segoe MDL2 Assets" FontSize="16" Foreground="#10B981"/>
+                                </Button>
+
+                                <!-- Print receipt button -->
+                                <Button x:Name="BtnPrintReceipt" Style="{StaticResource IconButtonStyle}"
+                                        Command="{Binding DataContext.PrintReceiptCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                        CommandParameter="{Binding}"
+                                        ToolTip="Print Receipt">
+                                    <TextBlock Text="&#xE749;" FontFamily="Segoe MDL2 Assets" FontSize="16" Foreground="#001A3F"/>
                                 </Button>
 
                                 <!-- Edit button -->
@@ -254,9 +262,11 @@
                             <DataTemplate.Triggers>
                                 <DataTrigger Binding="{Binding Status}" Value="Paid">
                                     <Setter TargetName="BtnMarkPaid" Property="Visibility" Value="Collapsed"/>
+                                    <Setter TargetName="BtnPrintReceipt" Property="Visibility" Value="Visible"/>
                                 </DataTrigger>
                                 <DataTrigger Binding="{Binding Status}" Value="Due">
                                     <Setter TargetName="BtnMarkPaid" Property="Visibility" Value="Visible"/>
+                                    <Setter TargetName="BtnPrintReceipt" Property="Visibility" Value="Collapsed"/>
                                 </DataTrigger>
                             </DataTemplate.Triggers>
                         </DataTemplate>

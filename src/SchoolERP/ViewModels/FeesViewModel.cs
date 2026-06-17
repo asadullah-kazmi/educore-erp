@@ -43,6 +43,7 @@ namespace SchoolERP.ViewModels
             EditFeeCommand = new RelayCommand<FeeRecord>(fee => OnEditFee(fee));
             DeleteFeeCommand = new RelayCommand<FeeRecord>(async fee => await OnDeleteFeeAsync(fee));
             ViewFeeDetailCommand = new RelayCommand<FeeRecord>(fee => OpenFeeDetail(fee));
+            PrintReceiptCommand = new RelayCommand<FeeRecord>(fee => OpenFeeReceipt(fee));
 
             StatusFilter = "All";
             DisplayMonthFilter = DateTime.Now.ToString("MMM yyyy");
@@ -119,6 +120,8 @@ namespace SchoolERP.ViewModels
         public RelayCommand<FeeRecord> DeleteFeeCommand { get; }
 
         public RelayCommand<FeeRecord> ViewFeeDetailCommand { get; }
+
+        public RelayCommand<FeeRecord> PrintReceiptCommand { get; }
 
         public async Task LoadFeesAsync()
         {
@@ -269,6 +272,13 @@ namespace SchoolERP.ViewModels
         {
             if (fee == null) return;
             var window = new FeeDetailWindow(fee) { Owner = Application.Current.MainWindow };
+            window.ShowDialog();
+        }
+
+        private void OpenFeeReceipt(FeeRecord fee)
+        {
+            if (fee == null) return;
+            var window = new FeeReceiptWindow(fee) { Owner = Application.Current.MainWindow };
             window.ShowDialog();
         }
     }

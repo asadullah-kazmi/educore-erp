@@ -78,8 +78,8 @@ WHERE s.StudentID = @StudentID;";
             }
 
             const string sql = @"
-INSERT INTO dbo.Students (RegistrationNo, Name, FatherName, DOB, ClassID, Class, Address, Phone, AdmissionDate, MonthlyFee)
-VALUES (@RegistrationNo, @Name, @FatherName, @DOB, @ClassID, @Class, @Address, @Phone, @AdmissionDate, @MonthlyFee);";
+INSERT INTO dbo.Students (RegistrationNo, Name, FatherName, DOB, ClassID, Address, Phone, AdmissionDate, MonthlyFee)
+VALUES (@RegistrationNo, @Name, @FatherName, @DOB, @ClassID, @Address, @Phone, @AdmissionDate, @MonthlyFee);";
 
             using (var connection = Database.GetConnection())
             using (var command = new SqlCommand(sql, connection))
@@ -104,7 +104,6 @@ SET RegistrationNo = @RegistrationNo,
     FatherName = @FatherName,
     DOB = @DOB,
     ClassID = @ClassID,
-    Class = @Class,
     Address = @Address,
     Phone = @Phone,
     AdmissionDate = @AdmissionDate,
@@ -190,7 +189,6 @@ ORDER BY ClassName;";
             command.Parameters.AddWithValue("@FatherName", (object)student.FatherName ?? DBNull.Value);
             command.Parameters.AddWithValue("@DOB", (object)student.DOB ?? DBNull.Value);
             command.Parameters.AddWithValue("@ClassID", (object)student.ClassID ?? DBNull.Value);
-            command.Parameters.AddWithValue("@Class", (object)student.ClassName ?? DBNull.Value);
             command.Parameters.AddWithValue("@Address", (object)student.Address ?? DBNull.Value);
             command.Parameters.AddWithValue("@Phone", (object)student.Phone ?? DBNull.Value);
             command.Parameters.AddWithValue("@AdmissionDate", (object)student.AdmissionDate ?? DBNull.Value);

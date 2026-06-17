@@ -7,9 +7,11 @@ namespace SchoolERP.ViewModels
     public class DashboardViewModel : ObservableObject
     {
         private int totalStudents;
+        private int totalTeachers;
         private decimal feesPaidThisMonth;
         private decimal feesDueThisMonth;
         private int presentTodayCount;
+        private int absentTodayCount;
 
         public DashboardViewModel()
         {
@@ -20,6 +22,12 @@ namespace SchoolERP.ViewModels
         {
             get => totalStudents;
             set => SetProperty(ref totalStudents, value);
+        }
+
+        public int TotalTeachers
+        {
+            get => totalTeachers;
+            set => SetProperty(ref totalTeachers, value);
         }
 
         public decimal FeesPaidThisMonth
@@ -40,14 +48,22 @@ namespace SchoolERP.ViewModels
             set => SetProperty(ref presentTodayCount, value);
         }
 
+        public int AbsentTodayCount
+        {
+            get => absentTodayCount;
+            set => SetProperty(ref absentTodayCount, value);
+        }
+
         private void LoadStats()
         {
             try
             {
                 LoadTotalStudents();
+                LoadTotalTeachers();
                 LoadFeesPaidThisMonth();
                 LoadFeesDueThisMonth();
                 LoadPresentTodayCount();
+                LoadAbsentTodayCount();
             }
             catch (Exception ex)
             {
@@ -68,15 +84,29 @@ namespace SchoolERP.ViewModels
             }
         }
 
+        private void LoadTotalTeachers()
+        {
+            const string sql = "SELECT COUNT(*) FROM dbo.Teachers";
+            using (var connection = Database.GetConnection())
+            using (var command = new SqlCommand(sql, connection))
+            {
+                connection.Open();
+                var result = command.ExecuteScalar();
+                TotalTeachers = result != null ? Convert.ToInt32(result) : 0;
+            }
+        }
+
         private void LoadFeesPaidThisMonth()
         {
+            string currentMonth = DateTime.Now.ToString("MMM yyyy");
             const string sql = @"
-SELECT ISNULL(SUM(Amount),0) FROM dbo.Fees 
-WHERE Status='Paid' AND Month = FORMAT(GETDATE(),'yyyy-MM')";
+SELECT ISNULL(SUM(Amount), 0) FROM dbo.Fees
+WHERE Status = 'Paid' AND LTRIM(RTRIM(Month)) = @Month";
 
             using (var connection = Database.GetConnection())
             using (var command = new SqlCommand(sql, connection))
             {
+                command.Parameters.AddWithValue("@Month", currentMonth);
                 connection.Open();
                 var result = command.ExecuteScalar();
                 FeesPaidThisMonth = result != null ? Convert.ToDecimal(result) : 0m;
@@ -85,13 +115,15 @@ WHERE Status='Paid' AND Month = FORMAT(GETDATE(),'yyyy-MM')";
 
         private void LoadFeesDueThisMonth()
         {
+            string currentMonth = DateTime.Now.ToString("MMM yyyy");
             const string sql = @"
-SELECT ISNULL(SUM(Amount),0) FROM dbo.Fees 
-WHERE Status='Due' AND Month = FORMAT(GETDATE(),'yyyy-MM')";
+SELECT ISNULL(SUM(Amount), 0) FROM dbo.Fees
+WHERE Status = 'Due' AND LTRIM(RTRIM(Month)) = @Month";
 
             using (var connection = Database.GetConnection())
             using (var command = new SqlCommand(sql, connection))
             {
+                command.Parameters.AddWithValue("@Month", currentMonth);
                 connection.Open();
                 var result = command.ExecuteScalar();
                 FeesDueThisMonth = result != null ? Convert.ToDecimal(result) : 0m;
@@ -110,6 +142,25 @@ WHERE [Date] = CAST(GETDATE() AS DATE) AND Status='Present'";
                 connection.Open();
                 var result = command.ExecuteScalar();
                 PresentTodayCount = result != null ? Convert.ToInt32(result) : 0;
+            }
+        }
+
+        private void LoadAbsentTodayCount()
+        {
+            const string sql = @"
+SELECT COUNT(*) FROM dbo.Teachers t
+WHERE NOT EXISTS (
+    SELECT 1 FROM dbo.Attendance a
+    WHERE a.TeacherID = t.TeacherID
+      AND a.[Date] = CAST(GETDATE() AS DATE)
+      AND a.Status = 'Present'
+)";
+            using (var connection = Database.GetConnection())
+            using (var command = new SqlCommand(sql, connection))
+            {
+                connection.Open();
+                var result = command.ExecuteScalar();
+                AbsentTodayCount = result != null ? Convert.ToInt32(result) : 0;
             }
         }
     }
