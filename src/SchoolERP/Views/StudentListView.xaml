@@ -121,9 +121,11 @@
             </Border>
         </DockPanel>
 
-        <DataGrid Grid.Row="1"
+        <DataGrid x:Name="StudentDataGrid"
+                  Grid.Row="1"
                   ItemsSource="{Binding FilteredStudents}"
-                  Style="{StaticResource ModuleDataGridStyle}">
+                  Style="{StaticResource ModuleDataGridStyle}"
+                  MouseDoubleClick="DataGrid_MouseDoubleClick">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Reg No" Binding="{Binding RegistrationNo}" Width="110"/>
                 <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="*"/>

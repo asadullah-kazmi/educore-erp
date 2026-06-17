@@ -48,6 +48,7 @@ namespace SchoolERP.ViewModels
                     LoadStaffCommand.Execute(null);
                 }
             });
+            ViewStaffDetailCommand = new RelayCommand<StaffViewModel>(staff => OpenStaffDetail(staff));
 
             _ = LoadStaffAsync();
         }
@@ -82,6 +83,8 @@ namespace SchoolERP.ViewModels
         public RelayCommand<StaffViewModel> EditStaffCommand { get; }
 
         public RelayCommand<StaffViewModel> DeleteStaffCommand { get; }
+
+        public RelayCommand<StaffViewModel> ViewStaffDetailCommand { get; }
 
         public async Task LoadStaffAsync()
         {
@@ -131,6 +134,13 @@ namespace SchoolERP.ViewModels
             {
                 LoadStaffCommand.Execute(null);
             }
+        }
+
+        private void OpenStaffDetail(StaffViewModel staff)
+        {
+            if (staff == null) return;
+            var window = new StaffDetailWindow(staff) { Owner = Application.Current.MainWindow };
+            window.ShowDialog();
         }
     }
 }

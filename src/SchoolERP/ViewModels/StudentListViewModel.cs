@@ -1,10 +1,12 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using SchoolERP.Data;
+using SchoolERP.Repositories;
 using SchoolERP.Services;
 using SchoolERP.Views;
 
@@ -48,6 +50,7 @@ namespace SchoolERP.ViewModels
                     LoadStudentsCommand.Execute(null);
                 }
             });
+            ViewStudentDetailCommand = new RelayCommand<StudentViewModel>(async student => await OpenStudentDetailAsync(student));
 
             _ = LoadStudentsAsync();
         }
@@ -83,6 +86,8 @@ namespace SchoolERP.ViewModels
         public RelayCommand<StudentViewModel> EditStudentCommand { get; }
 
         public RelayCommand<StudentViewModel> DeleteStudentCommand { get; }
+
+        public RelayCommand<StudentViewModel> ViewStudentDetailCommand { get; }
 
         public async Task LoadStudentsAsync()
         {
@@ -133,6 +138,18 @@ namespace SchoolERP.ViewModels
             {
                 LoadStudentsCommand.Execute(null);
             }
+        }
+
+        private async Task OpenStudentDetailAsync(StudentViewModel student)
+        {
+            if (student == null) return;
+            var feeRepo = new FeeRepository();
+            var fees = await feeRepo.GetFeesByStudentAsync(student.StudentID).ConfigureAwait(true);
+            var window = new StudentDetailWindow(student, fees)
+            {
+                Owner = Application.Current.MainWindow
+            };
+            window.ShowDialog();
         }
     }
 }

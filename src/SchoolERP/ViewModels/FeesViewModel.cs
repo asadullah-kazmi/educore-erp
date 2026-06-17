@@ -42,6 +42,7 @@ namespace SchoolERP.ViewModels
             AddFeeCommand = new RelayCommand(_ => OnAddFee());
             EditFeeCommand = new RelayCommand<FeeRecord>(fee => OnEditFee(fee));
             DeleteFeeCommand = new RelayCommand<FeeRecord>(async fee => await OnDeleteFeeAsync(fee));
+            ViewFeeDetailCommand = new RelayCommand<FeeRecord>(fee => OpenFeeDetail(fee));
 
             StatusFilter = "All";
             DisplayMonthFilter = DateTime.Now.ToString("MMM yyyy");
@@ -116,6 +117,8 @@ namespace SchoolERP.ViewModels
         public ICommand AddFeeCommand { get; }
         public RelayCommand<FeeRecord> EditFeeCommand { get; }
         public RelayCommand<FeeRecord> DeleteFeeCommand { get; }
+
+        public RelayCommand<FeeRecord> ViewFeeDetailCommand { get; }
 
         public async Task LoadFeesAsync()
         {
@@ -260,6 +263,13 @@ namespace SchoolERP.ViewModels
                     MessageBox.Show("Failed to delete fee record: " + ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
+        }
+
+        private void OpenFeeDetail(FeeRecord fee)
+        {
+            if (fee == null) return;
+            var window = new FeeDetailWindow(fee) { Owner = Application.Current.MainWindow };
+            window.ShowDialog();
         }
     }
 }

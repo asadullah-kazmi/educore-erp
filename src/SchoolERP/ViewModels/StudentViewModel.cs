@@ -38,7 +38,8 @@ namespace SchoolERP.ViewModels
                 ClassName = student.ClassName,
                 Address = student.Address,
                 Phone = student.Phone,
-                AdmissionDate = student.AdmissionDate
+                AdmissionDate = student.AdmissionDate,
+                MonthlyFee = student.MonthlyFee
             };
         }
 

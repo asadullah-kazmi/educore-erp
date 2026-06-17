@@ -1,4 +1,6 @@
 using System.Windows.Controls;
+using System.Windows.Input;
+using SchoolERP.Models;
 using SchoolERP.ViewModels;
 
 namespace SchoolERP.Views
@@ -9,6 +11,14 @@ namespace SchoolERP.Views
         {
             InitializeComponent();
             DataContext = new FeesViewModel();
+        }
+
+        private void DataGrid_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            if (((DataGrid)sender).SelectedItem is FeeRecord fee)
+            {
+                ((FeesViewModel)DataContext).ViewFeeDetailCommand.Execute(fee);
+            }
         }
     }
 }

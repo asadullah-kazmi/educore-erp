@@ -121,9 +121,11 @@
             </Border>
         </DockPanel>
 
-        <DataGrid Grid.Row="1"
+        <DataGrid x:Name="StaffDataGrid"
+                  Grid.Row="1"
                   ItemsSource="{Binding FilteredStaff}"
-                  Style="{StaticResource ModuleDataGridStyle}">
+                  Style="{StaticResource ModuleDataGridStyle}"
+                  MouseDoubleClick="DataGrid_MouseDoubleClick">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="*"/>
                 <DataGridTextColumn Header="Designation" Binding="{Binding Designation}" Width="*"/>

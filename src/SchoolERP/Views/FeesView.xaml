@@ -189,9 +189,11 @@
         </StackPanel>
 
         <!-- DataGrid -->
-        <DataGrid Grid.Row="3"
+        <DataGrid x:Name="FeeDataGrid"
+                  Grid.Row="3"
                   ItemsSource="{Binding FilteredFees}"
-                  Style="{StaticResource ModuleDataGridStyle}">
+                  Style="{StaticResource ModuleDataGridStyle}"
+                  MouseDoubleClick="DataGrid_MouseDoubleClick">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Reg No" Binding="{Binding RegistrationNo}" Width="110"/>
                 <DataGridTextColumn Header="Student Name" Binding="{Binding StudentName}" Width="*"/>
