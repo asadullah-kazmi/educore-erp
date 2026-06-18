@@ -6,6 +6,8 @@
     <Application.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVisibility"/>
         <helpers:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibility"/>
+        <helpers:FingerprintIdConverter x:Key="FingerprintIdConverter"/>
+        <helpers:InTimeConverter x:Key="InTimeConverter"/>
 
         <Style x:Key="BodyCardStyle"
                TargetType="Border">
