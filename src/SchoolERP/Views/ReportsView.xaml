@@ -2,11 +2,291 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              Background="Transparent">
-    <Grid>
-        <TextBlock Text="Reports"
-                FontSize="20"
-                Foreground="#475569"
-                VerticalAlignment="Center"
-                HorizontalAlignment="Center"/>
+    <UserControl.Resources>
+        <Style x:Key="ModuleDataGridStyle" TargetType="DataGrid">
+            <Setter Property="AutoGenerateColumns" Value="False"/>
+            <Setter Property="IsReadOnly" Value="True"/>
+            <Setter Property="RowHeight" Value="42"/>
+            <Setter Property="GridLinesVisibility" Value="Horizontal"/>
+            <Setter Property="HeadersVisibility" Value="Column"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="AlternatingRowBackground" Value="#F8FAFC"/>
+            <Setter Property="HorizontalGridLinesBrush" Value="#E2E8F0"/>
+        </Style>
+
+        <Style x:Key="PrimaryButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="#001A3F"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Padding" Value="16,10"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                CornerRadius="10"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="GreenButtonStyle" TargetType="Button" BasedOn="{StaticResource PrimaryButtonStyle}">
+            <Setter Property="Background" Value="#22C55E"/>
+        </Style>
+
+        <Style x:Key="PurpleButtonStyle" TargetType="Button" BasedOn="{StaticResource PrimaryButtonStyle}">
+            <Setter Property="Background" Value="#6366F1"/>
+        </Style>
+    </UserControl.Resources>
+    <Grid Margin="24">
+        <TabControl SelectedIndex="0">
+            <TabItem Header="Fee Collection">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    
+                    <DockPanel Grid.Row="0" Margin="0,0,0,16">
+                        <TextBlock Text="Fee Collection Report" FontSize="24" FontWeight="Bold" Foreground="#0F172A" DockPanel.Dock="Left"/>
+                        <StackPanel HorizontalAlignment="Right" Orientation="Horizontal" DockPanel.Dock="Right">
+                            <ComboBox Width="130" Height="36" ItemsSource="{Binding MonthOptions}" SelectedItem="{Binding SelectedFeeMonth}" VerticalContentAlignment="Center" Margin="0,0,8,0"/>
+                            <Button Content="Generate" Style="{StaticResource GreenButtonStyle}" Command="{Binding GenerateFeeReportCommand}" Margin="0,0,8,0"/>
+                            <Button Content="Print" Style="{StaticResource PrimaryButtonStyle}" Command="{Binding PrintFeeReportCommand}" Margin="0,0,8,0"/>
+                            <Button Content="Export CSV" Style="{StaticResource PurpleButtonStyle}" Command="{Binding ExportFeeReportCsvCommand}" Visibility="{Binding IsAdmin, Converter={StaticResource BoolToVisibility}}"/>
+                        </StackPanel>
+                    </DockPanel>
+                    
+                    <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,16">
+                        <Border Width="200" Height="80" CornerRadius="12" BorderThickness="4,1,1,1" BorderBrush="#10B981" Background="White" Padding="12">
+                            <StackPanel>
+                                <TextBlock Text="Total Students" FontSize="13" Foreground="#64748B"/>
+                                <TextBlock Text="{Binding FeeTotalStudents}" FontSize="20" FontWeight="Bold" Foreground="#0F172A"/>
+                            </StackPanel>
+                        </Border>
+                        <Border Width="200" Height="80" CornerRadius="12" BorderThickness="4,1,1,1" BorderBrush="#10B981" Background="White" Padding="12" Margin="16,0,0,0">
+                            <StackPanel>
+                                <TextBlock Text="Total Collected" FontSize="13" Foreground="#64748B"/>
+                                <TextBlock Text="{Binding FeeTotalCollected, StringFormat='Rs {0:N0}'}" FontSize="20" FontWeight="Bold" Foreground="#0F172A"/>
+                            </StackPanel>
+                        </Border>
+                        <Border Width="200" Height="80" CornerRadius="12" BorderThickness="4,1,1,1" BorderBrush="#EF4444" Background="White" Padding="12" Margin="16,0,0,0">
+                            <StackPanel>
+                                <TextBlock Text="Total Due" FontSize="13" Foreground="#64748B"/>
+                                <TextBlock Text="{Binding FeeTotalDue, StringFormat='Rs {0:N0}'}" FontSize="20" FontWeight="Bold" Foreground="#0F172A"/>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                    
+                    <TextBlock Grid.Row="2" Text="{Binding FeeStatusMessage}" Foreground="#DC2626" Margin="0,0,0,8"/>
+                    <TextBlock Grid.Row="3" Text="Loading..." Foreground="#64748B" Visibility="{Binding IsLoadingFee, Converter={StaticResource BoolToVisibility}}" Margin="0,0,0,8"/>
+                    
+                    <DataGrid Grid.Row="4" ItemsSource="{Binding FeeRows}" Style="{StaticResource ModuleDataGridStyle}">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Student Name" Binding="{Binding StudentName}" Width="*"/>
+                            <DataGridTextColumn Header="Reg No" Binding="{Binding RegistrationNo}" Width="100"/>
+                            <DataGridTextColumn Header="Class" Binding="{Binding ClassName}" Width="90"/>
+                            <DataGridTextColumn Header="Monthly Fee" Binding="{Binding MonthlyFee, StringFormat='Rs {0:N0}'}" Width="110"/>
+                            <DataGridTextColumn Header="Paid" Binding="{Binding AmountPaid, StringFormat='Rs {0:N0}'}" Width="110"/>
+                            <DataGridTemplateColumn Header="Status" Width="80">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Border x:Name="StatusBorder" CornerRadius="6" Padding="8,4">
+                                            <TextBlock Text="{Binding Status}" Foreground="White" FontWeight="Bold" TextAlignment="Center"/>
+                                        </Border>
+                                        <DataTemplate.Triggers>
+                                            <DataTrigger Binding="{Binding Status}" Value="Paid">
+                                                <Setter Property="Background" TargetName="StatusBorder" Value="#10B981"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding Status}" Value="Due">
+                                                <Setter Property="Background" TargetName="StatusBorder" Value="#FF6B35"/>
+                                            </DataTrigger>
+                                        </DataTemplate.Triggers>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTextColumn Header="Payment Date" Binding="{Binding PaymentDate, StringFormat={}{0:dd MMM yyyy}, TargetNullValue='—'}" Width="120"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Attendance">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    
+                    <DockPanel Grid.Row="0" Margin="0,0,0,16">
+                        <TextBlock Text="Attendance Summary Report" FontSize="24" FontWeight="Bold" Foreground="#0F172A" DockPanel.Dock="Left"/>
+                        <StackPanel HorizontalAlignment="Right" Orientation="Horizontal" DockPanel.Dock="Right">
+                            <TextBlock Text="From:" VerticalAlignment="Center" Foreground="#64748B" Margin="0,0,8,0"/>
+                            <DatePicker Width="140" Height="36" SelectedDate="{Binding AttendanceFrom}" Margin="0,0,16,0"/>
+                            <TextBlock Text="To:" VerticalAlignment="Center" Foreground="#64748B" Margin="0,0,8,0"/>
+                            <DatePicker Width="140" Height="36" SelectedDate="{Binding AttendanceTo}" Margin="0,0,16,0"/>
+                            <TextBlock Text="Person Type:" VerticalAlignment="Center" Foreground="#64748B" Margin="0,0,8,0"/>
+                            <ComboBox Width="100" Height="36" ItemsSource="{Binding PersonTypeOptions}" SelectedItem="{Binding AttendancePersonType}" VerticalContentAlignment="Center" Margin="0,0,16,0"/>
+                            <Button Content="Generate" Style="{StaticResource GreenButtonStyle}" Command="{Binding GenerateAttendanceReportCommand}" Margin="0,0,8,0"/>
+                            <Button Content="Print" Style="{StaticResource PrimaryButtonStyle}" Command="{Binding PrintAttendanceReportCommand}" Margin="0,0,8,0"/>
+                            <Button Content="Export CSV" Style="{StaticResource PurpleButtonStyle}" Command="{Binding ExportAttendanceCsvCommand}" Visibility="{Binding IsAdmin, Converter={StaticResource BoolToVisibility}}"/>
+                        </StackPanel>
+                    </DockPanel>
+                    
+                    <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,16">
+                        <Border Width="200" Height="80" CornerRadius="12" BorderThickness="4,1,1,1" BorderBrush="#10B981" Background="White" Padding="12">
+                            <StackPanel>
+                                <TextBlock Text="Total Present Days" FontSize="13" Foreground="#64748B"/>
+                                <TextBlock Text="{Binding AttendanceTotalPresent}" FontSize="20" FontWeight="Bold" Foreground="#0F172A"/>
+                            </StackPanel>
+                        </Border>
+                        <Border Width="200" Height="80" CornerRadius="12" BorderThickness="4,1,1,1" BorderBrush="#EF4444" Background="White" Padding="12" Margin="16,0,0,0">
+                            <StackPanel>
+                                <TextBlock Text="Total Absent Days" FontSize="13" Foreground="#64748B"/>
+                                <TextBlock Text="{Binding AttendanceTotalAbsent}" FontSize="20" FontWeight="Bold" Foreground="#0F172A"/>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                    
+                    <TextBlock Grid.Row="2" Text="{Binding AttendanceStatusMessage}" Foreground="#DC2626" Margin="0,0,0,8"/>
+                    <TextBlock Grid.Row="3" Text="Loading..." Foreground="#64748B" Visibility="{Binding IsLoadingAttendance, Converter={StaticResource BoolToVisibility}}" Margin="0,0,0,8"/>
+                    
+                    <DataGrid Grid.Row="5" ItemsSource="{Binding AttendanceRows}" Style="{StaticResource ModuleDataGridStyle}">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="*"/>
+                            <DataGridTextColumn Header="Present Days" Binding="{Binding PresentDays}" Width="110"/>
+                            <DataGridTextColumn Header="Absent Days" Binding="{Binding AbsentDays}" Width="110"/>
+                            <DataGridTextColumn Header="Total Days" Binding="{Binding TotalDays}" Width="110"/>
+                            <DataGridTemplateColumn Header="Attendance %" Width="110">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding AttendancePercent, StringFormat={}{0:0.0}%}" 
+                                                   Foreground="{Binding AttendanceColor}"
+                                                   FontWeight="SemiBold"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Finance Summary">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                    <StackPanel>
+                        <DockPanel Margin="0,0,0,16">
+                            <TextBlock Text="Finance Summary Report" FontSize="24" FontWeight="Bold" Foreground="#0F172A" DockPanel.Dock="Left"/>
+                            <StackPanel HorizontalAlignment="Right" Orientation="Horizontal" DockPanel.Dock="Right">
+                                <ComboBox Width="130" Height="36" ItemsSource="{Binding FinanceMonthOptions}" SelectedItem="{Binding SelectedFinanceMonth}" VerticalContentAlignment="Center" Margin="0,0,8,0"/>
+                                <Button Content="Generate" Style="{StaticResource GreenButtonStyle}" Command="{Binding GenerateFinanceReportCommand}" Margin="0,0,8,0"/>
+                                <Button Content="Print Expenses" Style="{StaticResource PrimaryButtonStyle}" Command="{Binding PrintExpenseReportCommand}" Margin="0,0,8,0"/>
+                                <Button Content="Print Salaries" Style="{StaticResource PrimaryButtonStyle}" Command="{Binding PrintSalaryReportCommand}" Margin="0,0,8,0"/>
+                                <Button Content="Export CSV" Style="{StaticResource PurpleButtonStyle}" Command="{Binding ExportFinanceCsvCommand}" Visibility="{Binding IsAdmin, Converter={StaticResource BoolToVisibility}}"/>
+                            </StackPanel>
+                        </DockPanel>
+                        
+                        <UniformGrid Columns="2" Margin="0,0,0,16">
+                            <Border CornerRadius="18" Padding="18" Margin="0,0,12,12" Height="110" Background="White" BorderThickness="4,1,1,1" BorderBrush="#10B981">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="56"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Border Width="46" Height="46" CornerRadius="14" Background="#ECFDF5" VerticalAlignment="Center">
+                                        <TextBlock Text="₹" FontSize="22" Foreground="#10B981" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                        <TextBlock Text="Fees Collected" FontSize="13" Foreground="#64748B"/>
+                                        <TextBlock Text="{Binding FinanceSummary.TotalFeesCollected, StringFormat='Rs {0:N0}', FallbackValue='Rs 0'}" FontSize="20" FontWeight="Bold" Foreground="#0F172A"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+                            <Border CornerRadius="18" Padding="18" Margin="0,0,0,12" Height="110" Background="White" BorderThickness="4,1,1,1" BorderBrush="#EF4444">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="56"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Border Width="46" Height="46" CornerRadius="14" Background="#FEF2F2" VerticalAlignment="Center">
+                                        <TextBlock Text="✕" FontSize="22" Foreground="#EF4444" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                        <TextBlock Text="Total Expenses" FontSize="13" Foreground="#64748B"/>
+                                        <TextBlock Text="{Binding FinanceSummary.TotalExpenses, StringFormat='Rs {0:N0}', FallbackValue='Rs 0'}" FontSize="20" FontWeight="Bold" Foreground="#0F172A"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+                            <Border CornerRadius="18" Padding="18" Margin="0,0,12,0" Height="110" Background="White" BorderThickness="4,1,1,1" BorderBrush="#3B82F6">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="56"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Border Width="46" Height="46" CornerRadius="14" Background="#EFF6FF" VerticalAlignment="Center">
+                                        <TextBlock Text="👤" FontSize="22" Foreground="#3B82F6" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                        <TextBlock Text="Salaries Paid" FontSize="13" Foreground="#64748B"/>
+                                        <TextBlock Text="{Binding FinanceSummary.TotalSalariesPaid, StringFormat='Rs {0:N0}', FallbackValue='Rs 0'}" FontSize="20" FontWeight="Bold" Foreground="#0F172A"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+                            <Border CornerRadius="18" Padding="18" Margin="0,0,0,0" Height="110" Background="White" BorderThickness="4,1,1,1" BorderBrush="{Binding FinanceSurplusColor}">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="56"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Border Width="46" Height="46" CornerRadius="14" Background="#F0FDF4" VerticalAlignment="Center">
+                                        <TextBlock Text="💰" FontSize="22" Foreground="{Binding FinanceSurplusColor}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                        <TextBlock Text="Net Surplus" FontSize="13" Foreground="#64748B"/>
+                                        <TextBlock Text="{Binding FinanceSummary.NetSurplus, StringFormat='Rs {0:N0}', FallbackValue='Rs 0'}" FontSize="20" FontWeight="Bold" Foreground="{Binding FinanceSurplusColor}"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+                        </UniformGrid>
+                        
+                        <Rectangle Height="1" Fill="#E2E8F0" Margin="0,16"/>
+                        
+                        <TextBlock Text="Expenses Detail" FontSize="16" FontWeight="SemiBold" Foreground="#0F172A" Margin="0,16,0,8"/>
+                        <DataGrid ItemsSource="{Binding ExpenseRows}" Style="{StaticResource ModuleDataGridStyle}" Margin="0,0,0,16">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Date" Binding="{Binding Date, StringFormat={}{0:dd MMM yyyy}}" Width="120"/>
+                                <DataGridTextColumn Header="Category" Binding="{Binding Category}" Width="140"/>
+                                <DataGridTextColumn Header="Amount" Binding="{Binding Amount, StringFormat='Rs {0:N0}'}" Width="110"/>
+                                <DataGridTextColumn Header="Notes" Binding="{Binding Notes}" Width="*"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                        
+                        <TextBlock Text="Salary Payments Detail" FontSize="16" FontWeight="SemiBold" Foreground="#0F172A" Margin="0,0,0,8"/>
+                        <DataGrid ItemsSource="{Binding SalaryRows}" Style="{StaticResource ModuleDataGridStyle}">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Teacher" Binding="{Binding TeacherName}" Width="*"/>
+                                <DataGridTextColumn Header="Designation" Binding="{Binding Designation}" Width="120"/>
+                                <DataGridTextColumn Header="Base Salary" Binding="{Binding BaseSalary, StringFormat='Rs {0:N0}'}" Width="110"/>
+                                <DataGridTextColumn Header="Amount Paid" Binding="{Binding Amount, StringFormat='Rs {0:N0}'}" Width="110"/>
+                                <DataGridTextColumn Header="Payment Date" Binding="{Binding PaymentDate, StringFormat={}{0:dd MMM yyyy}}" Width="120"/>
+                                <DataGridTextColumn Header="Notes" Binding="{Binding Notes}" Width="*"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                        
+                        <TextBlock Text="{Binding FinanceStatusMessage}" Foreground="#DC2626" Margin="0,16,0,0"/>
+                        <TextBlock Text="Loading..." Foreground="#64748B" Visibility="{Binding IsLoadingFinance, Converter={StaticResource BoolToVisibility}}" Margin="0,8,0,0"/>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+        </TabControl>
     </Grid>
 </UserControl>
