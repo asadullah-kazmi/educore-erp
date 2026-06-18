@@ -85,7 +85,7 @@
                 <Border Grid.Row="1" Grid.Column="1" Style="{StaticResource InfoCardStyle}">
                     <StackPanel>
                         <TextBlock Text="Fingerprint ID" Style="{StaticResource CardLabelStyle}"/>
-                        <TextBlock Text="{Binding FingerprintID, TargetNullValue='Not Assigned'}"
+                        <TextBlock Text="{Binding FingerprintId, TargetNullValue='Not Assigned'}"
                                    Style="{StaticResource CardValueStyle}"/>
                     </StackPanel>
                 </Border>

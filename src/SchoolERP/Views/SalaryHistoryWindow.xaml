@@ -1,0 +1,47 @@
+<Window x:Class="SchoolERP.Views.SalaryHistoryWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="{Binding TeacherName, StringFormat=Salary History — {0}}"
+        Width="720"
+        Height="480"
+        WindowStartupLocation="CenterOwner"
+        Background="#EEF2F7"
+        FontFamily="Segoe UI">
+    <Grid Margin="24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0" Margin="0,0,0,12">
+            <Run Text="Total Paid: Rs "/>
+            <Run Text="{Binding TotalPaidDisplay}" FontWeight="Bold"/>
+        </TextBlock>
+
+        <DataGrid Grid.Row="1"
+                  ItemsSource="{Binding Payments}"
+                  AutoGenerateColumns="False"
+                  IsReadOnly="True"
+                  CanUserAddRows="False">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Date" Binding="{Binding PaymentDate, StringFormat={}{0:dd MMM yyyy}}" Width="120"/>
+                <DataGridTextColumn Header="Amount" Binding="{Binding Amount, StringFormat={}{0:N0}}" Width="100"/>
+                <DataGridTextColumn Header="Notes" Binding="{Binding Notes}" Width="*"/>
+                <DataGridTemplateColumn Header="Actions" Width="80">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Button Content="Delete"
+                                    Command="{Binding DataContext.DeletePaymentCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                    CommandParameter="{Binding}"
+                                    Visibility="{Binding DataContext.IsAdmin, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BoolToVisibility}}"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <Button Grid.Row="2" Content="Close" Width="100" Height="36" HorizontalAlignment="Right" Margin="0,12,0,0"
+                Click="CloseButton_Click"/>
+    </Grid>
+</Window>

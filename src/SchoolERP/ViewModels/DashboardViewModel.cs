@@ -148,13 +148,9 @@ WHERE [Date] = CAST(GETDATE() AS DATE) AND Status='Present'";
         private void LoadAbsentTodayCount()
         {
             const string sql = @"
-SELECT COUNT(*) FROM dbo.Teachers t
-WHERE NOT EXISTS (
-    SELECT 1 FROM dbo.Attendance a
-    WHERE a.TeacherID = t.TeacherID
-      AND a.[Date] = CAST(GETDATE() AS DATE)
-      AND a.Status = 'Present'
-)";
+SELECT COUNT(*) FROM dbo.Attendance
+WHERE [Date] = CAST(GETDATE() AS DATE) AND Status = 'Absent'";
+
             using (var connection = Database.GetConnection())
             using (var command = new SqlCommand(sql, connection))
             {

@@ -44,25 +44,27 @@
             CornerRadius="20"
             Padding="24"
             Margin="16">
-        <ScrollViewer VerticalScrollBarVisibility="Auto"
-                      HorizontalScrollBarVisibility="Disabled">
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                </Grid.RowDefinitions>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
 
-                <!-- Title -->
-                <TextBlock x:Name="TxtTitle"
-                           Text="Record Payment"
-                           FontSize="20"
-                           FontWeight="Bold"
-                           Foreground="#0F172A"
-                           Margin="0,0,0,16"/>
+            <!-- Title -->
+            <TextBlock x:Name="TxtTitle"
+                       Text="Record Payment"
+                       FontSize="20"
+                       FontWeight="Bold"
+                       Foreground="#0F172A"
+                       Margin="0,0,0,16"/>
 
-                <!-- Form -->
-                <Grid Grid.Row="1">
+            <!-- Form -->
+            <ScrollViewer Grid.Row="1"
+                          VerticalScrollBarVisibility="Auto"
+                          HorizontalScrollBarVisibility="Disabled"
+                          Margin="0,0,0,8">
+                <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
@@ -78,13 +80,13 @@
                     <StackPanel Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,0,0,12">
                         <TextBlock Text="Student *" Style="{StaticResource FieldLabelStyle}"/>
                         <ComboBox x:Name="ComboStudent"
-                              IsEditable="True"
-                              IsTextSearchEnabled="False"
-                              DisplayMemberPath="Name"
-                              Style="{StaticResource FieldComboStyle}"
-                              SelectionChanged="ComboStudent_SelectionChanged"
-                              PreviewTextInput="ComboStudent_PreviewTextInput"
-                              DataObject.Pasting="ComboStudent_Pasting"/>
+                                  IsEditable="True"
+                                  IsTextSearchEnabled="False"
+                                  DisplayMemberPath="Name"
+                                  Style="{StaticResource FieldComboStyle}"
+                                  SelectionChanged="ComboStudent_SelectionChanged"
+                                  PreviewTextInput="ComboStudent_PreviewTextInput"
+                                  DataObject.Pasting="ComboStudent_Pasting"/>
                     </StackPanel>
 
                     <!-- Row 1: Month | Fee Type -->
@@ -126,32 +128,32 @@
                         <DatePicker x:Name="DpPaymentDate" Height="34" Margin="0,4,0,0" Style="{StaticResource FieldDateStyle}"/>
                     </StackPanel>
                 </Grid>
+            </ScrollViewer>
 
-                <!-- Buttons -->
-                <StackPanel Grid.Row="2"
-                            Orientation="Horizontal"
-                            HorizontalAlignment="Right"
-                            Margin="0,16,0,0">
-                    <Button Content="Cancel"
-                            Width="90"
-                            Height="36"
-                            Margin="0,0,10,0"
-                            Click="Cancel_Click"
-                            Background="#F1F5F9"
-                            Foreground="#334155"
-                            BorderThickness="0"
-                            Cursor="Hand"/>
-                    <Button Content="Save"
-                            Width="90"
-                            Height="36"
-                            Click="Save_Click"
-                            Background="#001A3F"
-                            Foreground="White"
-                            BorderThickness="0"
-                            FontWeight="SemiBold"
-                            Cursor="Hand"/>
-                </StackPanel>
-            </Grid>
-        </ScrollViewer>
+            <!-- Buttons -->
+            <StackPanel Grid.Row="2"
+                        Orientation="Horizontal"
+                        HorizontalAlignment="Right"
+                        Margin="0,16,0,0">
+                <Button Content="Cancel"
+                        Width="90"
+                        Height="36"
+                        Margin="0,0,10,0"
+                        Click="Cancel_Click"
+                        Background="#F1F5F9"
+                        Foreground="#334155"
+                        BorderThickness="0"
+                        Cursor="Hand"/>
+                <Button Content="Save"
+                        Width="90"
+                        Height="36"
+                        Click="Save_Click"
+                        Background="#001A3F"
+                        Foreground="White"
+                        BorderThickness="0"
+                        FontWeight="SemiBold"
+                        Cursor="Hand"/>
+            </StackPanel>
+        </Grid>
     </Border>
 </Window>

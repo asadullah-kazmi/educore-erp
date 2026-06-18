@@ -9,7 +9,7 @@ namespace SchoolERP.ViewModels
         public string Name { get; set; }
         public string Designation { get; set; }
         public decimal Salary { get; set; }
-        public int? FingerprintID { get; set; }
+        public int? FingerprintId { get; set; }
 
         public string SalaryDisplay => Salary.ToString("N0");
 
@@ -26,7 +26,7 @@ namespace SchoolERP.ViewModels
                 Name = teacher.Name,
                 Designation = teacher.Designation,
                 Salary = teacher.Salary,
-                FingerprintID = teacher.FingerprintID
+                FingerprintId = teacher.FingerprintID
             };
         }
 
@@ -38,7 +38,7 @@ namespace SchoolERP.ViewModels
                 Name = Name,
                 Designation = Designation,
                 Salary = Salary,
-                FingerprintID = FingerprintID
+                FingerprintID = FingerprintId
             };
         }
     }
