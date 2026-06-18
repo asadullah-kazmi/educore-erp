@@ -21,10 +21,10 @@
 
         <TextBlock Grid.Row="0" Text="{Binding TeacherName}" FontSize="18" FontWeight="Bold" Margin="0,0,0,4"/>
         <TextBlock Grid.Row="1" Text="{Binding Designation}" Foreground="#64748B" Margin="0,0,0,4"/>
-        <TextBlock Grid.Row="2" Margin="0,0,0,16">
-            <Run Text="Base Salary: Rs "/>
-            <Run Text="{Binding BaseSalaryDisplay}" FontWeight="SemiBold"/>
-        </TextBlock>
+        <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,0,0,16">
+            <TextBlock Text="Base Salary: Rs "/>
+            <TextBlock Text="{Binding BaseSalaryDisplay}" FontWeight="SemiBold"/>
+        </StackPanel>
 
         <StackPanel Grid.Row="3" Margin="0,0,0,12">
             <TextBlock Text="Payment Amount" FontWeight="SemiBold" Margin="0,0,0,6"/>

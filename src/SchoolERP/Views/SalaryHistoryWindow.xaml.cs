@@ -7,8 +7,8 @@ namespace SchoolERP.Views
     {
         public SalaryHistoryWindow(int teacherId, string teacherName, bool isAdmin)
         {
-            InitializeComponent();
             DataContext = new SalaryHistoryViewModel(teacherId, teacherName, isAdmin);
+            InitializeComponent();
         }
 
         private void CloseButton_Click(object sender, RoutedEventArgs e)
