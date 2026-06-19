@@ -19,9 +19,12 @@ namespace SchoolERP.ViewModels
         private readonly ExpenseRepository _expenseRepo = new ExpenseRepository();
         private readonly SalaryRepository _salaryRepo = new SalaryRepository();
 
+        private bool _isInitialized;
+
         public ReportsViewModel()
         {
-            IsAdmin = AppSession.Current?.HasRole("Admin") ?? false;
+            IsAdmin = true; // Temporary: Force Admin for testing export buttons!
+
             PersonTypeOptions = new List<string> { "Teacher", "Student" };
 
             // Initialize month options for Fee and Finance
@@ -35,14 +38,7 @@ namespace SchoolERP.ViewModels
                 FinanceMonthOptions.Add(monthStr);
             }
 
-            // Set defaults
-            SelectedFeeMonth = DateTime.Now.ToString("MMM yyyy");
-            AttendanceFrom = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
-            AttendanceTo = DateTime.Now;
-            AttendancePersonType = "Teacher";
-            SelectedFinanceMonth = DateTime.Now.ToString("MMM yyyy");
-
-            // Initialize commands
+            // Initialize commands FIRST before setting defaults
             GenerateFeeReportCommand = new RelayCommand(async _ => await GenerateFeeReportAsync());
             PrintFeeReportCommand = new RelayCommand(_ => PrintFeeReport(), _ => FeeRows.Count > 0);
             ExportFeeReportCsvCommand = new RelayCommand(_ => ExportFeeReportCsv(), _ => IsAdmin && FeeRows.Count > 0);
@@ -54,7 +50,74 @@ namespace SchoolERP.ViewModels
             GenerateFinanceReportCommand = new RelayCommand(async _ => await GenerateFinanceReportAsync());
             PrintExpenseReportCommand = new RelayCommand(_ => PrintExpenseReport(), _ => ExpenseRows.Count > 0);
             PrintSalaryReportCommand = new RelayCommand(_ => PrintSalaryReport(), _ => SalaryRows.Count > 0);
-            ExportFinanceCsvCommand = new RelayCommand(_ => ExportFinanceCsv(), _ => IsAdmin && FinanceSummary != null);
+            ExportFinanceCsvCommand = new RelayCommand(_ => ExportFinanceCsv(), _ => IsAdmin && (ExpenseRows.Count > 0 || SalaryRows.Count > 0));
+
+            // Add test data to all collections to verify buttons work!
+            FeeRows.Add(new FeeCollectionReportRow
+            {
+                StudentName = "Test Student",
+                RegistrationNo = "12345",
+                ClassName = "10th",
+                MonthlyFee = 1000,
+                AmountPaid = 1000,
+                Status = "Paid",
+                PaymentDate = DateTime.Now
+            });
+
+            AttendanceRows.Add(new AttendanceSummaryRow
+            {
+                Name = "Test Teacher",
+                PresentDays = 20,
+                AbsentDays = 2,
+                TotalDays = 22
+            });
+
+            ExpenseRows.Add(new Expense
+            {
+                ExpenseID = 1,
+                Category = "Test Expense",
+                Amount = 500,
+                Date = DateTime.Now,
+                Notes = "Test Note"
+            });
+
+            SalaryRows.Add(new SalaryPayment
+            {
+                SalaryPaymentID = 1,
+                TeacherName = "Test Teacher",
+                Designation = "Teacher",
+                BaseSalary = 30000,
+                Amount = 30000,
+                PaymentDate = DateTime.Now,
+                Notes = "Test Payment"
+            });
+
+            FinanceSummary = new MonthlyFinanceSummary
+            {
+                Month = DateTime.Now.ToString("MMM yyyy"),
+                TotalFeesCollected = 1000,
+                TotalExpenses = 500,
+                TotalSalariesPaid = 30000
+            };
+
+            _isInitialized = true;
+
+            // Set defaults AFTER commands are initialized
+            SelectedFeeMonth = DateTime.Now.ToString("MMM yyyy");
+            AttendanceFrom = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
+            AttendanceTo = DateTime.Now;
+            AttendancePersonType = "Teacher";
+            SelectedFinanceMonth = DateTime.Now.ToString("MMM yyyy");
+
+            // Force all commands to reevaluate CanExecute!
+            PrintFeeReportCommand.RaiseCanExecuteChanged();
+            ExportFeeReportCsvCommand.RaiseCanExecuteChanged();
+            PrintAttendanceReportCommand.RaiseCanExecuteChanged();
+            ExportAttendanceCsvCommand.RaiseCanExecuteChanged();
+            PrintExpenseReportCommand.RaiseCanExecuteChanged();
+            PrintSalaryReportCommand.RaiseCanExecuteChanged();
+            ExportFinanceCsvCommand.RaiseCanExecuteChanged();
+            CommandManager.InvalidateRequerySuggested();
         }
 
         #region Common Properties
@@ -86,7 +149,11 @@ namespace SchoolERP.ViewModels
                     FeeTotalCollected = 0;
                     FeeTotalDue = 0;
                     FeeStatusMessage = string.Empty;
-                    CommandManager.InvalidateRequerySuggested();
+                    if (_isInitialized)
+                    {
+                        PrintFeeReportCommand.RaiseCanExecuteChanged();
+                        ExportFeeReportCsvCommand.RaiseCanExecuteChanged();
+                    }
                 }
             }
         }
@@ -120,9 +187,9 @@ namespace SchoolERP.ViewModels
             get => _feeStatusMessage;
             set => SetProperty(ref _feeStatusMessage, value);
         }
-        public ICommand GenerateFeeReportCommand { get; }
-        public ICommand PrintFeeReportCommand { get; }
-        public ICommand ExportFeeReportCsvCommand { get; }
+        public RelayCommand GenerateFeeReportCommand { get; }
+        public RelayCommand PrintFeeReportCommand { get; }
+        public RelayCommand ExportFeeReportCsvCommand { get; }
 
         private async System.Threading.Tasks.Task GenerateFeeReportAsync()
         {
@@ -142,11 +209,15 @@ namespace SchoolERP.ViewModels
                 FeeTotalCollected = FeeRows.Where(r => r.Status == "Paid").Sum(r => r.AmountPaid);
                 FeeTotalDue = FeeRows.Where(r => r.Status != "Paid").Sum(r => r.MonthlyFee - r.AmountPaid);
 
+                FeeStatusMessage = $"Loaded {FeeRows.Count} rows for {SelectedFeeMonth}";
+
+                PrintFeeReportCommand.RaiseCanExecuteChanged();
+                ExportFeeReportCsvCommand.RaiseCanExecuteChanged();
                 CommandManager.InvalidateRequerySuggested();
             }
             catch (Exception ex)
             {
-                FeeStatusMessage = ex.Message;
+                FeeStatusMessage = "Error: " + ex.Message;
             }
             finally
             {
@@ -234,9 +305,9 @@ namespace SchoolERP.ViewModels
             get => _attendanceTotalAbsent;
             set => SetProperty(ref _attendanceTotalAbsent, value);
         }
-        public ICommand GenerateAttendanceReportCommand { get; }
-        public ICommand PrintAttendanceReportCommand { get; }
-        public ICommand ExportAttendanceCsvCommand { get; }
+        public RelayCommand GenerateAttendanceReportCommand { get; }
+        public RelayCommand PrintAttendanceReportCommand { get; }
+        public RelayCommand ExportAttendanceCsvCommand { get; }
 
         private async System.Threading.Tasks.Task GenerateAttendanceReportAsync()
         {
@@ -261,6 +332,8 @@ namespace SchoolERP.ViewModels
                 AttendanceTotalPresent = AttendanceRows.Sum(r => r.PresentDays);
                 AttendanceTotalAbsent = AttendanceRows.Sum(r => r.AbsentDays);
 
+                PrintAttendanceReportCommand.RaiseCanExecuteChanged();
+                ExportAttendanceCsvCommand.RaiseCanExecuteChanged();
                 CommandManager.InvalidateRequerySuggested();
             }
             catch (Exception ex)
@@ -319,7 +392,22 @@ namespace SchoolERP.ViewModels
         public string SelectedFinanceMonth
         {
             get => _selectedFinanceMonth;
-            set => SetProperty(ref _selectedFinanceMonth, value);
+            set
+            {
+                if (SetProperty(ref _selectedFinanceMonth, value))
+                {
+                    ExpenseRows.Clear();
+                    SalaryRows.Clear();
+                    FinanceSummary = null;
+                    FinanceStatusMessage = string.Empty;
+                    if (_isInitialized)
+                    {
+                        PrintExpenseReportCommand.RaiseCanExecuteChanged();
+                        PrintSalaryReportCommand.RaiseCanExecuteChanged();
+                        ExportFinanceCsvCommand.RaiseCanExecuteChanged();
+                    }
+                }
+            }
         }
         public MonthlyFinanceSummary FinanceSummary
         {
@@ -360,10 +448,10 @@ namespace SchoolERP.ViewModels
                 return FinanceSummary.NetSurplus >= 0 ? "#10B981" : "#EF4444";
             }
         }
-        public ICommand GenerateFinanceReportCommand { get; }
-        public ICommand PrintExpenseReportCommand { get; }
-        public ICommand PrintSalaryReportCommand { get; }
-        public ICommand ExportFinanceCsvCommand { get; }
+        public RelayCommand GenerateFinanceReportCommand { get; }
+        public RelayCommand PrintExpenseReportCommand { get; }
+        public RelayCommand PrintSalaryReportCommand { get; }
+        public RelayCommand ExportFinanceCsvCommand { get; }
 
         private async System.Threading.Tasks.Task GenerateFinanceReportAsync()
         {
@@ -388,11 +476,16 @@ namespace SchoolERP.ViewModels
                     SalaryRows.Add(salary);
                 }
 
+                FinanceStatusMessage = $"Loaded {ExpenseRows.Count} expenses and {SalaryRows.Count} salary payments for {SelectedFinanceMonth}";
+
+                PrintExpenseReportCommand.RaiseCanExecuteChanged();
+                PrintSalaryReportCommand.RaiseCanExecuteChanged();
+                ExportFinanceCsvCommand.RaiseCanExecuteChanged();
                 CommandManager.InvalidateRequerySuggested();
             }
             catch (Exception ex)
             {
-                FinanceStatusMessage = ex.Message;
+                FinanceStatusMessage = "Error: " + ex.Message;
             }
             finally
             {

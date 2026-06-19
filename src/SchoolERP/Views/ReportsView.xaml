@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              Background="Transparent">
     <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVisibility"/>
         <Style x:Key="ModuleDataGridStyle" TargetType="DataGrid">
             <Setter Property="AutoGenerateColumns" Value="False"/>
             <Setter Property="IsReadOnly" Value="True"/>
@@ -43,7 +44,7 @@
             <Setter Property="Background" Value="#6366F1"/>
         </Style>
     </UserControl.Resources>
-    <Grid Margin="24">
+    <Grid>
         <TabControl SelectedIndex="0">
             <TabItem Header="Fee Collection">
                 <Grid>
