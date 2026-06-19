@@ -57,6 +57,53 @@ namespace SchoolERP.Services
             printDialog.PrintDocument(((IDocumentPaginatorSource)document).DocumentPaginator, "Expense Report");
         }
 
+        public static void PrintAttendanceReport(IList<AttendanceSummaryRow> rows, string title)
+        {
+            var printDialog = new PrintDialog();
+            if (printDialog.ShowDialog() != true)
+            {
+                return;
+            }
+
+            var document = BuildDocument(
+                title,
+                new[] { "Name", "Present Days", "Absent Days", "Total Days", "Attendance %" },
+                rows.Select(r => new[]
+                {
+                    r.Name ?? string.Empty,
+                    r.PresentDays.ToString(),
+                    r.AbsentDays.ToString(),
+                    r.TotalDays.ToString(),
+                    r.AttendancePercent.ToString("0.0") + "%"
+                }));
+
+            printDialog.PrintDocument(((IDocumentPaginatorSource)document).DocumentPaginator, title);
+        }
+
+        public static void PrintSalaryReport(IList<SalaryPayment> rows, string month)
+        {
+            var printDialog = new PrintDialog();
+            if (printDialog.ShowDialog() != true)
+            {
+                return;
+            }
+
+            var document = BuildDocument(
+                "Salary Payment Report — " + month,
+                new[] { "Teacher", "Designation", "Base Salary", "Amount Paid", "Payment Date", "Notes" },
+                rows.Select(r => new[]
+                {
+                    r.TeacherName ?? string.Empty,
+                    r.Designation ?? string.Empty,
+                    r.BaseSalary.ToString("N0"),
+                    r.Amount.ToString("N0"),
+                    r.PaymentDate.ToString("dd MMM yyyy"),
+                    r.Notes ?? string.Empty
+                }));
+
+            printDialog.PrintDocument(((IDocumentPaginatorSource)document).DocumentPaginator, "Salary Payment Report");
+        }
+
         private static FlowDocument BuildDocument(string title, string[] headers, IEnumerable<string[]> rows)
         {
             var document = new FlowDocument

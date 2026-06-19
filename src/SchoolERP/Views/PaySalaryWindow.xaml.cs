@@ -7,7 +7,6 @@ namespace SchoolERP.Views
     {
         public PaySalaryWindow(StaffSalaryRowViewModel staff, string month)
         {
-            InitializeComponent();
             var viewModel = new PaySalaryViewModel(staff, month);
             viewModel.RequestClose += success =>
             {
@@ -15,6 +14,7 @@ namespace SchoolERP.Views
                 Close();
             };
             DataContext = viewModel;
+            InitializeComponent();
         }
     }
 }

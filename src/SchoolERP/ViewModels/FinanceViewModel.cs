@@ -405,14 +405,22 @@ namespace SchoolERP.ViewModels
                 }
             }
 
-            var window = new PaySalaryWindow(staff, SalaryMonthFilter)
+            try
             {
-                Owner = Application.Current.MainWindow
-            };
+                var window = new PaySalaryWindow(staff, SalaryMonthFilter)
+                {
+                    Owner = Application.Current.MainWindow
+                };
 
-            if (window.ShowDialog() == true)
+                if (window.ShowDialog() == true)
+                {
+                    _ = LoadSalariesAsync();
+                }
+            }
+            catch (Exception ex)
             {
-                _ = LoadSalariesAsync();
+                MessageBox.Show("Error opening pay window: " + ex.Message + "\nStack trace: " + ex.StackTrace,
+                    "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -423,12 +431,20 @@ namespace SchoolERP.ViewModels
                 return;
             }
 
-            var window = new SalaryHistoryWindow(staff.TeacherID, staff.Name, IsAdmin)
+            try
             {
-                Owner = Application.Current.MainWindow
-            };
+                var window = new SalaryHistoryWindow(staff.TeacherID, staff.Name, IsAdmin)
+                {
+                    Owner = Application.Current.MainWindow
+                };
 
-            window.ShowDialog();
+                window.ShowDialog();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error opening history window: " + ex.Message + "\nStack trace: " + ex.StackTrace,
+                    "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         public async Task LoadSummaryAsync()

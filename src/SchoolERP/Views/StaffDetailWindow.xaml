@@ -34,7 +34,7 @@
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
@@ -54,42 +54,47 @@
                 </StackPanel>
             </Border>
 
-            <Grid Grid.Row="1" Margin="24,24,24,0">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                </Grid.RowDefinitions>
+            <ScrollViewer Grid.Row="1"
+                          VerticalScrollBarVisibility="Auto"
+                          HorizontalScrollBarVisibility="Disabled"
+                          Margin="24,24,24,0">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
 
-                <Border Grid.Row="0" Grid.Column="0" Style="{StaticResource InfoCardStyle}">
-                    <StackPanel>
-                        <TextBlock Text="Teacher ID" Style="{StaticResource CardLabelStyle}"/>
-                        <TextBlock Text="{Binding TeacherID}" Style="{StaticResource CardValueStyle}"/>
-                    </StackPanel>
-                </Border>
-                <Border Grid.Row="0" Grid.Column="1" Style="{StaticResource InfoCardStyle}">
-                    <StackPanel>
-                        <TextBlock Text="Designation" Style="{StaticResource CardLabelStyle}"/>
-                        <TextBlock Text="{Binding Designation}" Style="{StaticResource CardValueStyle}"/>
-                    </StackPanel>
-                </Border>
-                <Border Grid.Row="1" Grid.Column="0" Style="{StaticResource InfoCardStyle}">
-                    <StackPanel>
-                        <TextBlock Text="Base Salary" Style="{StaticResource CardLabelStyle}"/>
-                        <TextBlock Text="{Binding SalaryDisplay}" Style="{StaticResource CardValueStyle}"/>
-                    </StackPanel>
-                </Border>
-                <Border Grid.Row="1" Grid.Column="1" Style="{StaticResource InfoCardStyle}">
-                    <StackPanel>
-                        <TextBlock Text="Fingerprint ID" Style="{StaticResource CardLabelStyle}"/>
-                        <TextBlock Text="{Binding FingerprintId, TargetNullValue='Not Assigned'}"
-                                   Style="{StaticResource CardValueStyle}"/>
-                    </StackPanel>
-                </Border>
-            </Grid>
+                    <Border Grid.Row="0" Grid.Column="0" Style="{StaticResource InfoCardStyle}">
+                        <StackPanel>
+                            <TextBlock Text="Teacher ID" Style="{StaticResource CardLabelStyle}"/>
+                            <TextBlock Text="{Binding TeacherID}" Style="{StaticResource CardValueStyle}"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Grid.Row="0" Grid.Column="1" Style="{StaticResource InfoCardStyle}">
+                        <StackPanel>
+                            <TextBlock Text="Designation" Style="{StaticResource CardLabelStyle}"/>
+                            <TextBlock Text="{Binding Designation}" Style="{StaticResource CardValueStyle}"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Grid.Row="1" Grid.Column="0" Style="{StaticResource InfoCardStyle}">
+                        <StackPanel>
+                            <TextBlock Text="Base Salary" Style="{StaticResource CardLabelStyle}"/>
+                            <TextBlock Text="{Binding SalaryDisplay}" Style="{StaticResource CardValueStyle}"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Grid.Row="1" Grid.Column="1" Style="{StaticResource InfoCardStyle}">
+                        <StackPanel>
+                            <TextBlock Text="Fingerprint ID" Style="{StaticResource CardLabelStyle}"/>
+                            <TextBlock Text="{Binding FingerprintId, TargetNullValue='Not Assigned'}"
+                                       Style="{StaticResource CardValueStyle}"/>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+            </ScrollViewer>
 
             <Button Grid.Row="2"
                     Content="Close"
