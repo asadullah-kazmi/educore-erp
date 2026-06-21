@@ -11,8 +11,15 @@ namespace SchoolERP.Models
         public DateTime? DOB { get; set; }
         public int? ClassID { get; set; }
         public string ClassName { get; set; }
+        public string Section { get; set; }
         public string Address { get; set; }
         public string Phone { get; set; }
+        public string StudentFormBOrCnicNumber { get; set; }
+        public string StudentFormBOrCnicPicturePath { get; set; }
+        public string GuardianCnicNumber { get; set; }
+        public string GuardianCnicPicturePath { get; set; }
+        public string GuardianPhone { get; set; }
+        public string EmergencyContactNumber { get; set; }
         public DateTime? AdmissionDate { get; set; }
         public decimal MonthlyFee { get; set; }
     }

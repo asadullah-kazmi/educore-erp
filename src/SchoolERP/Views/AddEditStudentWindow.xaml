@@ -2,10 +2,12 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="{Binding WindowTitle}"
-        Height="620"
-        Width="520"
+        Height="760"
+        Width="680"
+        MinHeight="650"
+        MinWidth="620"
         WindowStartupLocation="CenterOwner"
-        ResizeMode="NoResize"
+        ResizeMode="CanResize"
         Background="#EEF2F7"
         FontFamily="Segoe UI">
     <Window.Resources>
@@ -36,6 +38,12 @@
             <Setter Property="Background" Value="#F8FAFC"/>
             <Setter Property="FontSize" Value="14"/>
         </Style>
+        <Style x:Key="SectionHeaderStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="15"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="#001A3F"/>
+            <Setter Property="Margin" Value="0,18,0,12"/>
+        </Style>
         <Style x:Key="ErrorTextStyle" TargetType="TextBlock">
             <Setter Property="Foreground" Value="#DC2626"/>
             <Setter Property="FontSize" Value="12"/>
@@ -62,6 +70,8 @@
 
             <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
                 <StackPanel>
+                    <TextBlock Text="Basic Information" Style="{StaticResource SectionHeaderStyle}" Margin="0,0,0,12"/>
+
                     <TextBlock Text="Registration No *" Style="{StaticResource FieldLabelStyle}"/>
                     <TextBox Text="{Binding RegistrationNo, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldInputStyle}"/>
                     <TextBlock Text="{Binding RegistrationNoError}" Style="{StaticResource ErrorTextStyle}"/>
@@ -83,6 +93,16 @@
                               SelectedValue="{Binding SelectedClassId}"
                               Style="{StaticResource FieldComboStyle}"/>
 
+                    <TextBlock Text="Section" Style="{StaticResource FieldLabelStyle}" Margin="0,12,0,6"/>
+                    <ComboBox SelectedValue="{Binding Section}"
+                              SelectedValuePath="Content"
+                              Style="{StaticResource FieldComboStyle}">
+                        <ComboBoxItem Content="A"/>
+                        <ComboBoxItem Content="B"/>
+                        <ComboBoxItem Content="C"/>
+                        <ComboBoxItem Content="D"/>
+                    </ComboBox>
+
                     <TextBlock Text="Monthly Fee (Rs)" Style="{StaticResource FieldLabelStyle}" Margin="0,12,0,6"/>
                     <TextBox x:Name="MonthlyFeeTextBox"
                              Text="{Binding MonthlyFee, UpdateSourceTrigger=PropertyChanged}"
@@ -101,6 +121,60 @@
 
                     <TextBlock Text="Admission Date" Style="{StaticResource FieldLabelStyle}" Margin="0,12,0,6"/>
                     <DatePicker SelectedDate="{Binding AdmissionDate}" Style="{StaticResource FieldDateStyle}"/>
+
+                    <TextBlock Text="Student Identity" Style="{StaticResource SectionHeaderStyle}"/>
+
+                    <TextBlock Text="Student Form-B / CNIC Number" Style="{StaticResource FieldLabelStyle}"/>
+                    <TextBox Text="{Binding StudentFormBOrCnicNumber, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldInputStyle}"/>
+
+                    <TextBlock Text="Student Form-B / CNIC Picture" Style="{StaticResource FieldLabelStyle}" Margin="0,12,0,6"/>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="10"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBox Text="{Binding StudentFormBOrCnicPicturePath, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldInputStyle}"/>
+                        <Button Grid.Column="2"
+                                Content="Browse"
+                                Width="92"
+                                Height="38"
+                                Command="{Binding BrowseStudentFormPictureCommand}"
+                                Background="#F1F5F9"
+                                Foreground="#334155"
+                                BorderThickness="0"
+                                Cursor="Hand"/>
+                    </Grid>
+
+                    <TextBlock Text="Guardian Details" Style="{StaticResource SectionHeaderStyle}"/>
+
+                    <TextBlock Text="Guardian CNIC Number" Style="{StaticResource FieldLabelStyle}"/>
+                    <TextBox Text="{Binding GuardianCnicNumber, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldInputStyle}"/>
+
+                    <TextBlock Text="Guardian CNIC Picture" Style="{StaticResource FieldLabelStyle}" Margin="0,12,0,6"/>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="10"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBox Text="{Binding GuardianCnicPicturePath, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldInputStyle}"/>
+                        <Button Grid.Column="2"
+                                Content="Browse"
+                                Width="92"
+                                Height="38"
+                                Command="{Binding BrowseGuardianCnicPictureCommand}"
+                                Background="#F1F5F9"
+                                Foreground="#334155"
+                                BorderThickness="0"
+                                Cursor="Hand"/>
+                    </Grid>
+
+                    <TextBlock Text="Guardian Phone Number" Style="{StaticResource FieldLabelStyle}" Margin="0,12,0,6"/>
+                    <TextBox Text="{Binding GuardianPhone, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldInputStyle}"/>
+
+                    <TextBlock Text="Emergency Contact Number" Style="{StaticResource FieldLabelStyle}" Margin="0,12,0,6"/>
+                    <TextBox Text="{Binding EmergencyContactNumber, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldInputStyle}"/>
                 </StackPanel>
             </ScrollViewer>
 

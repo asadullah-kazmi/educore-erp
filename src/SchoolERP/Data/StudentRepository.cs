@@ -8,6 +8,8 @@ namespace SchoolERP.Data
 {
     public class StudentRepository
     {
+        private static bool schemaEnsured;
+
         private const string SelectColumns = @"
 SELECT s.StudentID,
        s.RegistrationNo,
@@ -16,8 +18,15 @@ SELECT s.StudentID,
        s.DOB,
        s.ClassID,
        c.ClassName,
+       s.Section,
        s.Address,
        s.Phone,
+       s.StudentFormBOrCnicNumber,
+       s.StudentFormBOrCnicPicturePath,
+       s.GuardianCnicNumber,
+       s.GuardianCnicPicturePath,
+       s.GuardianPhone,
+       s.EmergencyContactNumber,
        s.AdmissionDate,
        s.MonthlyFee
 FROM dbo.Students s
@@ -25,6 +34,8 @@ LEFT JOIN dbo.Classes c ON s.ClassID = c.ClassID";
 
         public async Task<List<Student>> GetAllStudentsAsync()
         {
+            await EnsureStudentProfileColumnsAsync().ConfigureAwait(false);
+
             const string sql = SelectColumns + @"
 ORDER BY s.StudentID DESC;";
 
@@ -49,6 +60,8 @@ ORDER BY s.StudentID DESC;";
 
         public async Task<Student> GetStudentByIdAsync(int studentId)
         {
+            await EnsureStudentProfileColumnsAsync().ConfigureAwait(false);
+
             const string sql = SelectColumns + @"
 WHERE s.StudentID = @StudentID;";
 
@@ -77,9 +90,11 @@ WHERE s.StudentID = @StudentID;";
                 throw new ArgumentNullException(nameof(student));
             }
 
+            await EnsureStudentProfileColumnsAsync().ConfigureAwait(false);
+
             const string sql = @"
-INSERT INTO dbo.Students (RegistrationNo, Name, FatherName, DOB, ClassID, Address, Phone, AdmissionDate, MonthlyFee)
-VALUES (@RegistrationNo, @Name, @FatherName, @DOB, @ClassID, @Address, @Phone, @AdmissionDate, @MonthlyFee);";
+INSERT INTO dbo.Students (RegistrationNo, Name, FatherName, DOB, ClassID, Section, Address, Phone, StudentFormBOrCnicNumber, StudentFormBOrCnicPicturePath, GuardianCnicNumber, GuardianCnicPicturePath, GuardianPhone, EmergencyContactNumber, AdmissionDate, MonthlyFee)
+VALUES (@RegistrationNo, @Name, @FatherName, @DOB, @ClassID, @Section, @Address, @Phone, @StudentFormBOrCnicNumber, @StudentFormBOrCnicPicturePath, @GuardianCnicNumber, @GuardianCnicPicturePath, @GuardianPhone, @EmergencyContactNumber, @AdmissionDate, @MonthlyFee);";
 
             using (var connection = Database.GetConnection())
             using (var command = new SqlCommand(sql, connection))
@@ -97,6 +112,8 @@ VALUES (@RegistrationNo, @Name, @FatherName, @DOB, @ClassID, @Address, @Phone, @
                 throw new ArgumentNullException(nameof(student));
             }
 
+            await EnsureStudentProfileColumnsAsync().ConfigureAwait(false);
+
             const string sql = @"
 UPDATE dbo.Students
 SET RegistrationNo = @RegistrationNo,
@@ -104,8 +121,15 @@ SET RegistrationNo = @RegistrationNo,
     FatherName = @FatherName,
     DOB = @DOB,
     ClassID = @ClassID,
+    Section = @Section,
     Address = @Address,
     Phone = @Phone,
+    StudentFormBOrCnicNumber = @StudentFormBOrCnicNumber,
+    StudentFormBOrCnicPicturePath = @StudentFormBOrCnicPicturePath,
+    GuardianCnicNumber = @GuardianCnicNumber,
+    GuardianCnicPicturePath = @GuardianCnicPicturePath,
+    GuardianPhone = @GuardianPhone,
+    EmergencyContactNumber = @EmergencyContactNumber,
     AdmissionDate = @AdmissionDate,
     MonthlyFee = @MonthlyFee
 WHERE StudentID = @StudentID;";
@@ -122,6 +146,8 @@ WHERE StudentID = @StudentID;";
 
         public async Task<bool> DeleteStudentAsync(int studentId)
         {
+            await EnsureStudentProfileColumnsAsync().ConfigureAwait(false);
+
             const string sql = "DELETE FROM dbo.Students WHERE StudentID = @StudentID;";
 
             using (var connection = Database.GetConnection())
@@ -135,6 +161,8 @@ WHERE StudentID = @StudentID;";
 
         public async Task<bool> RegistrationNoExistsAsync(string regNo, int? excludeStudentId = null)
         {
+            await EnsureStudentProfileColumnsAsync().ConfigureAwait(false);
+
             const string sql = @"
 SELECT COUNT(1)
 FROM dbo.Students
@@ -189,8 +217,15 @@ ORDER BY ClassName;";
             command.Parameters.AddWithValue("@FatherName", (object)student.FatherName ?? DBNull.Value);
             command.Parameters.AddWithValue("@DOB", (object)student.DOB ?? DBNull.Value);
             command.Parameters.AddWithValue("@ClassID", (object)student.ClassID ?? DBNull.Value);
+            command.Parameters.AddWithValue("@Section", (object)student.Section ?? DBNull.Value);
             command.Parameters.AddWithValue("@Address", (object)student.Address ?? DBNull.Value);
             command.Parameters.AddWithValue("@Phone", (object)student.Phone ?? DBNull.Value);
+            command.Parameters.AddWithValue("@StudentFormBOrCnicNumber", (object)student.StudentFormBOrCnicNumber ?? DBNull.Value);
+            command.Parameters.AddWithValue("@StudentFormBOrCnicPicturePath", (object)student.StudentFormBOrCnicPicturePath ?? DBNull.Value);
+            command.Parameters.AddWithValue("@GuardianCnicNumber", (object)student.GuardianCnicNumber ?? DBNull.Value);
+            command.Parameters.AddWithValue("@GuardianCnicPicturePath", (object)student.GuardianCnicPicturePath ?? DBNull.Value);
+            command.Parameters.AddWithValue("@GuardianPhone", (object)student.GuardianPhone ?? DBNull.Value);
+            command.Parameters.AddWithValue("@EmergencyContactNumber", (object)student.EmergencyContactNumber ?? DBNull.Value);
             command.Parameters.AddWithValue("@AdmissionDate", (object)student.AdmissionDate ?? DBNull.Value);
             command.Parameters.AddWithValue("@MonthlyFee", student.MonthlyFee);
         }
@@ -206,11 +241,50 @@ ORDER BY ClassName;";
                 DOB = reader["DOB"] == DBNull.Value ? (DateTime?)null : Convert.ToDateTime(reader["DOB"]),
                 ClassID = reader["ClassID"] == DBNull.Value ? (int?)null : Convert.ToInt32(reader["ClassID"]),
                 ClassName = reader["ClassName"] as string,
+                Section = reader["Section"] as string,
                 Address = reader["Address"] as string,
                 Phone = reader["Phone"] as string,
+                StudentFormBOrCnicNumber = reader["StudentFormBOrCnicNumber"] as string,
+                StudentFormBOrCnicPicturePath = reader["StudentFormBOrCnicPicturePath"] as string,
+                GuardianCnicNumber = reader["GuardianCnicNumber"] as string,
+                GuardianCnicPicturePath = reader["GuardianCnicPicturePath"] as string,
+                GuardianPhone = reader["GuardianPhone"] as string,
+                EmergencyContactNumber = reader["EmergencyContactNumber"] as string,
                 AdmissionDate = reader["AdmissionDate"] == DBNull.Value ? (DateTime?)null : Convert.ToDateTime(reader["AdmissionDate"]),
                 MonthlyFee = reader["MonthlyFee"] == DBNull.Value ? 0m : Convert.ToDecimal(reader["MonthlyFee"])
             };
+        }
+
+        private static async Task EnsureStudentProfileColumnsAsync()
+        {
+            if (schemaEnsured)
+            {
+                return;
+            }
+
+            const string sql = @"
+IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('dbo.Students') AND name = 'Section')
+    ALTER TABLE dbo.Students ADD Section NVARCHAR(10) NULL;
+IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('dbo.Students') AND name = 'StudentFormBOrCnicNumber')
+    ALTER TABLE dbo.Students ADD StudentFormBOrCnicNumber NVARCHAR(50) NULL;
+IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('dbo.Students') AND name = 'StudentFormBOrCnicPicturePath')
+    ALTER TABLE dbo.Students ADD StudentFormBOrCnicPicturePath NVARCHAR(1000) NULL;
+IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('dbo.Students') AND name = 'GuardianCnicNumber')
+    ALTER TABLE dbo.Students ADD GuardianCnicNumber NVARCHAR(50) NULL;
+IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('dbo.Students') AND name = 'GuardianCnicPicturePath')
+    ALTER TABLE dbo.Students ADD GuardianCnicPicturePath NVARCHAR(1000) NULL;
+IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('dbo.Students') AND name = 'GuardianPhone')
+    ALTER TABLE dbo.Students ADD GuardianPhone NVARCHAR(50) NULL;
+IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('dbo.Students') AND name = 'EmergencyContactNumber')
+    ALTER TABLE dbo.Students ADD EmergencyContactNumber NVARCHAR(50) NULL;";
+
+            using (var connection = Database.GetConnection())
+            using (var command = new SqlCommand(sql, connection))
+            {
+                await connection.OpenAsync().ConfigureAwait(false);
+                await command.ExecuteNonQueryAsync().ConfigureAwait(false);
+                schemaEnsured = true;
+            }
         }
     }
 }

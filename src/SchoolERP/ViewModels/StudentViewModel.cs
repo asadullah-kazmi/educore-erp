@@ -12,8 +12,15 @@ namespace SchoolERP.ViewModels
         public DateTime? DOB { get; set; }
         public int? ClassID { get; set; }
         public string ClassName { get; set; }
+        public string Section { get; set; }
         public string Address { get; set; }
         public string Phone { get; set; }
+        public string StudentFormBOrCnicNumber { get; set; }
+        public string StudentFormBOrCnicPicturePath { get; set; }
+        public string GuardianCnicNumber { get; set; }
+        public string GuardianCnicPicturePath { get; set; }
+        public string GuardianPhone { get; set; }
+        public string EmergencyContactNumber { get; set; }
         public DateTime? AdmissionDate { get; set; }
         public decimal MonthlyFee { get; set; }
 
@@ -36,8 +43,15 @@ namespace SchoolERP.ViewModels
                 DOB = student.DOB,
                 ClassID = student.ClassID,
                 ClassName = student.ClassName,
+                Section = student.Section,
                 Address = student.Address,
                 Phone = student.Phone,
+                StudentFormBOrCnicNumber = student.StudentFormBOrCnicNumber,
+                StudentFormBOrCnicPicturePath = student.StudentFormBOrCnicPicturePath,
+                GuardianCnicNumber = student.GuardianCnicNumber,
+                GuardianCnicPicturePath = student.GuardianCnicPicturePath,
+                GuardianPhone = student.GuardianPhone,
+                EmergencyContactNumber = student.EmergencyContactNumber,
                 AdmissionDate = student.AdmissionDate,
                 MonthlyFee = student.MonthlyFee
             };
@@ -54,8 +68,15 @@ namespace SchoolERP.ViewModels
                 DOB = DOB,
                 ClassID = ClassID,
                 ClassName = ClassName,
+                Section = Section,
                 Address = Address,
                 Phone = Phone,
+                StudentFormBOrCnicNumber = StudentFormBOrCnicNumber,
+                StudentFormBOrCnicPicturePath = StudentFormBOrCnicPicturePath,
+                GuardianCnicNumber = GuardianCnicNumber,
+                GuardianCnicPicturePath = GuardianCnicPicturePath,
+                GuardianPhone = GuardianPhone,
+                EmergencyContactNumber = EmergencyContactNumber,
                 AdmissionDate = AdmissionDate,
                 MonthlyFee = MonthlyFee
             };
