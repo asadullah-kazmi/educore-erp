@@ -14,7 +14,9 @@ SELECT f.FeeID,
        f.StudentID,
        s.Name AS StudentName,
        s.RegistrationNo,
+       s.ClassID,
        c.ClassName,
+       s.Section,
        f.Month,
        f.FeeType,
        f.Amount,
@@ -220,6 +222,58 @@ ORDER BY f.Month DESC;";
             }
         }
 
+        public async Task<List<FeeRecord>> GetMonthlyTuitionStatusAsync(string month, int? classId = null, string section = null)
+        {
+            if (string.IsNullOrWhiteSpace(month))
+            {
+                throw new ArgumentException("Month cannot be null or empty.", nameof(month));
+            }
+
+            var sql = @"
+SELECT ISNULL(f.FeeID, 0) AS FeeID,
+       s.StudentID,
+       s.Name AS StudentName,
+       s.RegistrationNo,
+       s.ClassID,
+       c.ClassName,
+       s.Section,
+       @Month AS Month,
+       ISNULL(f.FeeType, 'Monthly Tuition') AS FeeType,
+       ISNULL(f.Amount, COALESCE(s.MonthlyFee, 0)) AS Amount,
+       ISNULL(f.Status, 'Due') AS Status,
+       f.PaymentDate
+FROM dbo.Students s
+LEFT JOIN dbo.Classes c ON s.ClassID = c.ClassID
+LEFT JOIN dbo.Fees f
+  ON f.StudentID = s.StudentID
+ AND LTRIM(RTRIM(f.Month)) = LTRIM(RTRIM(@Month))
+ AND LTRIM(RTRIM(ISNULL(f.FeeType, 'Monthly Tuition'))) = 'Monthly Tuition'
+WHERE (@ClassID IS NULL OR s.ClassID = @ClassID)
+  AND (@Section IS NULL OR LTRIM(RTRIM(ISNULL(s.Section, ''))) = @Section)
+ORDER BY c.ClassName, s.Section, s.Name;";
+
+            using (var connection = Database.GetConnection())
+            using (var command = new SqlCommand(sql, connection))
+            {
+                command.Parameters.AddWithValue("@Month", month.Trim());
+                command.Parameters.AddWithValue("@ClassID", (object)classId ?? DBNull.Value);
+                command.Parameters.AddWithValue("@Section", string.IsNullOrWhiteSpace(section) ? (object)DBNull.Value : section.Trim());
+
+                await connection.OpenAsync().ConfigureAwait(false);
+                var fees = new List<FeeRecord>();
+
+                using (var reader = await command.ExecuteReaderAsync().ConfigureAwait(false))
+                {
+                    while (await reader.ReadAsync().ConfigureAwait(false))
+                    {
+                        fees.Add(MapFeeRecord(reader));
+                    }
+                }
+
+                return fees;
+            }
+        }
+
         public async Task<bool> GenerateMonthlyFeesAsync(string month, string feeType)
         {
             if (string.IsNullOrEmpty(month))
@@ -310,7 +364,9 @@ WHERE Status = 'Due';";
                 StudentID = reader.GetInt32(reader.GetOrdinal("StudentID")),
                 StudentName = reader["StudentName"] as string,
                 RegistrationNo = reader["RegistrationNo"] as string,
+                ClassID = reader["ClassID"] == DBNull.Value ? (int?)null : Convert.ToInt32(reader["ClassID"]),
                 ClassName = reader["ClassName"] as string,
+                Section = reader["Section"] as string,
                 Month = reader["Month"] as string,
                 FeeType = reader["FeeType"] as string,
                 Amount = reader.GetDecimal(reader.GetOrdinal("Amount")),

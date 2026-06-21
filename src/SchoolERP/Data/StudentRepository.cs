@@ -182,6 +182,8 @@ WHERE RegistrationNo = @RegistrationNo
 
         public async Task<List<Class>> GetAllClassesAsync()
         {
+            await EnsureStudentProfileColumnsAsync().ConfigureAwait(false);
+
             const string sql = @"
 SELECT ClassID, ClassName
 FROM dbo.Classes

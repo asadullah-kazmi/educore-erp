@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using SchoolERP.Models;
+using SchoolERP.Data;
 using SchoolERP.Repositories;
 using SchoolERP.Services;
 using SchoolERP.Views;
@@ -15,9 +16,12 @@ namespace SchoolERP.ViewModels
     public class FeesViewModel : ViewModelBase
     {
         private readonly FeeRepository repository = new FeeRepository();
+        private readonly StudentRepository studentRepository = new StudentRepository();
         private string searchText = string.Empty;
         private string statusFilter = "All";
         private string displayMonthFilter = "All Months";
+        private string sectionFilter = "All Sections";
+        private ClassFilterOption selectedClassFilter;
         private decimal totalCollected;
         private decimal totalOutstanding;
         private int totalRecords;
@@ -27,6 +31,15 @@ namespace SchoolERP.ViewModels
             AllFees = new ObservableCollection<FeeRecord>();
             FilteredFees = new ObservableCollection<FeeRecord>();
             MonthOptions = new ObservableCollection<string>();
+            ClassFilterOptions = new ObservableCollection<ClassFilterOption>();
+            SectionFilterOptions = new ObservableCollection<string>
+            {
+                "All Sections",
+                "A",
+                "B",
+                "C",
+                "D"
+            };
 
             // Generate months Jan 2025 through Dec 2026
             MonthOptions.Add("All Months");
@@ -48,13 +61,14 @@ namespace SchoolERP.ViewModels
             StatusFilter = "All";
             DisplayMonthFilter = DateTime.Now.ToString("MMM yyyy");
 
-            // Execute the load command
-            LoadFeesCommand.Execute(null);
+            _ = InitializeAsync();
         }
 
         public ObservableCollection<FeeRecord> AllFees { get; }
         public ObservableCollection<FeeRecord> FilteredFees { get; }
         public ObservableCollection<string> MonthOptions { get; }
+        public ObservableCollection<ClassFilterOption> ClassFilterOptions { get; }
+        public ObservableCollection<string> SectionFilterOptions { get; }
 
         public string SearchText
         {
@@ -87,7 +101,31 @@ namespace SchoolERP.ViewModels
             {
                 if (SetProperty(ref displayMonthFilter, value))
                 {
-                    ApplyFilter();
+                    _ = LoadFeesAsync();
+                }
+            }
+        }
+
+        public string SectionFilter
+        {
+            get => sectionFilter;
+            set
+            {
+                if (SetProperty(ref sectionFilter, value))
+                {
+                    _ = LoadFeesAsync();
+                }
+            }
+        }
+
+        public ClassFilterOption SelectedClassFilter
+        {
+            get => selectedClassFilter;
+            set
+            {
+                if (SetProperty(ref selectedClassFilter, value))
+                {
+                    _ = LoadFeesAsync();
                 }
             }
         }
@@ -123,11 +161,43 @@ namespace SchoolERP.ViewModels
 
         public RelayCommand<FeeRecord> PrintReceiptCommand { get; }
 
+        private async Task InitializeAsync()
+        {
+            try
+            {
+                ClassFilterOptions.Clear();
+                ClassFilterOptions.Add(new ClassFilterOption(null, "All Classes"));
+
+                var classes = await studentRepository.GetAllClassesAsync().ConfigureAwait(true);
+                foreach (var item in classes)
+                {
+                    ClassFilterOptions.Add(new ClassFilterOption(item.ClassID, item.ClassName));
+                }
+
+                SelectedClassFilter = ClassFilterOptions.FirstOrDefault();
+                await LoadFeesAsync().ConfigureAwait(true);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Failed to load fee filters: " + ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
         public async Task LoadFeesAsync()
         {
             try
             {
-                var fees = await repository.GetAllFeesAsync().ConfigureAwait(true);
+                var selectedMonth = DisplayMonthFilter ?? "All Months";
+                var selectedClassId = SelectedClassFilter?.ClassID;
+                var selectedSection = GetSelectedSection();
+                var shouldShowStudentStatus =
+                    (selectedClassId.HasValue || selectedSection != null) &&
+                    !string.Equals(selectedMonth, "All Months", StringComparison.OrdinalIgnoreCase);
+
+                var fees = shouldShowStudentStatus
+                    ? await repository.GetMonthlyTuitionStatusAsync(selectedMonth, selectedClassId, selectedSection).ConfigureAwait(true)
+                    : await repository.GetAllFeesAsync().ConfigureAwait(true);
+
                 AllFees.Clear();
                 foreach (var fee in fees)
                 {
@@ -151,6 +221,8 @@ namespace SchoolERP.ViewModels
             var search = (SearchText ?? string.Empty).Trim();
             var status = StatusFilter ?? "All";
             var displayMonth = DisplayMonthFilter ?? "All Months";
+            var selectedClassId = SelectedClassFilter?.ClassID;
+            var selectedSection = GetSelectedSection();
 
             FilteredFees.Clear();
 
@@ -172,6 +244,16 @@ namespace SchoolERP.ViewModels
             if (!string.Equals(displayMonth, "All Months", StringComparison.OrdinalIgnoreCase))
             {
                 query = query.Where(f => string.Equals((f.Month ?? "").Trim(), displayMonth.Trim(), StringComparison.OrdinalIgnoreCase));
+            }
+
+            if (selectedClassId.HasValue)
+            {
+                query = query.Where(f => f.ClassID == selectedClassId.Value);
+            }
+
+            if (selectedSection != null)
+            {
+                query = query.Where(f => string.Equals((f.Section ?? string.Empty).Trim(), selectedSection, StringComparison.OrdinalIgnoreCase));
             }
 
             foreach (var fee in query)
@@ -210,7 +292,18 @@ namespace SchoolERP.ViewModels
             if (fee == null) return;
             try
             {
-                bool success = await repository.MarkAsPaidAsync(fee.FeeID, DateTime.Today).ConfigureAwait(true);
+                bool success;
+                if (fee.HasFeeRecord)
+                {
+                    success = await repository.MarkAsPaidAsync(fee.FeeID, DateTime.Today).ConfigureAwait(true);
+                }
+                else
+                {
+                    fee.Status = "Paid";
+                    fee.PaymentDate = DateTime.Today;
+                    success = await repository.AddFeeAsync(fee).ConfigureAwait(true);
+                }
+
                 if (success)
                 {
                     await LoadFeesAsync().ConfigureAwait(true);
@@ -235,6 +328,12 @@ namespace SchoolERP.ViewModels
         private void OnEditFee(FeeRecord fee)
         {
             if (fee == null) return;
+            if (!fee.HasFeeRecord)
+            {
+                MessageBox.Show("This fee is not generated yet. Use Mark as Paid or Generate Monthly Fees first.", "Fee Not Generated", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
             var window = new AddEditFeeWindow(fee);
             window.Owner = Application.Current.MainWindow;
             if (window.ShowDialog() == true)
@@ -246,6 +345,12 @@ namespace SchoolERP.ViewModels
         private async Task OnDeleteFeeAsync(FeeRecord fee)
         {
             if (fee == null) return;
+            if (!fee.HasFeeRecord)
+            {
+                MessageBox.Show("This fee has no saved record to delete.", "Fee Not Generated", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
             var result = MessageBox.Show($"Are you sure you want to delete the fee record for {fee.StudentName}?", "Confirm Delete", MessageBoxButton.YesNo, MessageBoxImage.Question);
             if (result == MessageBoxResult.Yes)
             {
@@ -271,6 +376,12 @@ namespace SchoolERP.ViewModels
         private void OpenFeeDetail(FeeRecord fee)
         {
             if (fee == null) return;
+            if (!fee.HasFeeRecord)
+            {
+                MessageBox.Show("This fee has not been generated yet.", "Fee Not Generated", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
             var window = new FeeDetailWindow(fee) { Owner = Application.Current.MainWindow };
             window.ShowDialog();
         }
@@ -278,8 +389,36 @@ namespace SchoolERP.ViewModels
         private void OpenFeeReceipt(FeeRecord fee)
         {
             if (fee == null) return;
+            if (!fee.HasFeeRecord || !string.Equals(fee.Status, "Paid", StringComparison.OrdinalIgnoreCase))
+            {
+                MessageBox.Show("Receipt is available after payment is recorded.", "Receipt Not Available", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
             var window = new FeeReceiptWindow(fee) { Owner = Application.Current.MainWindow };
             window.ShowDialog();
         }
+
+        private string GetSelectedSection()
+        {
+            var selected = (SectionFilter ?? string.Empty).Trim();
+            return string.IsNullOrEmpty(selected) ||
+                   string.Equals(selected, "All Sections", StringComparison.OrdinalIgnoreCase)
+                ? null
+                : selected;
+        }
+    }
+
+    public class ClassFilterOption
+    {
+        public ClassFilterOption(int? classId, string className)
+        {
+            ClassID = classId;
+            ClassName = className;
+        }
+
+        public int? ClassID { get; }
+
+        public string ClassName { get; }
     }
 }
