@@ -19,6 +19,7 @@ namespace SchoolERP.ViewModels
         private readonly StudentRepository studentRepository = new StudentRepository();
         private string searchText = string.Empty;
         private string statusFilter = "All";
+        private string feeTypeFilter = "All Fee Types";
         private string displayMonthFilter = "All Months";
         private string sectionFilter = "All Sections";
         private ClassFilterOption selectedClassFilter;
@@ -31,6 +32,7 @@ namespace SchoolERP.ViewModels
             AllFees = new ObservableCollection<FeeRecord>();
             FilteredFees = new ObservableCollection<FeeRecord>();
             MonthOptions = new ObservableCollection<string>();
+            FeeTypeOptions = new ObservableCollection<string>();
             ClassFilterOptions = new ObservableCollection<ClassFilterOption>();
             SectionFilterOptions = new ObservableCollection<string>
             {
@@ -48,6 +50,7 @@ namespace SchoolERP.ViewModels
             {
                 MonthOptions.Add(start.AddMonths(i).ToString("MMM yyyy"));
             }
+            FeeTypeOptions.Add("All Fee Types");
 
             LoadFeesCommand = new RelayCommand(async _ => await LoadFeesAsync());
             GenerateMonthlyFeesCommand = new RelayCommand(async _ => await OnGenerateMonthlyFeesAsync(), _ => IsAdmin);
@@ -59,6 +62,7 @@ namespace SchoolERP.ViewModels
             PrintReceiptCommand = new RelayCommand<FeeRecord>(fee => OpenFeeReceipt(fee));
 
             StatusFilter = "All";
+            FeeTypeFilter = "All Fee Types";
             DisplayMonthFilter = DateTime.Now.ToString("MMM yyyy");
 
             _ = InitializeAsync();
@@ -67,6 +71,7 @@ namespace SchoolERP.ViewModels
         public ObservableCollection<FeeRecord> AllFees { get; }
         public ObservableCollection<FeeRecord> FilteredFees { get; }
         public ObservableCollection<string> MonthOptions { get; }
+        public ObservableCollection<string> FeeTypeOptions { get; }
         public ObservableCollection<ClassFilterOption> ClassFilterOptions { get; }
         public ObservableCollection<string> SectionFilterOptions { get; }
 
@@ -88,6 +93,18 @@ namespace SchoolERP.ViewModels
             set
             {
                 if (SetProperty(ref statusFilter, value))
+                {
+                    ApplyFilter();
+                }
+            }
+        }
+
+        public string FeeTypeFilter
+        {
+            get => feeTypeFilter;
+            set
+            {
+                if (SetProperty(ref feeTypeFilter, value))
                 {
                     ApplyFilter();
                 }
@@ -187,16 +204,7 @@ namespace SchoolERP.ViewModels
         {
             try
             {
-                var selectedMonth = DisplayMonthFilter ?? "All Months";
-                var selectedClassId = SelectedClassFilter?.ClassID;
-                var selectedSection = GetSelectedSection();
-                var shouldShowStudentStatus =
-                    (selectedClassId.HasValue || selectedSection != null) &&
-                    !string.Equals(selectedMonth, "All Months", StringComparison.OrdinalIgnoreCase);
-
-                var fees = shouldShowStudentStatus
-                    ? await repository.GetMonthlyTuitionStatusAsync(selectedMonth, selectedClassId, selectedSection).ConfigureAwait(true)
-                    : await repository.GetAllFeesAsync().ConfigureAwait(true);
+                var fees = await repository.GetAllFeesAsync().ConfigureAwait(true);
 
                 AllFees.Clear();
                 foreach (var fee in fees)
@@ -204,6 +212,7 @@ namespace SchoolERP.ViewModels
                     AllFees.Add(fee);
                 }
 
+                await LoadFeeTypesAsync().ConfigureAwait(true);
                 ApplyFilter();
 
                 string currentMonth = DateTime.Now.ToString("MMM yyyy");
@@ -216,10 +225,26 @@ namespace SchoolERP.ViewModels
             }
         }
 
+        private async Task LoadFeeTypesAsync()
+        {
+            var selected = FeeTypeFilter;
+            var feeTypes = await repository.GetFeeTypesAsync().ConfigureAwait(true);
+
+            FeeTypeOptions.Clear();
+            FeeTypeOptions.Add("All Fee Types");
+            foreach (var feeType in feeTypes)
+            {
+                FeeTypeOptions.Add(feeType);
+            }
+
+            FeeTypeFilter = FeeTypeOptions.Contains(selected) ? selected : "All Fee Types";
+        }
+
         public void ApplyFilter()
         {
             var search = (SearchText ?? string.Empty).Trim();
             var status = StatusFilter ?? "All";
+            var feeType = FeeTypeFilter ?? "All Fee Types";
             var displayMonth = DisplayMonthFilter ?? "All Months";
             var selectedClassId = SelectedClassFilter?.ClassID;
             var selectedSection = GetSelectedSection();
@@ -239,6 +264,11 @@ namespace SchoolERP.ViewModels
             if (!string.Equals(status, "All", StringComparison.OrdinalIgnoreCase))
             {
                 query = query.Where(f => string.Equals(f.Status, status, StringComparison.OrdinalIgnoreCase));
+            }
+
+            if (!string.Equals(feeType, "All Fee Types", StringComparison.OrdinalIgnoreCase))
+            {
+                query = query.Where(f => string.Equals((f.FeeType ?? "").Trim(), feeType.Trim(), StringComparison.OrdinalIgnoreCase));
             }
 
             if (!string.Equals(displayMonth, "All Months", StringComparison.OrdinalIgnoreCase))

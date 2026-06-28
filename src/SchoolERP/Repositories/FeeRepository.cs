@@ -130,6 +130,77 @@ VALUES (@StudentID, @Month, @Amount, @Status, @PaymentDate, @FeeType);";
             }
         }
 
+        public async Task<int> AddFeesForStudentsAsync(IEnumerable<int> studentIds, string month, string feeType, decimal amount, string status, DateTime? paymentDate)
+        {
+            if (studentIds == null)
+            {
+                throw new ArgumentNullException(nameof(studentIds));
+            }
+            if (string.IsNullOrWhiteSpace(month))
+            {
+                throw new ArgumentException("Month cannot be null or empty.", nameof(month));
+            }
+            if (string.IsNullOrWhiteSpace(feeType))
+            {
+                throw new ArgumentException("FeeType cannot be null or empty.", nameof(feeType));
+            }
+
+            var ids = new List<int>(studentIds);
+            if (ids.Count == 0)
+            {
+                return 0;
+            }
+
+            const string sql = @"
+IF NOT EXISTS (
+    SELECT 1 FROM dbo.Fees
+    WHERE StudentID = @StudentID
+      AND LTRIM(RTRIM(Month)) = LTRIM(RTRIM(@Month))
+      AND LTRIM(RTRIM(ISNULL(FeeType, ''))) = LTRIM(RTRIM(@FeeType))
+)
+BEGIN
+    INSERT INTO dbo.Fees (StudentID, Month, Amount, Status, PaymentDate, FeeType)
+    VALUES (@StudentID, @Month, @Amount, @Status, @PaymentDate, @FeeType);
+END";
+
+            using (var connection = Database.GetConnection())
+            {
+                await connection.OpenAsync().ConfigureAwait(false);
+                using (var transaction = connection.BeginTransaction())
+                using (var command = new SqlCommand(sql, connection, transaction))
+                {
+                    command.Parameters.Add("@StudentID", System.Data.SqlDbType.Int);
+                    command.Parameters.Add("@Month", System.Data.SqlDbType.NVarChar, 20).Value = month.Trim();
+                    var amountParameter = command.Parameters.Add("@Amount", System.Data.SqlDbType.Decimal);
+                    amountParameter.Precision = 18;
+                    amountParameter.Scale = 2;
+                    amountParameter.Value = amount;
+                    command.Parameters.Add("@Status", System.Data.SqlDbType.NVarChar, 20).Value = string.IsNullOrWhiteSpace(status) ? "Due" : status.Trim();
+                    command.Parameters.Add("@PaymentDate", System.Data.SqlDbType.DateTime);
+                    command.Parameters.Add("@FeeType", System.Data.SqlDbType.NVarChar, 100).Value = feeType.Trim();
+
+                    try
+                    {
+                        var inserted = 0;
+                        foreach (var studentId in ids)
+                        {
+                            command.Parameters["@StudentID"].Value = studentId;
+                            command.Parameters["@PaymentDate"].Value = (object)paymentDate ?? DBNull.Value;
+                            inserted += await command.ExecuteNonQueryAsync().ConfigureAwait(false);
+                        }
+
+                        transaction.Commit();
+                        return inserted;
+                    }
+                    catch
+                    {
+                        transaction.Rollback();
+                        throw;
+                    }
+                }
+            }
+        }
+
         public async Task<bool> UpdateFeeAsync(FeeRecord fee)
         {
             if (fee == null)
@@ -219,6 +290,33 @@ ORDER BY f.Month DESC;";
                 }
 
                 return fees;
+            }
+        }
+
+        public async Task<List<string>> GetFeeTypesAsync()
+        {
+            const string sql = @"
+SELECT DISTINCT LTRIM(RTRIM(FeeType)) AS FeeType
+FROM dbo.Fees
+WHERE FeeType IS NOT NULL
+  AND LTRIM(RTRIM(FeeType)) <> ''
+ORDER BY FeeType;";
+
+            using (var connection = Database.GetConnection())
+            using (var command = new SqlCommand(sql, connection))
+            {
+                await connection.OpenAsync().ConfigureAwait(false);
+                var feeTypes = new List<string>();
+
+                using (var reader = await command.ExecuteReaderAsync().ConfigureAwait(false))
+                {
+                    while (await reader.ReadAsync().ConfigureAwait(false))
+                    {
+                        feeTypes.Add(reader["FeeType"] as string);
+                    }
+                }
+
+                return feeTypes;
             }
         }
 

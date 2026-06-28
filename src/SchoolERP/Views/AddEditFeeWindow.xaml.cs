@@ -18,6 +18,7 @@ namespace SchoolERP.Views
         private readonly FeeRepository feeRepository = new FeeRepository();
         private readonly FeeRecord editingFee;
         private List<Student> allStudents;
+        private List<SchoolERP.Models.Class> allClasses;
         private ObservableCollection<Student> filteredStudents;
 
         public AddEditFeeWindow(FeeRecord fee = null)
@@ -56,23 +57,21 @@ namespace SchoolERP.Views
             try
             {
                 allStudents = (await studentRepository.GetAllStudentsAsync().ConfigureAwait(true)).ToList();
+                allClasses = await studentRepository.GetAllClassesAsync().ConfigureAwait(true);
                 filteredStudents = new ObservableCollection<Student>(allStudents);
                 ComboStudent.ItemsSource = filteredStudents;
+                ComboClass.ItemsSource = allClasses;
 
                 if (editingFee != null)
                 {
                     TxtTitle.Text = "Edit Fee Record";
+                    ScopePanel.Visibility = Visibility.Collapsed;
+                    ClassPanel.Visibility = Visibility.Collapsed;
+                    SectionPanel.Visibility = Visibility.Collapsed;
+                    StudentPanel.Visibility = Visibility.Visible;
                     ComboStudent.SelectedItem = allStudents.FirstOrDefault(s => s.StudentID == editingFee.StudentID);
                     ComboMonth.SelectedItem = editingFee.Month;
-
-                    foreach (ComboBoxItem item in ComboFeeType.Items)
-                    {
-                        if (string.Equals(item.Content.ToString(), editingFee.FeeType, StringComparison.OrdinalIgnoreCase))
-                        {
-                            ComboFeeType.SelectedItem = item;
-                            break;
-                        }
-                    }
+                    TxtFeeType.Text = editingFee.FeeType;
 
                     TxtAmount.Text = editingFee.Amount.ToString("F2");
 
@@ -89,29 +88,23 @@ namespace SchoolERP.Views
                 }
                 else
                 {
-                    TxtTitle.Text = "Record Payment";
+                    TxtTitle.Text = "Generate Fee";
+                    ComboScope.SelectedIndex = 0;
+                    ComboSection.SelectedIndex = 0;
                     ComboMonth.SelectedItem = DateTime.Now.ToString("MMM yyyy");
 
                     foreach (ComboBoxItem item in ComboStatus.Items)
                     {
-                        if (string.Equals(item.Content.ToString(), "Paid", StringComparison.OrdinalIgnoreCase))
+                        if (string.Equals(item.Content.ToString(), "Due", StringComparison.OrdinalIgnoreCase))
                         {
                             ComboStatus.SelectedItem = item;
                             break;
                         }
                     }
 
-                    DpPaymentDate.SelectedDate = DateTime.Today;
-                    ComboStatus.IsEnabled = false;
-
-                    foreach (ComboBoxItem item in ComboFeeType.Items)
-                    {
-                        if (string.Equals(item.Content.ToString(), "Monthly Tuition", StringComparison.OrdinalIgnoreCase))
-                        {
-                            ComboFeeType.SelectedItem = item;
-                            break;
-                        }
-                    }
+                    TxtFeeType.Text = "Exam Fee";
+                    DpPaymentDate.SelectedDate = null;
+                    UpdateScopeVisibility();
                 }
 
                 UpdatePaymentDateEnableState();
@@ -162,9 +155,14 @@ namespace SchoolERP.Views
             AutoFillAmountAsync();
         }
 
-        private void ComboFeeType_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void TxtFeeType_TextChanged(object sender, TextChangedEventArgs e)
         {
             AutoFillAmountAsync();
+        }
+
+        private void ComboScope_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            UpdateScopeVisibility();
         }
 
         private void ComboStatus_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -191,15 +189,37 @@ namespace SchoolERP.Views
 
         private void AutoFillAmountAsync()
         {
-            if (ComboStudent == null || ComboFeeType == null || TxtAmount == null) return;
+            if (ComboStudent == null || TxtFeeType == null || TxtAmount == null) return;
 
             var student = ComboStudent.SelectedItem as Student;
-            var feeTypeItem = ComboFeeType.SelectedItem as ComboBoxItem;
+            var feeType = TxtFeeType.Text;
 
-            if (student != null && feeTypeItem != null && string.Equals(feeTypeItem.Content.ToString(), "Monthly Tuition", StringComparison.OrdinalIgnoreCase))
+            if (student != null && string.Equals(feeType?.Trim(), "Monthly Tuition", StringComparison.OrdinalIgnoreCase))
             {
                 TxtAmount.Text = student.MonthlyFee.ToString("F0");
             }
+        }
+
+        private void UpdateScopeVisibility()
+        {
+            if (ScopePanel == null || ClassPanel == null || SectionPanel == null || StudentPanel == null) return;
+
+            var scope = GetSelectedScope();
+            ClassPanel.Visibility = string.Equals(scope, "Specific Class", StringComparison.OrdinalIgnoreCase)
+                ? Visibility.Visible
+                : Visibility.Collapsed;
+            SectionPanel.Visibility = string.Equals(scope, "Specific Class", StringComparison.OrdinalIgnoreCase)
+                ? Visibility.Visible
+                : Visibility.Collapsed;
+            StudentPanel.Visibility = string.Equals(scope, "Individual Student", StringComparison.OrdinalIgnoreCase)
+                ? Visibility.Visible
+                : Visibility.Collapsed;
+        }
+
+        private string GetSelectedScope()
+        {
+            var scopeItem = ComboScope?.SelectedItem as ComboBoxItem;
+            return scopeItem?.Content?.ToString() ?? "All Students";
         }
 
         private Student GetSelectedStudent()
@@ -233,10 +253,10 @@ namespace SchoolERP.Views
 
         private async void Save_Click(object sender, RoutedEventArgs e)
         {
-            var student = GetSelectedStudent();
-            if (student == null)
+            var selectedStudents = GetTargetStudents();
+            if (selectedStudents.Count == 0)
             {
-                MessageBox.Show("Please select a student.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("Please select at least one student.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
@@ -247,13 +267,12 @@ namespace SchoolERP.Views
                 return;
             }
 
-            var feeTypeItem = ComboFeeType.SelectedItem as ComboBoxItem;
-            if (feeTypeItem == null)
+            var feeType = TxtFeeType.Text?.Trim();
+            if (string.IsNullOrEmpty(feeType))
             {
-                MessageBox.Show("Please select a fee type.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("Please enter a fee name.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
-            var feeType = feeTypeItem.Content.ToString();
 
             if (!decimal.TryParse(TxtAmount.Text, out decimal amount) || amount <= 0)
             {
@@ -281,16 +300,26 @@ namespace SchoolERP.Views
                 bool success;
                 if (editingFee == null)
                 {
-                    var markResult = await FindAndMarkPaidAsync(student.StudentID, month, feeType, amount, paymentDate).ConfigureAwait(true);
-                    if (markResult == null)
+                    var inserted = await feeRepository.AddFeesForStudentsAsync(
+                        selectedStudents.Select(s => s.StudentID),
+                        month,
+                        feeType,
+                        amount,
+                        status,
+                        paymentDate).ConfigureAwait(true);
+
+                    if (inserted == 0)
                     {
+                        MessageBox.Show("Fee records already exist for the selected students, month, and fee name.", "Generate Fee", MessageBoxButton.OK, MessageBoxImage.Information);
                         return;
                     }
 
-                    success = markResult.Value;
+                    MessageBox.Show($"Generated {inserted} fee record(s).", "Generate Fee", MessageBoxButton.OK, MessageBoxImage.Information);
+                    success = true;
                 }
                 else
                 {
+                    var student = selectedStudents[0];
                     editingFee.StudentID = student.StudentID;
                     editingFee.Month = month;
                     editingFee.FeeType = feeType;
@@ -314,6 +343,57 @@ namespace SchoolERP.Views
             {
                 MessageBox.Show("An error occurred while saving: " + ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
+        }
+
+        private List<Student> GetTargetStudents()
+        {
+            if (editingFee != null)
+            {
+                var student = GetSelectedStudent();
+                return student == null ? new List<Student>() : new List<Student> { student };
+            }
+
+            var scope = GetSelectedScope();
+            if (string.Equals(scope, "All Students", StringComparison.OrdinalIgnoreCase))
+            {
+                return allStudents?.ToList() ?? new List<Student>();
+            }
+
+            if (string.Equals(scope, "Specific Class", StringComparison.OrdinalIgnoreCase))
+            {
+                if (!(ComboClass.SelectedItem is SchoolERP.Models.Class selectedClass))
+                {
+                    MessageBox.Show("Please select a class.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return new List<Student>();
+                }
+
+                var students = allStudents
+                    .Where(s => s.ClassID == selectedClass.ClassID)
+                    .ToList();
+
+                var section = GetSelectedSection();
+                if (section != null)
+                {
+                    students = students
+                        .Where(s => string.Equals((s.Section ?? string.Empty).Trim(), section, StringComparison.OrdinalIgnoreCase))
+                        .ToList();
+                }
+
+                return students;
+            }
+
+            var selectedStudent = GetSelectedStudent();
+            return selectedStudent == null ? new List<Student>() : new List<Student> { selectedStudent };
+        }
+
+        private string GetSelectedSection()
+        {
+            var item = ComboSection.SelectedItem as ComboBoxItem;
+            var section = item?.Content?.ToString()?.Trim();
+            return string.IsNullOrEmpty(section) ||
+                   string.Equals(section, "All Sections", StringComparison.OrdinalIgnoreCase)
+                ? null
+                : section;
         }
 
         private async Task<bool?> FindAndMarkPaidAsync(int studentId, string month, string feeType, decimal amount, DateTime? paymentDate)
