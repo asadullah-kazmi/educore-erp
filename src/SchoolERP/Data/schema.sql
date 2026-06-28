@@ -81,8 +81,19 @@ BEGIN
     CREATE TABLE dbo.Teachers (
         TeacherID INT IDENTITY(1,1) PRIMARY KEY,
         Name NVARCHAR(250) NOT NULL,
+        Age INT NULL,
+        Experience NVARCHAR(100) NULL,
+        DOB DATE NULL,
+        ContactNumber NVARCHAR(50) NULL,
+        DateOfJoining DATE NULL,
         Designation NVARCHAR(150) NULL,
         Salary DECIMAL(18,2) NULL,
+        Address NVARCHAR(1000) NULL,
+        CnicNumber NVARCHAR(50) NULL,
+        CnicFrontImagePath NVARCHAR(1000) NULL,
+        CnicBackImagePath NVARCHAR(1000) NULL,
+        EducationalDocumentsPath NVARCHAR(2000) NULL,
+        CertificatesPath NVARCHAR(2000) NULL,
         FingerprintID INT NULL
     );
     CREATE INDEX IX_Teachers_Name ON dbo.Teachers(Name);

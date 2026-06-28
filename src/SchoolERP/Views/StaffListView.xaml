@@ -131,10 +131,16 @@
                 <DataGridTextColumn Header="Designation" Binding="{Binding Designation}" Width="*"/>
                 <DataGridTextColumn Header="Base Salary" Binding="{Binding SalaryDisplay}" Width="120"/>
                 <DataGridTextColumn Header="Fingerprint ID" Binding="{Binding FingerprintId}" Width="120"/>
-                <DataGridTemplateColumn Header="Actions" Width="90">
+                <DataGridTemplateColumn Header="Actions" Width="125">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                <Button Style="{StaticResource IconButtonStyle}"
+                                        Command="{Binding DataContext.ViewStaffDetailCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                        CommandParameter="{Binding}"
+                                        ToolTip="View Details">
+                                    <TextBlock Text="&#xE890;" FontFamily="Segoe MDL2 Assets" FontSize="16" Foreground="#001A3F"/>
+                                </Button>
                                 <Button Style="{StaticResource IconButtonStyle}"
                                         Command="{Binding DataContext.EditStaffCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                         CommandParameter="{Binding}"

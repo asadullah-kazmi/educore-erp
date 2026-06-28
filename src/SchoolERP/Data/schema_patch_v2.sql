@@ -32,6 +32,31 @@ BEGIN
 END
 GO
 
+-- 3b. Staff profile fields
+IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id=OBJECT_ID('dbo.Teachers') AND name='Age')
+  ALTER TABLE dbo.Teachers ADD Age INT NULL;
+IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id=OBJECT_ID('dbo.Teachers') AND name='Experience')
+  ALTER TABLE dbo.Teachers ADD Experience NVARCHAR(100) NULL;
+IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id=OBJECT_ID('dbo.Teachers') AND name='DOB')
+  ALTER TABLE dbo.Teachers ADD DOB DATE NULL;
+IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id=OBJECT_ID('dbo.Teachers') AND name='ContactNumber')
+  ALTER TABLE dbo.Teachers ADD ContactNumber NVARCHAR(50) NULL;
+IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id=OBJECT_ID('dbo.Teachers') AND name='DateOfJoining')
+  ALTER TABLE dbo.Teachers ADD DateOfJoining DATE NULL;
+IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id=OBJECT_ID('dbo.Teachers') AND name='Address')
+  ALTER TABLE dbo.Teachers ADD Address NVARCHAR(1000) NULL;
+IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id=OBJECT_ID('dbo.Teachers') AND name='CnicNumber')
+  ALTER TABLE dbo.Teachers ADD CnicNumber NVARCHAR(50) NULL;
+IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id=OBJECT_ID('dbo.Teachers') AND name='CnicFrontImagePath')
+  ALTER TABLE dbo.Teachers ADD CnicFrontImagePath NVARCHAR(1000) NULL;
+IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id=OBJECT_ID('dbo.Teachers') AND name='CnicBackImagePath')
+  ALTER TABLE dbo.Teachers ADD CnicBackImagePath NVARCHAR(1000) NULL;
+IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id=OBJECT_ID('dbo.Teachers') AND name='EducationalDocumentsPath')
+  ALTER TABLE dbo.Teachers ADD EducationalDocumentsPath NVARCHAR(2000) NULL;
+IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id=OBJECT_ID('dbo.Teachers') AND name='CertificatesPath')
+  ALTER TABLE dbo.Teachers ADD CertificatesPath NVARCHAR(2000) NULL;
+GO
+
 -- 4. ClassID FK on Students
 IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id=OBJECT_ID('dbo.Students') AND name='ClassID')
   ALTER TABLE dbo.Students ADD ClassID INT NULL CONSTRAINT FK_Students_Classes FOREIGN KEY REFERENCES dbo.Classes(ClassID);
