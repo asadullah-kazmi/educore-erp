@@ -8,13 +8,17 @@ namespace SchoolERP.Data
 {
     public class MonthlyReportRepository
     {
+        private static bool feePaymentColumnsEnsured;
+
         public async Task<MonthlyFinanceSummary> GetMonthlySummaryAsync(string month)
         {
+            await EnsureFeePaymentColumnsAsync().ConfigureAwait(false);
+
             const string feesSql = @"
-SELECT ISNULL(SUM(Amount), 0)
+SELECT ISNULL(SUM(ISNULL(PaidAmount, CASE WHEN Status = 'Paid' THEN Amount ELSE 0 END)), 0)
 FROM dbo.Fees
-WHERE Status = 'Paid'
-  AND LTRIM(RTRIM(Month)) = @Month;";
+WHERE ISNULL(PaidAmount, CASE WHEN Status = 'Paid' THEN Amount ELSE 0 END) > 0
+  AND FORMAT(PaymentDate, 'MMM yyyy') = @Month;";
 
             const string expensesSql = @"
 SELECT ISNULL(SUM(Amount), 0)
@@ -66,12 +70,14 @@ WHERE FORMAT(PaymentDate, 'MMM yyyy') = @Month;";
 
         public async Task<List<FeeCollectionReportRow>> GetFeeCollectionReportAsync(string month)
         {
+            await EnsureFeePaymentColumnsAsync().ConfigureAwait(false);
+
             const string sql = @"
 SELECT s.Name,
        s.RegistrationNo,
        c.ClassName,
        s.MonthlyFee,
-       ISNULL(f.Amount, 0) AS AmountPaid,
+       ISNULL(f.PaidAmount, CASE WHEN f.Status = 'Paid' THEN f.Amount ELSE 0 END) AS AmountPaid,
        ISNULL(f.Status, 'Due') AS Status,
        f.PaymentDate
 FROM dbo.Students s
@@ -111,6 +117,36 @@ ORDER BY c.ClassName, s.Name;";
             }
 
             return rows;
+        }
+
+        private static async Task EnsureFeePaymentColumnsAsync()
+        {
+            if (feePaymentColumnsEnsured)
+            {
+                return;
+            }
+
+            const string sql = @"
+IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('dbo.Fees') AND name = 'PaidAmount')
+BEGIN
+    ALTER TABLE dbo.Fees ADD PaidAmount DECIMAL(18,2) NOT NULL CONSTRAINT DF_Fees_PaidAmount DEFAULT 0;
+    EXEC('UPDATE dbo.Fees SET PaidAmount = Amount WHERE Status = ''Paid''');
+END
+EXEC('UPDATE dbo.Fees
+SET Status =
+    CASE
+        WHEN ISNULL(PaidAmount, 0) >= Amount THEN ''Paid''
+        WHEN ISNULL(PaidAmount, 0) > 0 THEN ''Partial''
+        ELSE ''Due''
+    END');";
+
+            using (var connection = Database.GetConnection())
+            using (var command = new SqlCommand(sql, connection))
+            {
+                await connection.OpenAsync().ConfigureAwait(false);
+                await command.ExecuteNonQueryAsync().ConfigureAwait(false);
+                feePaymentColumnsEnsured = true;
+            }
         }
 
         public async Task<List<AttendanceSummaryRow>> GetAttendanceSummaryAsync(DateTime from, DateTime to, string personType)

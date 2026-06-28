@@ -114,6 +114,7 @@ BEGIN
         StudentID INT NOT NULL,
         Month NVARCHAR(20) NOT NULL,
         Amount DECIMAL(18,2) NOT NULL,
+        PaidAmount DECIMAL(18,2) NOT NULL DEFAULT 0,
         Status NVARCHAR(50) NOT NULL DEFAULT('Due'),
         PaymentDate DATETIME NULL,
         CONSTRAINT FK_Fees_Students FOREIGN KEY(StudentID) REFERENCES dbo.Students(StudentID) ON DELETE CASCADE

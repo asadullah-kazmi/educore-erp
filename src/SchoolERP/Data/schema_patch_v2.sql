@@ -11,6 +11,14 @@ IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id=OBJECT_ID('dbo.Fees') A
   ALTER TABLE dbo.Fees ADD FeeType NVARCHAR(100) NULL;
 GO
 
+-- 2b. PaidAmount on Fees for partial payments
+IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id=OBJECT_ID('dbo.Fees') AND name='PaidAmount')
+BEGIN
+  ALTER TABLE dbo.Fees ADD PaidAmount DECIMAL(18,2) NOT NULL DEFAULT 0;
+  EXEC('UPDATE dbo.Fees SET PaidAmount = Amount WHERE Status = ''Paid''');
+END
+GO
+
 -- 3. Classes table
 IF OBJECT_ID('dbo.Classes') IS NULL
 BEGIN

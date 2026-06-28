@@ -189,6 +189,7 @@
             <ComboBox Width="120" Height="36" SelectedValue="{Binding StatusFilter}" SelectedValuePath="Content" VerticalContentAlignment="Center" Margin="0,0,12,0">
                 <ComboBoxItem Content="All"/>
                 <ComboBoxItem Content="Due"/>
+                <ComboBoxItem Content="Partial"/>
                 <ComboBoxItem Content="Paid"/>
             </ComboBox>
 
@@ -231,6 +232,8 @@
                 <DataGridTextColumn Header="Month" Binding="{Binding Month}" Width="95" MinWidth="90" ElementStyle="{StaticResource GridCellTextStyle}"/>
                 <DataGridTextColumn Header="Fee Type" Binding="{Binding FeeType}" Width="135" MinWidth="120" ElementStyle="{StaticResource GridCellTextStyle}"/>
                 <DataGridTextColumn Header="Amount" Binding="{Binding Amount, StringFormat={}{0:N0}}" Width="90" MinWidth="85" ElementStyle="{StaticResource GridCellTextStyle}"/>
+                <DataGridTextColumn Header="Paid" Binding="{Binding PaidAmount, StringFormat={}{0:N0}}" Width="85" MinWidth="80" ElementStyle="{StaticResource GridCellTextStyle}"/>
+                <DataGridTextColumn Header="Balance" Binding="{Binding Balance, StringFormat={}{0:N0}}" Width="90" MinWidth="85" ElementStyle="{StaticResource GridCellTextStyle}"/>
                 
                 <DataGridTemplateColumn Header="Status" Width="95">
                     <DataGridTemplateColumn.CellTemplate>
@@ -244,6 +247,9 @@
                                 </DataTrigger>
                                 <DataTrigger Binding="{Binding Status}" Value="Due">
                                     <Setter TargetName="StatusBorder" Property="Background" Value="#FF6B35"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding Status}" Value="Partial">
+                                    <Setter TargetName="StatusBorder" Property="Background" Value="#F59E0B"/>
                                 </DataTrigger>
                             </DataTemplate.Triggers>
                         </DataTemplate>
@@ -273,7 +279,8 @@
                                 </Button>
 
                                 <!-- Edit button -->
-                                <Button Style="{StaticResource IconButtonStyle}"
+                                <Button x:Name="BtnEditFee"
+                                        Style="{StaticResource IconButtonStyle}"
                                         Command="{Binding DataContext.EditFeeCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                         CommandParameter="{Binding}"
                                         ToolTip="Edit">
@@ -293,8 +300,13 @@
                                 <DataTrigger Binding="{Binding Status}" Value="Paid">
                                     <Setter TargetName="BtnMarkPaid" Property="Visibility" Value="Collapsed"/>
                                     <Setter TargetName="BtnPrintReceipt" Property="Visibility" Value="Visible"/>
+                                    <Setter TargetName="BtnEditFee" Property="Visibility" Value="Collapsed"/>
                                 </DataTrigger>
                                 <DataTrigger Binding="{Binding Status}" Value="Due">
+                                    <Setter TargetName="BtnMarkPaid" Property="Visibility" Value="Visible"/>
+                                    <Setter TargetName="BtnPrintReceipt" Property="Visibility" Value="Collapsed"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding Status}" Value="Partial">
                                     <Setter TargetName="BtnMarkPaid" Property="Visibility" Value="Visible"/>
                                     <Setter TargetName="BtnPrintReceipt" Property="Visibility" Value="Collapsed"/>
                                 </DataTrigger>

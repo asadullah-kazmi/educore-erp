@@ -10,6 +10,8 @@ namespace SchoolERP.ViewModels
 {
     public class DashboardViewModel : ObservableObject
     {
+        private static bool feePaymentColumnsEnsured;
+
         private const string TodayPeriod = "Today";
         private const string LastSevenDaysPeriod = "Last 7 Days";
         private const string LastThirtyDaysPeriod = "Last 30 Days";
@@ -334,22 +336,28 @@ SELECT
 
         private void LoadFinanceStats()
         {
+            EnsureFeePaymentColumns();
+
             var monthNames = GetMonthNamesInRange();
             var monthFilter = BuildMonthFilter(monthNames);
 
             var sql = @"
 SELECT
-    (SELECT ISNULL(SUM(Amount), 0)
+    (SELECT ISNULL(SUM(ISNULL(PaidAmount, CASE WHEN Status = 'Paid' THEN Amount ELSE 0 END)), 0)
      FROM dbo.Fees
-     WHERE Status = 'Paid'
+     WHERE ISNULL(PaidAmount, CASE WHEN Status = 'Paid' THEN Amount ELSE 0 END) > 0
        AND (
            (PaymentDate IS NOT NULL AND CAST(PaymentDate AS DATE) BETWEEN @From AND @To)
            OR (PaymentDate IS NULL AND " + monthFilter.Condition + @")
        )) AS FeesCollected,
-    (SELECT ISNULL(SUM(Amount), 0)
+    (SELECT ISNULL(SUM(
+        CASE
+            WHEN Amount - ISNULL(PaidAmount, CASE WHEN Status = 'Paid' THEN Amount ELSE 0 END) > 0
+            THEN Amount - ISNULL(PaidAmount, CASE WHEN Status = 'Paid' THEN Amount ELSE 0 END)
+            ELSE 0
+        END), 0)
      FROM dbo.Fees
-     WHERE Status = 'Due'
-       AND " + monthFilter.Condition + @") AS FeesOutstanding,
+     WHERE " + monthFilter.Condition + @") AS FeesOutstanding,
     (SELECT ISNULL(SUM(Amount), 0)
      FROM dbo.Expenses
      WHERE [Date] BETWEEN @From AND @To) AS Expenses,
@@ -375,6 +383,36 @@ SELECT
                         SalariesPaid = ToDecimal(reader["Salaries"]);
                     }
                 }
+            }
+        }
+
+        private static void EnsureFeePaymentColumns()
+        {
+            if (feePaymentColumnsEnsured)
+            {
+                return;
+            }
+
+            const string sql = @"
+IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('dbo.Fees') AND name = 'PaidAmount')
+BEGIN
+    ALTER TABLE dbo.Fees ADD PaidAmount DECIMAL(18,2) NOT NULL CONSTRAINT DF_Fees_PaidAmount DEFAULT 0;
+    EXEC('UPDATE dbo.Fees SET PaidAmount = Amount WHERE Status = ''Paid''');
+END
+EXEC('UPDATE dbo.Fees
+SET Status =
+    CASE
+        WHEN ISNULL(PaidAmount, 0) >= Amount THEN ''Paid''
+        WHEN ISNULL(PaidAmount, 0) > 0 THEN ''Partial''
+        ELSE ''Due''
+    END');";
+
+            using (var connection = Database.GetConnection())
+            using (var command = new SqlCommand(sql, connection))
+            {
+                connection.Open();
+                command.ExecuteNonQuery();
+                feePaymentColumnsEnsured = true;
             }
         }
 

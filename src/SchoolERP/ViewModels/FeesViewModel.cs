@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
@@ -320,20 +321,32 @@ namespace SchoolERP.ViewModels
         private async Task OnMarkAsPaidAsync(FeeRecord fee)
         {
             if (fee == null) return;
+            if (!fee.HasFeeRecord)
+            {
+                MessageBox.Show("This fee has not been generated yet.", "Fee Not Generated", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
             try
             {
-                bool success;
-                if (fee.HasFeeRecord)
+                var payableFees = await GetPayableFeesForStudentAsync(fee).ConfigureAwait(true);
+                if (payableFees.Count == 0)
                 {
-                    success = await repository.MarkAsPaidAsync(fee.FeeID, DateTime.Today).ConfigureAwait(true);
-                }
-                else
-                {
-                    fee.Status = "Paid";
-                    fee.PaymentDate = DateTime.Today;
-                    success = await repository.AddFeeAsync(fee).ConfigureAwait(true);
+                    MessageBox.Show("There is no outstanding balance for this student.", "No Balance", MessageBoxButton.OK, MessageBoxImage.Information);
+                    return;
                 }
 
+                var window = new RecordFeePaymentWindow(payableFees)
+                {
+                    Owner = Application.Current.MainWindow
+                };
+
+                if (window.ShowDialog() != true)
+                {
+                    return;
+                }
+
+                var success = await repository.ApplyPaymentAsync(payableFees, window.PaymentAmount, window.PaymentDate).ConfigureAwait(true);
                 if (success)
                 {
                     await LoadFeesAsync().ConfigureAwait(true);
@@ -343,6 +356,50 @@ namespace SchoolERP.ViewModels
             {
                 MessageBox.Show("Failed to mark fee as paid: " + ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
+        }
+
+        private async Task<List<FeeRecord>> GetPayableFeesForStudentAsync(FeeRecord selectedFee)
+        {
+            var studentFees = await repository.GetAllFeesAsync(studentId: selectedFee.StudentID).ConfigureAwait(true);
+            var selectedMonth = TryParseMonth(selectedFee.Month);
+
+            return studentFees
+                .Where(f => f.HasFeeRecord && f.Balance > 0)
+                .Where(f => ShouldIncludeInPayment(f, selectedFee, selectedMonth))
+                .OrderBy(f => TryParseMonth(f.Month) ?? DateTime.MaxValue)
+                .ThenBy(f => f.FeeID)
+                .ToList();
+        }
+
+        private static bool ShouldIncludeInPayment(FeeRecord fee, FeeRecord selectedFee, DateTime? selectedMonth)
+        {
+            if (fee.FeeID == selectedFee.FeeID)
+            {
+                return true;
+            }
+
+            if (!selectedMonth.HasValue)
+            {
+                return false;
+            }
+
+            var feeMonth = TryParseMonth(fee.Month);
+            return feeMonth.HasValue && feeMonth.Value <= selectedMonth.Value;
+        }
+
+        private static DateTime? TryParseMonth(string month)
+        {
+            if (DateTime.TryParseExact(
+                (month ?? string.Empty).Trim(),
+                "MMM yyyy",
+                CultureInfo.InvariantCulture,
+                DateTimeStyles.None,
+                out var parsed))
+            {
+                return parsed;
+            }
+
+            return null;
         }
 
         private void OnAddFee()

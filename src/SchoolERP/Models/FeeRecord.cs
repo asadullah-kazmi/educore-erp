@@ -14,6 +14,8 @@ namespace SchoolERP.Models
         public string Month { get; set; }
         public string FeeType { get; set; }
         public decimal Amount { get; set; }
+        public decimal PaidAmount { get; set; }
+        public decimal Balance => Math.Max(Amount - PaidAmount, 0);
         public string Status { get; set; }         // "Due" or "Paid"
         public DateTime? PaymentDate { get; set; }
         public bool HasFeeRecord => FeeID > 0;
