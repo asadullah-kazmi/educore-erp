@@ -16,8 +16,12 @@ namespace SchoolERP.Models
         public string Phone { get; set; }
         public string StudentFormBOrCnicNumber { get; set; }
         public string StudentFormBOrCnicPicturePath { get; set; }
+        public string StudentFormBOrCnicFrontPicturePath { get; set; }
+        public string StudentFormBOrCnicBackPicturePath { get; set; }
         public string GuardianCnicNumber { get; set; }
         public string GuardianCnicPicturePath { get; set; }
+        public string GuardianCnicFrontPicturePath { get; set; }
+        public string GuardianCnicBackPicturePath { get; set; }
         public string GuardianPhone { get; set; }
         public string EmergencyContactNumber { get; set; }
         public DateTime? AdmissionDate { get; set; }

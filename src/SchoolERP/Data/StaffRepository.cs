@@ -23,9 +23,17 @@ SELECT TeacherID,
        Address,
        CnicNumber,
        CnicFrontImagePath,
+       CnicFrontImageData,
+       CnicFrontImageFileName,
        CnicBackImagePath,
+       CnicBackImageData,
+       CnicBackImageFileName,
        EducationalDocumentsPath,
+       EducationalDocumentsData,
+       EducationalDocumentsFileName,
        CertificatesPath,
+       CertificatesData,
+       CertificatesFileName,
        FingerprintID
 FROM dbo.Teachers";
 
@@ -90,8 +98,8 @@ WHERE TeacherID = @TeacherID;";
             await EnsureStaffProfileColumnsAsync().ConfigureAwait(false);
 
             const string sql = @"
-INSERT INTO dbo.Teachers (Name, Age, Experience, DOB, ContactNumber, DateOfJoining, Designation, Salary, Address, CnicNumber, CnicFrontImagePath, CnicBackImagePath, EducationalDocumentsPath, CertificatesPath, FingerprintID)
-VALUES (@Name, @Age, @Experience, @DOB, @ContactNumber, @DateOfJoining, @Designation, @Salary, @Address, @CnicNumber, @CnicFrontImagePath, @CnicBackImagePath, @EducationalDocumentsPath, @CertificatesPath, @FingerprintID);";
+INSERT INTO dbo.Teachers (Name, Age, Experience, DOB, ContactNumber, DateOfJoining, Designation, Salary, Address, CnicNumber, CnicFrontImagePath, CnicFrontImageData, CnicFrontImageFileName, CnicBackImagePath, CnicBackImageData, CnicBackImageFileName, EducationalDocumentsPath, EducationalDocumentsData, EducationalDocumentsFileName, CertificatesPath, CertificatesData, CertificatesFileName, FingerprintID)
+VALUES (@Name, @Age, @Experience, @DOB, @ContactNumber, @DateOfJoining, @Designation, @Salary, @Address, @CnicNumber, @CnicFrontImagePath, @CnicFrontImageData, @CnicFrontImageFileName, @CnicBackImagePath, @CnicBackImageData, @CnicBackImageFileName, @EducationalDocumentsPath, @EducationalDocumentsData, @EducationalDocumentsFileName, @CertificatesPath, @CertificatesData, @CertificatesFileName, @FingerprintID);";
 
             using (var connection = Database.GetConnection())
             using (var command = new SqlCommand(sql, connection))
@@ -124,9 +132,17 @@ SET Name = @Name,
     Address = @Address,
     CnicNumber = @CnicNumber,
     CnicFrontImagePath = @CnicFrontImagePath,
+    CnicFrontImageData = @CnicFrontImageData,
+    CnicFrontImageFileName = @CnicFrontImageFileName,
     CnicBackImagePath = @CnicBackImagePath,
+    CnicBackImageData = @CnicBackImageData,
+    CnicBackImageFileName = @CnicBackImageFileName,
     EducationalDocumentsPath = @EducationalDocumentsPath,
+    EducationalDocumentsData = @EducationalDocumentsData,
+    EducationalDocumentsFileName = @EducationalDocumentsFileName,
     CertificatesPath = @CertificatesPath,
+    CertificatesData = @CertificatesData,
+    CertificatesFileName = @CertificatesFileName,
     FingerprintID = @FingerprintID
 WHERE TeacherID = @TeacherID;";
 
@@ -168,9 +184,17 @@ WHERE TeacherID = @TeacherID;";
             command.Parameters.AddWithValue("@Address", (object)teacher.Address ?? DBNull.Value);
             command.Parameters.AddWithValue("@CnicNumber", (object)teacher.CnicNumber ?? DBNull.Value);
             command.Parameters.AddWithValue("@CnicFrontImagePath", (object)teacher.CnicFrontImagePath ?? DBNull.Value);
+            command.Parameters.AddWithValue("@CnicFrontImageData", (object)teacher.CnicFrontImageData ?? DBNull.Value);
+            command.Parameters.AddWithValue("@CnicFrontImageFileName", (object)teacher.CnicFrontImageFileName ?? DBNull.Value);
             command.Parameters.AddWithValue("@CnicBackImagePath", (object)teacher.CnicBackImagePath ?? DBNull.Value);
+            command.Parameters.AddWithValue("@CnicBackImageData", (object)teacher.CnicBackImageData ?? DBNull.Value);
+            command.Parameters.AddWithValue("@CnicBackImageFileName", (object)teacher.CnicBackImageFileName ?? DBNull.Value);
             command.Parameters.AddWithValue("@EducationalDocumentsPath", (object)teacher.EducationalDocumentsPath ?? DBNull.Value);
+            command.Parameters.AddWithValue("@EducationalDocumentsData", (object)teacher.EducationalDocumentsData ?? DBNull.Value);
+            command.Parameters.AddWithValue("@EducationalDocumentsFileName", (object)teacher.EducationalDocumentsFileName ?? DBNull.Value);
             command.Parameters.AddWithValue("@CertificatesPath", (object)teacher.CertificatesPath ?? DBNull.Value);
+            command.Parameters.AddWithValue("@CertificatesData", (object)teacher.CertificatesData ?? DBNull.Value);
+            command.Parameters.AddWithValue("@CertificatesFileName", (object)teacher.CertificatesFileName ?? DBNull.Value);
             command.Parameters.AddWithValue("@FingerprintID", (object)teacher.FingerprintID ?? DBNull.Value);
         }
 
@@ -190,9 +214,17 @@ WHERE TeacherID = @TeacherID;";
                 Address = reader["Address"] as string,
                 CnicNumber = reader["CnicNumber"] as string,
                 CnicFrontImagePath = reader["CnicFrontImagePath"] as string,
+                CnicFrontImageData = reader["CnicFrontImageData"] == DBNull.Value ? null : (byte[])reader["CnicFrontImageData"],
+                CnicFrontImageFileName = reader["CnicFrontImageFileName"] as string,
                 CnicBackImagePath = reader["CnicBackImagePath"] as string,
+                CnicBackImageData = reader["CnicBackImageData"] == DBNull.Value ? null : (byte[])reader["CnicBackImageData"],
+                CnicBackImageFileName = reader["CnicBackImageFileName"] as string,
                 EducationalDocumentsPath = reader["EducationalDocumentsPath"] as string,
+                EducationalDocumentsData = reader["EducationalDocumentsData"] == DBNull.Value ? null : (byte[])reader["EducationalDocumentsData"],
+                EducationalDocumentsFileName = reader["EducationalDocumentsFileName"] as string,
                 CertificatesPath = reader["CertificatesPath"] as string,
+                CertificatesData = reader["CertificatesData"] == DBNull.Value ? null : (byte[])reader["CertificatesData"],
+                CertificatesFileName = reader["CertificatesFileName"] as string,
                 FingerprintID = reader["FingerprintID"] == DBNull.Value ? (int?)null : Convert.ToInt32(reader["FingerprintID"])
             };
         }
@@ -221,12 +253,28 @@ IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('dbo.Teache
     ALTER TABLE dbo.Teachers ADD CnicNumber NVARCHAR(50) NULL;
 IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('dbo.Teachers') AND name = 'CnicFrontImagePath')
     ALTER TABLE dbo.Teachers ADD CnicFrontImagePath NVARCHAR(1000) NULL;
+IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('dbo.Teachers') AND name = 'CnicFrontImageData')
+    ALTER TABLE dbo.Teachers ADD CnicFrontImageData VARBINARY(MAX) NULL;
+IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('dbo.Teachers') AND name = 'CnicFrontImageFileName')
+    ALTER TABLE dbo.Teachers ADD CnicFrontImageFileName NVARCHAR(260) NULL;
 IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('dbo.Teachers') AND name = 'CnicBackImagePath')
     ALTER TABLE dbo.Teachers ADD CnicBackImagePath NVARCHAR(1000) NULL;
+IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('dbo.Teachers') AND name = 'CnicBackImageData')
+    ALTER TABLE dbo.Teachers ADD CnicBackImageData VARBINARY(MAX) NULL;
+IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('dbo.Teachers') AND name = 'CnicBackImageFileName')
+    ALTER TABLE dbo.Teachers ADD CnicBackImageFileName NVARCHAR(260) NULL;
 IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('dbo.Teachers') AND name = 'EducationalDocumentsPath')
     ALTER TABLE dbo.Teachers ADD EducationalDocumentsPath NVARCHAR(2000) NULL;
+IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('dbo.Teachers') AND name = 'EducationalDocumentsData')
+    ALTER TABLE dbo.Teachers ADD EducationalDocumentsData VARBINARY(MAX) NULL;
+IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('dbo.Teachers') AND name = 'EducationalDocumentsFileName')
+    ALTER TABLE dbo.Teachers ADD EducationalDocumentsFileName NVARCHAR(260) NULL;
 IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('dbo.Teachers') AND name = 'CertificatesPath')
-    ALTER TABLE dbo.Teachers ADD CertificatesPath NVARCHAR(2000) NULL;";
+    ALTER TABLE dbo.Teachers ADD CertificatesPath NVARCHAR(2000) NULL;
+IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('dbo.Teachers') AND name = 'CertificatesData')
+    ALTER TABLE dbo.Teachers ADD CertificatesData VARBINARY(MAX) NULL;
+IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('dbo.Teachers') AND name = 'CertificatesFileName')
+    ALTER TABLE dbo.Teachers ADD CertificatesFileName NVARCHAR(260) NULL;";
 
             using (var connection = Database.GetConnection())
             using (var command = new SqlCommand(sql, connection))

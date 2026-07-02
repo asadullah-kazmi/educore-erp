@@ -127,19 +127,38 @@
                     <TextBlock Text="Student Form-B / CNIC Number" Style="{StaticResource FieldLabelStyle}"/>
                     <TextBox Text="{Binding StudentFormBOrCnicNumber, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldInputStyle}"/>
 
-                    <TextBlock Text="Student Form-B / CNIC Picture" Style="{StaticResource FieldLabelStyle}" Margin="0,12,0,6"/>
+                    <TextBlock Text="Student Form-B / CNIC Front Picture" Style="{StaticResource FieldLabelStyle}" Margin="0,12,0,6"/>
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="10"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
-                        <TextBox Text="{Binding StudentFormBOrCnicPicturePath, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldInputStyle}"/>
+                        <TextBox Text="{Binding StudentFormBOrCnicFrontPicturePath, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldInputStyle}"/>
                         <Button Grid.Column="2"
                                 Content="Browse"
                                 Width="92"
                                 Height="38"
-                                Command="{Binding BrowseStudentFormPictureCommand}"
+                                Command="{Binding BrowseStudentFormFrontPictureCommand}"
+                                Background="#F1F5F9"
+                                Foreground="#334155"
+                                BorderThickness="0"
+                                Cursor="Hand"/>
+                    </Grid>
+
+                    <TextBlock Text="Student Form-B / CNIC Back Picture" Style="{StaticResource FieldLabelStyle}" Margin="0,12,0,6"/>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="10"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBox Text="{Binding StudentFormBOrCnicBackPicturePath, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldInputStyle}"/>
+                        <Button Grid.Column="2"
+                                Content="Browse"
+                                Width="92"
+                                Height="38"
+                                Command="{Binding BrowseStudentFormBackPictureCommand}"
                                 Background="#F1F5F9"
                                 Foreground="#334155"
                                 BorderThickness="0"
@@ -151,19 +170,38 @@
                     <TextBlock Text="Guardian CNIC Number" Style="{StaticResource FieldLabelStyle}"/>
                     <TextBox Text="{Binding GuardianCnicNumber, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldInputStyle}"/>
 
-                    <TextBlock Text="Guardian CNIC Picture" Style="{StaticResource FieldLabelStyle}" Margin="0,12,0,6"/>
+                    <TextBlock Text="Guardian CNIC Front Picture" Style="{StaticResource FieldLabelStyle}" Margin="0,12,0,6"/>
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="10"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
-                        <TextBox Text="{Binding GuardianCnicPicturePath, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldInputStyle}"/>
+                        <TextBox Text="{Binding GuardianCnicFrontPicturePath, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldInputStyle}"/>
                         <Button Grid.Column="2"
                                 Content="Browse"
                                 Width="92"
                                 Height="38"
-                                Command="{Binding BrowseGuardianCnicPictureCommand}"
+                                Command="{Binding BrowseGuardianCnicFrontPictureCommand}"
+                                Background="#F1F5F9"
+                                Foreground="#334155"
+                                BorderThickness="0"
+                                Cursor="Hand"/>
+                    </Grid>
+
+                    <TextBlock Text="Guardian CNIC Back Picture" Style="{StaticResource FieldLabelStyle}" Margin="0,12,0,6"/>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="10"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBox Text="{Binding GuardianCnicBackPicturePath, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldInputStyle}"/>
+                        <Button Grid.Column="2"
+                                Content="Browse"
+                                Width="92"
+                                Height="38"
+                                Command="{Binding BrowseGuardianCnicBackPictureCommand}"
                                 Background="#F1F5F9"
                                 Foreground="#334155"
                                 BorderThickness="0"

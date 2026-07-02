@@ -17,8 +17,12 @@ namespace SchoolERP.ViewModels
         public string Phone { get; set; }
         public string StudentFormBOrCnicNumber { get; set; }
         public string StudentFormBOrCnicPicturePath { get; set; }
+        public string StudentFormBOrCnicFrontPicturePath { get; set; }
+        public string StudentFormBOrCnicBackPicturePath { get; set; }
         public string GuardianCnicNumber { get; set; }
         public string GuardianCnicPicturePath { get; set; }
+        public string GuardianCnicFrontPicturePath { get; set; }
+        public string GuardianCnicBackPicturePath { get; set; }
         public string GuardianPhone { get; set; }
         public string EmergencyContactNumber { get; set; }
         public DateTime? AdmissionDate { get; set; }
@@ -48,8 +52,12 @@ namespace SchoolERP.ViewModels
                 Phone = student.Phone,
                 StudentFormBOrCnicNumber = student.StudentFormBOrCnicNumber,
                 StudentFormBOrCnicPicturePath = student.StudentFormBOrCnicPicturePath,
+                StudentFormBOrCnicFrontPicturePath = student.StudentFormBOrCnicFrontPicturePath,
+                StudentFormBOrCnicBackPicturePath = student.StudentFormBOrCnicBackPicturePath,
                 GuardianCnicNumber = student.GuardianCnicNumber,
                 GuardianCnicPicturePath = student.GuardianCnicPicturePath,
+                GuardianCnicFrontPicturePath = student.GuardianCnicFrontPicturePath,
+                GuardianCnicBackPicturePath = student.GuardianCnicBackPicturePath,
                 GuardianPhone = student.GuardianPhone,
                 EmergencyContactNumber = student.EmergencyContactNumber,
                 AdmissionDate = student.AdmissionDate,
@@ -73,8 +81,12 @@ namespace SchoolERP.ViewModels
                 Phone = Phone,
                 StudentFormBOrCnicNumber = StudentFormBOrCnicNumber,
                 StudentFormBOrCnicPicturePath = StudentFormBOrCnicPicturePath,
+                StudentFormBOrCnicFrontPicturePath = StudentFormBOrCnicFrontPicturePath,
+                StudentFormBOrCnicBackPicturePath = StudentFormBOrCnicBackPicturePath,
                 GuardianCnicNumber = GuardianCnicNumber,
                 GuardianCnicPicturePath = GuardianCnicPicturePath,
+                GuardianCnicFrontPicturePath = GuardianCnicFrontPicturePath,
+                GuardianCnicBackPicturePath = GuardianCnicBackPicturePath,
                 GuardianPhone = GuardianPhone,
                 EmergencyContactNumber = EmergencyContactNumber,
                 AdmissionDate = AdmissionDate,

@@ -26,6 +26,12 @@
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="Foreground" Value="#0F172A"/>
         </Style>
+        <Style x:Key="DocumentPreviewStyle" TargetType="Image">
+            <Setter Property="Height" Value="130"/>
+            <Setter Property="Stretch" Value="Uniform"/>
+            <Setter Property="HorizontalAlignment" Value="Left"/>
+            <Setter Property="Margin" Value="0,6,0,6"/>
+        </Style>
     </Window.Resources>
 
     <Border Background="White"
@@ -144,25 +150,29 @@
                     <Border Grid.Row="6" Grid.Column="0" Style="{StaticResource InfoCardStyle}">
                         <StackPanel>
                             <TextBlock Text="CNIC Front Image" Style="{StaticResource CardLabelStyle}"/>
-                            <TextBlock Text="{Binding CnicFrontImagePath, TargetNullValue='-'}" TextWrapping="Wrap" Style="{StaticResource CardValueStyle}"/>
+                            <Image Source="{Binding CnicFrontImage}" Style="{StaticResource DocumentPreviewStyle}" Visibility="{Binding HasCnicFrontImage, Converter={StaticResource BoolToVisibility}}"/>
+                            <TextBlock Text="{Binding CnicFrontStoredLabel}" TextWrapping="Wrap" Style="{StaticResource CardValueStyle}"/>
                         </StackPanel>
                     </Border>
                     <Border Grid.Row="6" Grid.Column="1" Style="{StaticResource InfoCardStyle}">
                         <StackPanel>
                             <TextBlock Text="CNIC Back Image" Style="{StaticResource CardLabelStyle}"/>
-                            <TextBlock Text="{Binding CnicBackImagePath, TargetNullValue='-'}" TextWrapping="Wrap" Style="{StaticResource CardValueStyle}"/>
+                            <Image Source="{Binding CnicBackImage}" Style="{StaticResource DocumentPreviewStyle}" Visibility="{Binding HasCnicBackImage, Converter={StaticResource BoolToVisibility}}"/>
+                            <TextBlock Text="{Binding CnicBackStoredLabel}" TextWrapping="Wrap" Style="{StaticResource CardValueStyle}"/>
                         </StackPanel>
                     </Border>
                     <Border Grid.Row="7" Grid.Column="0" Style="{StaticResource InfoCardStyle}">
                         <StackPanel>
                             <TextBlock Text="Educational Documents" Style="{StaticResource CardLabelStyle}"/>
-                            <TextBlock Text="{Binding EducationalDocumentsPath, TargetNullValue='-'}" TextWrapping="Wrap" Style="{StaticResource CardValueStyle}"/>
+                            <Image Source="{Binding EducationalDocumentImage}" Style="{StaticResource DocumentPreviewStyle}" Visibility="{Binding HasEducationalDocumentImage, Converter={StaticResource BoolToVisibility}}"/>
+                            <TextBlock Text="{Binding EducationalDocumentStoredLabel}" TextWrapping="Wrap" Style="{StaticResource CardValueStyle}"/>
                         </StackPanel>
                     </Border>
                     <Border Grid.Row="7" Grid.Column="1" Style="{StaticResource InfoCardStyle}">
                         <StackPanel>
                             <TextBlock Text="Certificates" Style="{StaticResource CardLabelStyle}"/>
-                            <TextBlock Text="{Binding CertificatesPath, TargetNullValue='-'}" TextWrapping="Wrap" Style="{StaticResource CardValueStyle}"/>
+                            <Image Source="{Binding CertificateImage}" Style="{StaticResource DocumentPreviewStyle}" Visibility="{Binding HasCertificateImage, Converter={StaticResource BoolToVisibility}}"/>
+                            <TextBlock Text="{Binding CertificateStoredLabel}" TextWrapping="Wrap" Style="{StaticResource CardValueStyle}"/>
                         </StackPanel>
                     </Border>
                 </Grid>

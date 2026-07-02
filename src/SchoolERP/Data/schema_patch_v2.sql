@@ -49,12 +49,28 @@ IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id=OBJECT_ID('dbo.Teachers
   ALTER TABLE dbo.Teachers ADD CnicNumber NVARCHAR(50) NULL;
 IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id=OBJECT_ID('dbo.Teachers') AND name='CnicFrontImagePath')
   ALTER TABLE dbo.Teachers ADD CnicFrontImagePath NVARCHAR(1000) NULL;
+IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id=OBJECT_ID('dbo.Teachers') AND name='CnicFrontImageData')
+  ALTER TABLE dbo.Teachers ADD CnicFrontImageData VARBINARY(MAX) NULL;
+IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id=OBJECT_ID('dbo.Teachers') AND name='CnicFrontImageFileName')
+  ALTER TABLE dbo.Teachers ADD CnicFrontImageFileName NVARCHAR(260) NULL;
 IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id=OBJECT_ID('dbo.Teachers') AND name='CnicBackImagePath')
   ALTER TABLE dbo.Teachers ADD CnicBackImagePath NVARCHAR(1000) NULL;
+IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id=OBJECT_ID('dbo.Teachers') AND name='CnicBackImageData')
+  ALTER TABLE dbo.Teachers ADD CnicBackImageData VARBINARY(MAX) NULL;
+IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id=OBJECT_ID('dbo.Teachers') AND name='CnicBackImageFileName')
+  ALTER TABLE dbo.Teachers ADD CnicBackImageFileName NVARCHAR(260) NULL;
 IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id=OBJECT_ID('dbo.Teachers') AND name='EducationalDocumentsPath')
   ALTER TABLE dbo.Teachers ADD EducationalDocumentsPath NVARCHAR(2000) NULL;
+IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id=OBJECT_ID('dbo.Teachers') AND name='EducationalDocumentsData')
+  ALTER TABLE dbo.Teachers ADD EducationalDocumentsData VARBINARY(MAX) NULL;
+IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id=OBJECT_ID('dbo.Teachers') AND name='EducationalDocumentsFileName')
+  ALTER TABLE dbo.Teachers ADD EducationalDocumentsFileName NVARCHAR(260) NULL;
 IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id=OBJECT_ID('dbo.Teachers') AND name='CertificatesPath')
   ALTER TABLE dbo.Teachers ADD CertificatesPath NVARCHAR(2000) NULL;
+IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id=OBJECT_ID('dbo.Teachers') AND name='CertificatesData')
+  ALTER TABLE dbo.Teachers ADD CertificatesData VARBINARY(MAX) NULL;
+IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id=OBJECT_ID('dbo.Teachers') AND name='CertificatesFileName')
+  ALTER TABLE dbo.Teachers ADD CertificatesFileName NVARCHAR(260) NULL;
 GO
 
 -- 4. ClassID FK on Students

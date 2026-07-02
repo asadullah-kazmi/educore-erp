@@ -23,8 +23,12 @@ SELECT s.StudentID,
        s.Phone,
        s.StudentFormBOrCnicNumber,
        s.StudentFormBOrCnicPicturePath,
+       s.StudentFormBOrCnicFrontPicturePath,
+       s.StudentFormBOrCnicBackPicturePath,
        s.GuardianCnicNumber,
        s.GuardianCnicPicturePath,
+       s.GuardianCnicFrontPicturePath,
+       s.GuardianCnicBackPicturePath,
        s.GuardianPhone,
        s.EmergencyContactNumber,
        s.AdmissionDate,
@@ -93,8 +97,8 @@ WHERE s.StudentID = @StudentID;";
             await EnsureStudentProfileColumnsAsync().ConfigureAwait(false);
 
             const string sql = @"
-INSERT INTO dbo.Students (RegistrationNo, Name, FatherName, DOB, ClassID, Section, Address, Phone, StudentFormBOrCnicNumber, StudentFormBOrCnicPicturePath, GuardianCnicNumber, GuardianCnicPicturePath, GuardianPhone, EmergencyContactNumber, AdmissionDate, MonthlyFee)
-VALUES (@RegistrationNo, @Name, @FatherName, @DOB, @ClassID, @Section, @Address, @Phone, @StudentFormBOrCnicNumber, @StudentFormBOrCnicPicturePath, @GuardianCnicNumber, @GuardianCnicPicturePath, @GuardianPhone, @EmergencyContactNumber, @AdmissionDate, @MonthlyFee);";
+INSERT INTO dbo.Students (RegistrationNo, Name, FatherName, DOB, ClassID, Section, Address, Phone, StudentFormBOrCnicNumber, StudentFormBOrCnicPicturePath, StudentFormBOrCnicFrontPicturePath, StudentFormBOrCnicBackPicturePath, GuardianCnicNumber, GuardianCnicPicturePath, GuardianCnicFrontPicturePath, GuardianCnicBackPicturePath, GuardianPhone, EmergencyContactNumber, AdmissionDate, MonthlyFee)
+VALUES (@RegistrationNo, @Name, @FatherName, @DOB, @ClassID, @Section, @Address, @Phone, @StudentFormBOrCnicNumber, @StudentFormBOrCnicPicturePath, @StudentFormBOrCnicFrontPicturePath, @StudentFormBOrCnicBackPicturePath, @GuardianCnicNumber, @GuardianCnicPicturePath, @GuardianCnicFrontPicturePath, @GuardianCnicBackPicturePath, @GuardianPhone, @EmergencyContactNumber, @AdmissionDate, @MonthlyFee);";
 
             using (var connection = Database.GetConnection())
             using (var command = new SqlCommand(sql, connection))
@@ -126,8 +130,12 @@ SET RegistrationNo = @RegistrationNo,
     Phone = @Phone,
     StudentFormBOrCnicNumber = @StudentFormBOrCnicNumber,
     StudentFormBOrCnicPicturePath = @StudentFormBOrCnicPicturePath,
+    StudentFormBOrCnicFrontPicturePath = @StudentFormBOrCnicFrontPicturePath,
+    StudentFormBOrCnicBackPicturePath = @StudentFormBOrCnicBackPicturePath,
     GuardianCnicNumber = @GuardianCnicNumber,
     GuardianCnicPicturePath = @GuardianCnicPicturePath,
+    GuardianCnicFrontPicturePath = @GuardianCnicFrontPicturePath,
+    GuardianCnicBackPicturePath = @GuardianCnicBackPicturePath,
     GuardianPhone = @GuardianPhone,
     EmergencyContactNumber = @EmergencyContactNumber,
     AdmissionDate = @AdmissionDate,
@@ -187,7 +195,33 @@ WHERE RegistrationNo = @RegistrationNo
             const string sql = @"
 SELECT ClassID, ClassName
 FROM dbo.Classes
-ORDER BY ClassName;";
+ORDER BY
+    CASE ClassName
+        WHEN 'Nursery' THEN 0
+        WHEN 'Prep' THEN 1
+        WHEN 'One' THEN 2
+        WHEN 'Two' THEN 3
+        WHEN 'Three' THEN 4
+        WHEN 'Four' THEN 5
+        WHEN 'Five' THEN 6
+        WHEN 'Six' THEN 7
+        WHEN 'Seven' THEN 8
+        WHEN 'Eight' THEN 9
+        WHEN 'Nine' THEN 10
+        WHEN 'Ten' THEN 11
+        WHEN 'Class 1' THEN 2
+        WHEN 'Class 2' THEN 3
+        WHEN 'Class 3' THEN 4
+        WHEN 'Class 4' THEN 5
+        WHEN 'Class 5' THEN 6
+        WHEN 'Class 6' THEN 7
+        WHEN 'Class 7' THEN 8
+        WHEN 'Class 8' THEN 9
+        WHEN 'Class 9' THEN 10
+        WHEN 'Class 10' THEN 11
+        ELSE 100
+    END,
+    ClassName;";
 
             var classes = new List<Class>();
 
@@ -224,8 +258,12 @@ ORDER BY ClassName;";
             command.Parameters.AddWithValue("@Phone", (object)student.Phone ?? DBNull.Value);
             command.Parameters.AddWithValue("@StudentFormBOrCnicNumber", (object)student.StudentFormBOrCnicNumber ?? DBNull.Value);
             command.Parameters.AddWithValue("@StudentFormBOrCnicPicturePath", (object)student.StudentFormBOrCnicPicturePath ?? DBNull.Value);
+            command.Parameters.AddWithValue("@StudentFormBOrCnicFrontPicturePath", (object)student.StudentFormBOrCnicFrontPicturePath ?? DBNull.Value);
+            command.Parameters.AddWithValue("@StudentFormBOrCnicBackPicturePath", (object)student.StudentFormBOrCnicBackPicturePath ?? DBNull.Value);
             command.Parameters.AddWithValue("@GuardianCnicNumber", (object)student.GuardianCnicNumber ?? DBNull.Value);
             command.Parameters.AddWithValue("@GuardianCnicPicturePath", (object)student.GuardianCnicPicturePath ?? DBNull.Value);
+            command.Parameters.AddWithValue("@GuardianCnicFrontPicturePath", (object)student.GuardianCnicFrontPicturePath ?? DBNull.Value);
+            command.Parameters.AddWithValue("@GuardianCnicBackPicturePath", (object)student.GuardianCnicBackPicturePath ?? DBNull.Value);
             command.Parameters.AddWithValue("@GuardianPhone", (object)student.GuardianPhone ?? DBNull.Value);
             command.Parameters.AddWithValue("@EmergencyContactNumber", (object)student.EmergencyContactNumber ?? DBNull.Value);
             command.Parameters.AddWithValue("@AdmissionDate", (object)student.AdmissionDate ?? DBNull.Value);
@@ -234,6 +272,11 @@ ORDER BY ClassName;";
 
         private static Student MapStudent(SqlDataReader reader)
         {
+            var studentLegacyPicturePath = reader["StudentFormBOrCnicPicturePath"] as string;
+            var guardianLegacyPicturePath = reader["GuardianCnicPicturePath"] as string;
+            var studentFrontPicturePath = reader["StudentFormBOrCnicFrontPicturePath"] as string;
+            var guardianFrontPicturePath = reader["GuardianCnicFrontPicturePath"] as string;
+
             return new Student
             {
                 StudentID = reader.GetInt32(reader.GetOrdinal("StudentID")),
@@ -247,9 +290,13 @@ ORDER BY ClassName;";
                 Address = reader["Address"] as string,
                 Phone = reader["Phone"] as string,
                 StudentFormBOrCnicNumber = reader["StudentFormBOrCnicNumber"] as string,
-                StudentFormBOrCnicPicturePath = reader["StudentFormBOrCnicPicturePath"] as string,
+                StudentFormBOrCnicPicturePath = studentLegacyPicturePath,
+                StudentFormBOrCnicFrontPicturePath = string.IsNullOrWhiteSpace(studentFrontPicturePath) ? studentLegacyPicturePath : studentFrontPicturePath,
+                StudentFormBOrCnicBackPicturePath = reader["StudentFormBOrCnicBackPicturePath"] as string,
                 GuardianCnicNumber = reader["GuardianCnicNumber"] as string,
-                GuardianCnicPicturePath = reader["GuardianCnicPicturePath"] as string,
+                GuardianCnicPicturePath = guardianLegacyPicturePath,
+                GuardianCnicFrontPicturePath = string.IsNullOrWhiteSpace(guardianFrontPicturePath) ? guardianLegacyPicturePath : guardianFrontPicturePath,
+                GuardianCnicBackPicturePath = reader["GuardianCnicBackPicturePath"] as string,
                 GuardianPhone = reader["GuardianPhone"] as string,
                 EmergencyContactNumber = reader["EmergencyContactNumber"] as string,
                 AdmissionDate = reader["AdmissionDate"] == DBNull.Value ? (DateTime?)null : Convert.ToDateTime(reader["AdmissionDate"]),
@@ -271,10 +318,18 @@ IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('dbo.Studen
     ALTER TABLE dbo.Students ADD StudentFormBOrCnicNumber NVARCHAR(50) NULL;
 IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('dbo.Students') AND name = 'StudentFormBOrCnicPicturePath')
     ALTER TABLE dbo.Students ADD StudentFormBOrCnicPicturePath NVARCHAR(1000) NULL;
+IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('dbo.Students') AND name = 'StudentFormBOrCnicFrontPicturePath')
+    ALTER TABLE dbo.Students ADD StudentFormBOrCnicFrontPicturePath NVARCHAR(1000) NULL;
+IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('dbo.Students') AND name = 'StudentFormBOrCnicBackPicturePath')
+    ALTER TABLE dbo.Students ADD StudentFormBOrCnicBackPicturePath NVARCHAR(1000) NULL;
 IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('dbo.Students') AND name = 'GuardianCnicNumber')
     ALTER TABLE dbo.Students ADD GuardianCnicNumber NVARCHAR(50) NULL;
 IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('dbo.Students') AND name = 'GuardianCnicPicturePath')
     ALTER TABLE dbo.Students ADD GuardianCnicPicturePath NVARCHAR(1000) NULL;
+IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('dbo.Students') AND name = 'GuardianCnicFrontPicturePath')
+    ALTER TABLE dbo.Students ADD GuardianCnicFrontPicturePath NVARCHAR(1000) NULL;
+IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('dbo.Students') AND name = 'GuardianCnicBackPicturePath')
+    ALTER TABLE dbo.Students ADD GuardianCnicBackPicturePath NVARCHAR(1000) NULL;
 IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('dbo.Students') AND name = 'GuardianPhone')
     ALTER TABLE dbo.Students ADD GuardianPhone NVARCHAR(50) NULL;
 IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('dbo.Students') AND name = 'EmergencyContactNumber')

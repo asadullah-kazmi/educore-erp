@@ -24,8 +24,12 @@ namespace SchoolERP.ViewModels
         private string phone;
         private string studentFormBOrCnicNumber;
         private string studentFormBOrCnicPicturePath;
+        private string studentFormBOrCnicFrontPicturePath;
+        private string studentFormBOrCnicBackPicturePath;
         private string guardianCnicNumber;
         private string guardianCnicPicturePath;
+        private string guardianCnicFrontPicturePath;
+        private string guardianCnicBackPicturePath;
         private string guardianPhone;
         private string emergencyContactNumber;
         private DateTime? admissionDate = DateTime.Today;
@@ -42,8 +46,12 @@ namespace SchoolERP.ViewModels
             Classes = new ObservableCollection<Class>();
             SaveCommand = new RelayCommand(_ => SaveAsync(), _ => !IsSaving);
             CancelCommand = new RelayCommand(_ => RequestClose?.Invoke(false));
-            BrowseStudentFormPictureCommand = new RelayCommand(_ => StudentFormBOrCnicPicturePath = BrowsePicture(StudentFormBOrCnicPicturePath));
-            BrowseGuardianCnicPictureCommand = new RelayCommand(_ => GuardianCnicPicturePath = BrowsePicture(GuardianCnicPicturePath));
+            BrowseStudentFormPictureCommand = new RelayCommand(_ => StudentFormBOrCnicFrontPicturePath = BrowsePicture(StudentFormBOrCnicFrontPicturePath));
+            BrowseStudentFormFrontPictureCommand = new RelayCommand(_ => StudentFormBOrCnicFrontPicturePath = BrowsePicture(StudentFormBOrCnicFrontPicturePath));
+            BrowseStudentFormBackPictureCommand = new RelayCommand(_ => StudentFormBOrCnicBackPicturePath = BrowsePicture(StudentFormBOrCnicBackPicturePath));
+            BrowseGuardianCnicPictureCommand = new RelayCommand(_ => GuardianCnicFrontPicturePath = BrowsePicture(GuardianCnicFrontPicturePath));
+            BrowseGuardianCnicFrontPictureCommand = new RelayCommand(_ => GuardianCnicFrontPicturePath = BrowsePicture(GuardianCnicFrontPicturePath));
+            BrowseGuardianCnicBackPictureCommand = new RelayCommand(_ => GuardianCnicBackPicturePath = BrowsePicture(GuardianCnicBackPicturePath));
 
             _ = InitializeAsync();
         }
@@ -116,6 +124,18 @@ namespace SchoolERP.ViewModels
             set => SetProperty(ref studentFormBOrCnicPicturePath, value);
         }
 
+        public string StudentFormBOrCnicFrontPicturePath
+        {
+            get => studentFormBOrCnicFrontPicturePath;
+            set => SetProperty(ref studentFormBOrCnicFrontPicturePath, value);
+        }
+
+        public string StudentFormBOrCnicBackPicturePath
+        {
+            get => studentFormBOrCnicBackPicturePath;
+            set => SetProperty(ref studentFormBOrCnicBackPicturePath, value);
+        }
+
         public string GuardianCnicNumber
         {
             get => guardianCnicNumber;
@@ -126,6 +146,18 @@ namespace SchoolERP.ViewModels
         {
             get => guardianCnicPicturePath;
             set => SetProperty(ref guardianCnicPicturePath, value);
+        }
+
+        public string GuardianCnicFrontPicturePath
+        {
+            get => guardianCnicFrontPicturePath;
+            set => SetProperty(ref guardianCnicFrontPicturePath, value);
+        }
+
+        public string GuardianCnicBackPicturePath
+        {
+            get => guardianCnicBackPicturePath;
+            set => SetProperty(ref guardianCnicBackPicturePath, value);
         }
 
         public string GuardianPhone
@@ -176,7 +208,15 @@ namespace SchoolERP.ViewModels
 
         public ICommand BrowseStudentFormPictureCommand { get; }
 
+        public ICommand BrowseStudentFormFrontPictureCommand { get; }
+
+        public ICommand BrowseStudentFormBackPictureCommand { get; }
+
         public ICommand BrowseGuardianCnicPictureCommand { get; }
+
+        public ICommand BrowseGuardianCnicFrontPictureCommand { get; }
+
+        public ICommand BrowseGuardianCnicBackPictureCommand { get; }
 
         private async Task InitializeAsync()
         {
@@ -205,8 +245,12 @@ namespace SchoolERP.ViewModels
                         Phone = student.Phone;
                         StudentFormBOrCnicNumber = student.StudentFormBOrCnicNumber;
                         StudentFormBOrCnicPicturePath = student.StudentFormBOrCnicPicturePath;
+                        StudentFormBOrCnicFrontPicturePath = student.StudentFormBOrCnicFrontPicturePath;
+                        StudentFormBOrCnicBackPicturePath = student.StudentFormBOrCnicBackPicturePath;
                         GuardianCnicNumber = student.GuardianCnicNumber;
                         GuardianCnicPicturePath = student.GuardianCnicPicturePath;
+                        GuardianCnicFrontPicturePath = student.GuardianCnicFrontPicturePath;
+                        GuardianCnicBackPicturePath = student.GuardianCnicBackPicturePath;
                         GuardianPhone = student.GuardianPhone;
                         EmergencyContactNumber = student.EmergencyContactNumber;
                         AdmissionDate = student.AdmissionDate ?? DateTime.Today;
@@ -266,9 +310,13 @@ namespace SchoolERP.ViewModels
                     Address = string.IsNullOrWhiteSpace(Address) ? null : Address.Trim(),
                     Phone = string.IsNullOrWhiteSpace(Phone) ? null : Phone.Trim(),
                     StudentFormBOrCnicNumber = string.IsNullOrWhiteSpace(StudentFormBOrCnicNumber) ? null : StudentFormBOrCnicNumber.Trim(),
-                    StudentFormBOrCnicPicturePath = string.IsNullOrWhiteSpace(StudentFormBOrCnicPicturePath) ? null : StudentFormBOrCnicPicturePath.Trim(),
+                    StudentFormBOrCnicPicturePath = NormalizePicturePath(StudentFormBOrCnicFrontPicturePath, StudentFormBOrCnicPicturePath),
+                    StudentFormBOrCnicFrontPicturePath = NormalizePicturePath(StudentFormBOrCnicFrontPicturePath, StudentFormBOrCnicPicturePath),
+                    StudentFormBOrCnicBackPicturePath = NormalizePicturePath(StudentFormBOrCnicBackPicturePath),
                     GuardianCnicNumber = string.IsNullOrWhiteSpace(GuardianCnicNumber) ? null : GuardianCnicNumber.Trim(),
-                    GuardianCnicPicturePath = string.IsNullOrWhiteSpace(GuardianCnicPicturePath) ? null : GuardianCnicPicturePath.Trim(),
+                    GuardianCnicPicturePath = NormalizePicturePath(GuardianCnicFrontPicturePath, GuardianCnicPicturePath),
+                    GuardianCnicFrontPicturePath = NormalizePicturePath(GuardianCnicFrontPicturePath, GuardianCnicPicturePath),
+                    GuardianCnicBackPicturePath = NormalizePicturePath(GuardianCnicBackPicturePath),
                     GuardianPhone = string.IsNullOrWhiteSpace(GuardianPhone) ? null : GuardianPhone.Trim(),
                     EmergencyContactNumber = string.IsNullOrWhiteSpace(EmergencyContactNumber) ? null : EmergencyContactNumber.Trim(),
                     AdmissionDate = AdmissionDate ?? DateTime.Today
@@ -313,6 +361,19 @@ namespace SchoolERP.ViewModels
             };
 
             return dialog.ShowDialog() == true ? dialog.FileName : currentPath;
+        }
+
+        private static string NormalizePicturePath(params string[] paths)
+        {
+            foreach (var path in paths)
+            {
+                if (!string.IsNullOrWhiteSpace(path))
+                {
+                    return path.Trim();
+                }
+            }
+
+            return null;
         }
     }
 }

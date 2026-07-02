@@ -146,19 +146,35 @@
                                        Margin="0,0,0,12"/>
                             <TextBlock Text="Form-B / CNIC Number" Style="{StaticResource FieldLabelStyle}"/>
                             <TextBlock Text="{Binding Student.StudentFormBOrCnicNumber}" Style="{StaticResource FieldValueStyle}"/>
-                            <TextBlock Text="Form-B / CNIC Picture" Style="{StaticResource FieldLabelStyle}"/>
+                            <TextBlock Text="Form-B / CNIC Front Picture" Style="{StaticResource FieldLabelStyle}"/>
                             <Border Background="#F8FAFC"
                                     BorderBrush="#E5EAF2"
                                     BorderThickness="1"
                                     CornerRadius="12"
                                     Padding="10"
                                     Margin="0,4,0,8">
-                                <Image Source="{Binding Student.StudentFormBOrCnicPicturePath}"
+                                <Image Source="{Binding Student.StudentFormBOrCnicFrontPicturePath}"
                                        MaxHeight="150"
                                        Stretch="Uniform"
                                        HorizontalAlignment="Left"/>
                             </Border>
-                            <TextBlock Text="{Binding Student.StudentFormBOrCnicPicturePath}"
+                            <TextBlock Text="{Binding Student.StudentFormBOrCnicFrontPicturePath}"
+                                       Foreground="#64748B"
+                                       FontSize="11"
+                                       TextWrapping="Wrap"/>
+                            <TextBlock Text="Form-B / CNIC Back Picture" Style="{StaticResource FieldLabelStyle}"/>
+                            <Border Background="#F8FAFC"
+                                    BorderBrush="#E5EAF2"
+                                    BorderThickness="1"
+                                    CornerRadius="12"
+                                    Padding="10"
+                                    Margin="0,4,0,8">
+                                <Image Source="{Binding Student.StudentFormBOrCnicBackPicturePath}"
+                                       MaxHeight="150"
+                                       Stretch="Uniform"
+                                       HorizontalAlignment="Left"/>
+                            </Border>
+                            <TextBlock Text="{Binding Student.StudentFormBOrCnicBackPicturePath}"
                                        Foreground="#64748B"
                                        FontSize="11"
                                        TextWrapping="Wrap"/>
@@ -176,19 +192,35 @@
                             <TextBlock Text="{Binding Student.GuardianPhone}" Style="{StaticResource FieldValueStyle}"/>
                             <TextBlock Text="Emergency Contact Number" Style="{StaticResource FieldLabelStyle}"/>
                             <TextBlock Text="{Binding Student.EmergencyContactNumber}" Style="{StaticResource FieldValueStyle}"/>
-                            <TextBlock Text="Guardian CNIC Picture" Style="{StaticResource FieldLabelStyle}"/>
+                            <TextBlock Text="Guardian CNIC Front Picture" Style="{StaticResource FieldLabelStyle}"/>
                             <Border Background="#F8FAFC"
                                     BorderBrush="#E5EAF2"
                                     BorderThickness="1"
                                     CornerRadius="12"
                                     Padding="10"
                                     Margin="0,4,0,8">
-                                <Image Source="{Binding Student.GuardianCnicPicturePath}"
+                                <Image Source="{Binding Student.GuardianCnicFrontPicturePath}"
                                        MaxHeight="150"
                                        Stretch="Uniform"
                                        HorizontalAlignment="Left"/>
                             </Border>
-                            <TextBlock Text="{Binding Student.GuardianCnicPicturePath}"
+                            <TextBlock Text="{Binding Student.GuardianCnicFrontPicturePath}"
+                                       Foreground="#64748B"
+                                       FontSize="11"
+                                       TextWrapping="Wrap"/>
+                            <TextBlock Text="Guardian CNIC Back Picture" Style="{StaticResource FieldLabelStyle}"/>
+                            <Border Background="#F8FAFC"
+                                    BorderBrush="#E5EAF2"
+                                    BorderThickness="1"
+                                    CornerRadius="12"
+                                    Padding="10"
+                                    Margin="0,4,0,8">
+                                <Image Source="{Binding Student.GuardianCnicBackPicturePath}"
+                                       MaxHeight="150"
+                                       Stretch="Uniform"
+                                       HorizontalAlignment="Left"/>
+                            </Border>
+                            <TextBlock Text="{Binding Student.GuardianCnicBackPicturePath}"
                                        Foreground="#64748B"
                                        FontSize="11"
                                        TextWrapping="Wrap"/>

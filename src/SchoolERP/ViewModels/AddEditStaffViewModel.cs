@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Microsoft.Win32;
@@ -22,9 +23,17 @@ namespace SchoolERP.ViewModels
         private string address;
         private string cnicNumber;
         private string cnicFrontImagePath;
+        private byte[] cnicFrontImageData;
+        private string cnicFrontImageFileName;
         private string cnicBackImagePath;
+        private byte[] cnicBackImageData;
+        private string cnicBackImageFileName;
         private string educationalDocumentsPath;
+        private byte[] educationalDocumentsData;
+        private string educationalDocumentsFileName;
         private string certificatesPath;
+        private byte[] certificatesData;
+        private string certificatesFileName;
         private string fingerprintIdText;
         private string nameError;
         private string ageError;
@@ -45,10 +54,10 @@ namespace SchoolERP.ViewModels
 
             SaveCommand = new RelayCommand(_ => SaveAsync(), _ => !IsSaving);
             CancelCommand = new RelayCommand(_ => RequestClose?.Invoke(false));
-            BrowseCnicFrontCommand = new RelayCommand(_ => SetPickedFile(path => CnicFrontImagePath = path, "Image files|*.jpg;*.jpeg;*.png;*.bmp;*.pdf|All files|*.*", false));
-            BrowseCnicBackCommand = new RelayCommand(_ => SetPickedFile(path => CnicBackImagePath = path, "Image files|*.jpg;*.jpeg;*.png;*.bmp;*.pdf|All files|*.*", false));
-            BrowseEducationalDocumentsCommand = new RelayCommand(_ => SetPickedFile(path => EducationalDocumentsPath = path, "Documents|*.pdf;*.doc;*.docx;*.jpg;*.jpeg;*.png|All files|*.*", true));
-            BrowseCertificatesCommand = new RelayCommand(_ => SetPickedFile(path => CertificatesPath = path, "Documents|*.pdf;*.doc;*.docx;*.jpg;*.jpeg;*.png|All files|*.*", true));
+            BrowseCnicFrontCommand = new RelayCommand(_ => SetPickedFile(file => ApplyPickedFile(file, path => CnicFrontImagePath = path, data => cnicFrontImageData = data, name => cnicFrontImageFileName = name), "Image files|*.jpg;*.jpeg;*.png;*.bmp;*.pdf|All files|*.*"));
+            BrowseCnicBackCommand = new RelayCommand(_ => SetPickedFile(file => ApplyPickedFile(file, path => CnicBackImagePath = path, data => cnicBackImageData = data, name => cnicBackImageFileName = name), "Image files|*.jpg;*.jpeg;*.png;*.bmp;*.pdf|All files|*.*"));
+            BrowseEducationalDocumentsCommand = new RelayCommand(_ => SetPickedFile(file => ApplyPickedFile(file, path => EducationalDocumentsPath = path, data => educationalDocumentsData = data, name => educationalDocumentsFileName = name), "Documents|*.pdf;*.doc;*.docx;*.jpg;*.jpeg;*.png|All files|*.*"));
+            BrowseCertificatesCommand = new RelayCommand(_ => SetPickedFile(file => ApplyPickedFile(file, path => CertificatesPath = path, data => certificatesData = data, name => certificatesFileName = name), "Documents|*.pdf;*.doc;*.docx;*.jpg;*.jpeg;*.png|All files|*.*"));
 
             if (IsEditMode && teacherId.HasValue)
             {
@@ -242,9 +251,17 @@ namespace SchoolERP.ViewModels
                     Address = teacher.Address;
                     CnicNumber = teacher.CnicNumber;
                     CnicFrontImagePath = teacher.CnicFrontImagePath;
+                    cnicFrontImageData = teacher.CnicFrontImageData;
+                    cnicFrontImageFileName = teacher.CnicFrontImageFileName;
                     CnicBackImagePath = teacher.CnicBackImagePath;
+                    cnicBackImageData = teacher.CnicBackImageData;
+                    cnicBackImageFileName = teacher.CnicBackImageFileName;
                     EducationalDocumentsPath = teacher.EducationalDocumentsPath;
+                    educationalDocumentsData = teacher.EducationalDocumentsData;
+                    educationalDocumentsFileName = teacher.EducationalDocumentsFileName;
                     CertificatesPath = teacher.CertificatesPath;
+                    certificatesData = teacher.CertificatesData;
+                    certificatesFileName = teacher.CertificatesFileName;
                     FingerprintIdText = teacher.FingerprintID?.ToString();
                 }
             }
@@ -354,9 +371,17 @@ namespace SchoolERP.ViewModels
                     Address = Address?.Trim(),
                     CnicNumber = CnicNumber.Trim(),
                     CnicFrontImagePath = CnicFrontImagePath?.Trim(),
+                    CnicFrontImageData = cnicFrontImageData,
+                    CnicFrontImageFileName = cnicFrontImageFileName,
                     CnicBackImagePath = CnicBackImagePath?.Trim(),
+                    CnicBackImageData = cnicBackImageData,
+                    CnicBackImageFileName = cnicBackImageFileName,
                     EducationalDocumentsPath = EducationalDocumentsPath?.Trim(),
+                    EducationalDocumentsData = educationalDocumentsData,
+                    EducationalDocumentsFileName = educationalDocumentsFileName,
                     CertificatesPath = CertificatesPath?.Trim(),
+                    CertificatesData = certificatesData,
+                    CertificatesFileName = certificatesFileName,
                     FingerprintID = fingerprintId
                 };
 
@@ -389,25 +414,32 @@ namespace SchoolERP.ViewModels
             }
         }
 
-        private static void SetPickedFile(Action<string> applyPath, string filter, bool allowMultiple)
+        private static void ApplyPickedFile(string path, Action<string> applyPath, Action<byte[]> applyData, Action<string> applyFileName)
         {
-            var path = PickFile(filter, allowMultiple);
+            applyPath(path);
+            applyData(File.ReadAllBytes(path));
+            applyFileName(Path.GetFileName(path));
+        }
+
+        private static void SetPickedFile(Action<string> applyPath, string filter)
+        {
+            var path = PickFile(filter);
             if (!string.IsNullOrWhiteSpace(path))
             {
                 applyPath(path);
             }
         }
 
-        private static string PickFile(string filter, bool allowMultiple)
+        private static string PickFile(string filter)
         {
             var dialog = new OpenFileDialog
             {
                 Filter = filter,
-                Multiselect = allowMultiple
+                Multiselect = false
             };
 
             return dialog.ShowDialog() == true
-                ? string.Join(";", dialog.FileNames)
+                ? dialog.FileName
                 : null;
         }
     }

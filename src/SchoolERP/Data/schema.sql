@@ -91,9 +91,17 @@ BEGIN
         Address NVARCHAR(1000) NULL,
         CnicNumber NVARCHAR(50) NULL,
         CnicFrontImagePath NVARCHAR(1000) NULL,
+        CnicFrontImageData VARBINARY(MAX) NULL,
+        CnicFrontImageFileName NVARCHAR(260) NULL,
         CnicBackImagePath NVARCHAR(1000) NULL,
+        CnicBackImageData VARBINARY(MAX) NULL,
+        CnicBackImageFileName NVARCHAR(260) NULL,
         EducationalDocumentsPath NVARCHAR(2000) NULL,
+        EducationalDocumentsData VARBINARY(MAX) NULL,
+        EducationalDocumentsFileName NVARCHAR(260) NULL,
         CertificatesPath NVARCHAR(2000) NULL,
+        CertificatesData VARBINARY(MAX) NULL,
+        CertificatesFileName NVARCHAR(260) NULL,
         FingerprintID INT NULL
     );
     CREATE INDEX IX_Teachers_Name ON dbo.Teachers(Name);
