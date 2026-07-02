@@ -32,6 +32,16 @@
             <Setter Property="Margin" Value="0,0,0,12"/>
             <Setter Property="TextWrapping" Value="Wrap"/>
         </Style>
+        <Style x:Key="ImageDownloadButtonStyle" TargetType="Button">
+            <Setter Property="Width" Value="92"/>
+            <Setter Property="Height" Value="30"/>
+            <Setter Property="Margin" Value="10,0,0,0"/>
+            <Setter Property="Background" Value="#001A3F"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+        </Style>
     </Window.Resources>
 
     <Grid>
@@ -158,10 +168,22 @@
                                        Stretch="Uniform"
                                        HorizontalAlignment="Left"/>
                             </Border>
-                            <TextBlock Text="{Binding Student.StudentFormBOrCnicFrontPicturePath}"
-                                       Foreground="#64748B"
-                                       FontSize="11"
-                                       TextWrapping="Wrap"/>
+                            <Grid Margin="0,0,0,8">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="{Binding Student.StudentFormBOrCnicFrontPicturePath}"
+                                           Foreground="#64748B"
+                                           FontSize="11"
+                                           TextWrapping="Wrap"
+                                           VerticalAlignment="Center"/>
+                                <Button Grid.Column="1"
+                                        Content="Download"
+                                        Command="{Binding DownloadImageCommand}"
+                                        CommandParameter="{Binding Student.StudentFormBOrCnicFrontPicturePath}"
+                                        Style="{StaticResource ImageDownloadButtonStyle}"/>
+                            </Grid>
                             <TextBlock Text="Form-B / CNIC Back Picture" Style="{StaticResource FieldLabelStyle}"/>
                             <Border Background="#F8FAFC"
                                     BorderBrush="#E5EAF2"
@@ -174,10 +196,22 @@
                                        Stretch="Uniform"
                                        HorizontalAlignment="Left"/>
                             </Border>
-                            <TextBlock Text="{Binding Student.StudentFormBOrCnicBackPicturePath}"
-                                       Foreground="#64748B"
-                                       FontSize="11"
-                                       TextWrapping="Wrap"/>
+                            <Grid Margin="0,0,0,8">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="{Binding Student.StudentFormBOrCnicBackPicturePath}"
+                                           Foreground="#64748B"
+                                           FontSize="11"
+                                           TextWrapping="Wrap"
+                                           VerticalAlignment="Center"/>
+                                <Button Grid.Column="1"
+                                        Content="Download"
+                                        Command="{Binding DownloadImageCommand}"
+                                        CommandParameter="{Binding Student.StudentFormBOrCnicBackPicturePath}"
+                                        Style="{StaticResource ImageDownloadButtonStyle}"/>
+                            </Grid>
                         </StackPanel>
 
                         <StackPanel Grid.Column="2">
@@ -204,10 +238,22 @@
                                        Stretch="Uniform"
                                        HorizontalAlignment="Left"/>
                             </Border>
-                            <TextBlock Text="{Binding Student.GuardianCnicFrontPicturePath}"
-                                       Foreground="#64748B"
-                                       FontSize="11"
-                                       TextWrapping="Wrap"/>
+                            <Grid Margin="0,0,0,8">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="{Binding Student.GuardianCnicFrontPicturePath}"
+                                           Foreground="#64748B"
+                                           FontSize="11"
+                                           TextWrapping="Wrap"
+                                           VerticalAlignment="Center"/>
+                                <Button Grid.Column="1"
+                                        Content="Download"
+                                        Command="{Binding DownloadImageCommand}"
+                                        CommandParameter="{Binding Student.GuardianCnicFrontPicturePath}"
+                                        Style="{StaticResource ImageDownloadButtonStyle}"/>
+                            </Grid>
                             <TextBlock Text="Guardian CNIC Back Picture" Style="{StaticResource FieldLabelStyle}"/>
                             <Border Background="#F8FAFC"
                                     BorderBrush="#E5EAF2"
@@ -220,10 +266,22 @@
                                        Stretch="Uniform"
                                        HorizontalAlignment="Left"/>
                             </Border>
-                            <TextBlock Text="{Binding Student.GuardianCnicBackPicturePath}"
-                                       Foreground="#64748B"
-                                       FontSize="11"
-                                       TextWrapping="Wrap"/>
+                            <Grid Margin="0,0,0,8">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="{Binding Student.GuardianCnicBackPicturePath}"
+                                           Foreground="#64748B"
+                                           FontSize="11"
+                                           TextWrapping="Wrap"
+                                           VerticalAlignment="Center"/>
+                                <Button Grid.Column="1"
+                                        Content="Download"
+                                        Command="{Binding DownloadImageCommand}"
+                                        CommandParameter="{Binding Student.GuardianCnicBackPicturePath}"
+                                        Style="{StaticResource ImageDownloadButtonStyle}"/>
+                            </Grid>
                         </StackPanel>
                     </Grid>
                 </Border>
