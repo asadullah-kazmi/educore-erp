@@ -16,6 +16,8 @@ namespace SchoolERP.Views
             Month = fee.Month;
             FeeType = fee.FeeType;
             Amount = fee.Amount;
+            PaidAmount = fee.PaidAmount;
+            Balance = fee.Balance;
             Status = fee.Status;
             ReceiptDate = DateTime.Today;
         }
@@ -27,6 +29,8 @@ namespace SchoolERP.Views
         public string Month { get; }
         public string FeeType { get; }
         public decimal Amount { get; }
+        public decimal PaidAmount { get; }
+        public decimal Balance { get; }
         public string Status { get; }
         public DateTime ReceiptDate { get; }
     }

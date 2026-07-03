@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
@@ -17,7 +18,7 @@ namespace SchoolERP.ViewModels
             FeeHistory = new ObservableCollection<FeeRecord>(fees ?? new List<FeeRecord>());
             TotalPaid = FeeHistory.Where(f => f.Status == "Paid").Sum(f => f.Amount);
             TotalDue = FeeHistory.Where(f => f.Status == "Due").Sum(f => f.Amount);
-            DownloadImageCommand = new RelayCommand<string>(DownloadImage, CanDownloadImage);
+            DownloadImageCommand = new RelayCommand(DownloadImage);
         }
 
         public StudentViewModel Student { get; }
@@ -38,8 +39,10 @@ namespace SchoolERP.ViewModels
             return !string.IsNullOrWhiteSpace(imagePath) && File.Exists(imagePath);
         }
 
-        private static void DownloadImage(string imagePath)
+        private static void DownloadImage(object parameter)
         {
+            var imagePath = parameter as string;
+
             if (!CanDownloadImage(imagePath))
             {
                 MessageBox.Show("The selected image file could not be found.", "Download Image", MessageBoxButton.OK, MessageBoxImage.Warning);
@@ -64,6 +67,10 @@ namespace SchoolERP.ViewModels
                 MessageBox.Show("Image downloaded successfully.", "Download Image", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (IOException ex)
+            {
+                MessageBox.Show("Unable to download image: " + ex.Message, "Download Image", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            catch (UnauthorizedAccessException ex)
             {
                 MessageBox.Show("Unable to download image: " + ex.Message, "Download Image", MessageBoxButton.OK, MessageBoxImage.Error);
             }

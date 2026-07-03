@@ -476,7 +476,7 @@ namespace SchoolERP.ViewModels
         private void OpenFeeReceipt(FeeRecord fee)
         {
             if (fee == null) return;
-            if (!fee.HasFeeRecord || !string.Equals(fee.Status, "Paid", StringComparison.OrdinalIgnoreCase))
+            if (!fee.HasFeeRecord || fee.PaidAmount <= 0)
             {
                 MessageBox.Show("Receipt is available after payment is recorded.", "Receipt Not Available", MessageBoxButton.OK, MessageBoxImage.Information);
                 return;
