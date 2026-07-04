@@ -76,6 +76,7 @@ WHERE FORMAT(PaymentDate, 'MMM yyyy') = @Month;";
 SELECT s.Name,
        s.RegistrationNo,
        c.ClassName,
+       s.Section,
        valuesForReport.ReportFee AS MonthlyFee,
        valuesForReport.AmountPaid,
        CASE
@@ -95,7 +96,7 @@ CROSS APPLY (
         CAST(ISNULL(f.Amount, s.MonthlyFee) AS DECIMAL(18,2)) AS ReportFee,
         CAST(ISNULL(f.PaidAmount, CASE WHEN f.Status = 'Paid' THEN f.Amount ELSE 0 END) AS DECIMAL(18,2)) AS AmountPaid
 ) valuesForReport
-ORDER BY c.ClassName, s.Name;";
+ORDER BY c.ClassName, s.Section, s.Name;";
 
             var rows = new List<FeeCollectionReportRow>();
 
@@ -114,6 +115,7 @@ ORDER BY c.ClassName, s.Name;";
                             StudentName = reader["Name"] as string,
                             RegistrationNo = reader["RegistrationNo"] as string,
                             ClassName = reader["ClassName"] as string,
+                            Section = reader["Section"] as string,
                             MonthlyFee = reader["MonthlyFee"] == DBNull.Value ? 0m : Convert.ToDecimal(reader["MonthlyFee"]),
                             AmountPaid = reader["AmountPaid"] == DBNull.Value ? 0m : Convert.ToDecimal(reader["AmountPaid"]),
                             Status = reader["Status"] as string,

@@ -1,0 +1,72 @@
+<Project>
+  <PropertyGroup>
+    <AssemblyName>SchoolERP</AssemblyName>
+    <IntermediateOutputPath>obj\Debug\</IntermediateOutputPath>
+    <BaseIntermediateOutputPath>obj\</BaseIntermediateOutputPath>
+    <MSBuildProjectExtensionsPath>D:\Programs\Windows Software\schoolERP\educore-erp\src\SchoolERP\obj\</MSBuildProjectExtensionsPath>
+    <_TargetAssemblyProjectName>SchoolERP</_TargetAssemblyProjectName>
+    <RootNamespace>SchoolERP</RootNamespace>
+  </PropertyGroup>
+  <Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk.WindowsDesktop" />
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net48</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <RootNamespace>SchoolERP</RootNamespace>
+    <DefaultItemExcludes>$(DefaultItemExcludes);bin\**;obj\**</DefaultItemExcludes>
+  </PropertyGroup>
+  <ItemGroup>
+  </ItemGroup>
+  <ItemGroup>
+  </ItemGroup>
+  <ItemGroup>
+    <ReferencePath Include="C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\mscorlib.dll" />
+    <ReferencePath Include="C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\PresentationCore.dll" />
+    <ReferencePath Include="C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\PresentationFramework.dll" />
+    <ReferencePath Include="C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\System.Configuration.dll" />
+    <ReferencePath Include="C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\System.Core.dll" />
+    <ReferencePath Include="C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\System.Data.dll" />
+    <ReferencePath Include="C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\System.dll" />
+    <ReferencePath Include="C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\System.Drawing.dll" />
+    <ReferencePath Include="C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\System.IO.Compression.FileSystem.dll" />
+    <ReferencePath Include="C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\System.Numerics.dll" />
+    <ReferencePath Include="C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\System.Runtime.Serialization.dll" />
+    <ReferencePath Include="C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\System.Windows.Controls.Ribbon.dll" />
+    <ReferencePath Include="C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\System.Xaml.dll" />
+    <ReferencePath Include="C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\System.Xml.dll" />
+    <ReferencePath Include="C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\System.Xml.Linq.dll" />
+    <ReferencePath Include="C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\UIAutomationClient.dll" />
+    <ReferencePath Include="C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\UIAutomationClientsideProviders.dll" />
+    <ReferencePath Include="C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\UIAutomationProvider.dll" />
+    <ReferencePath Include="C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\UIAutomationTypes.dll" />
+    <ReferencePath Include="C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\WindowsBase.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="D:\Programs\Windows Software\schoolERP\educore-erp\src\SchoolERP\obj\Debug\net48\Controls\ConfirmationDialog.g.cs" />
+    <Compile Include="D:\Programs\Windows Software\schoolERP\educore-erp\src\SchoolERP\obj\Debug\net48\Controls\SchoolLogo.g.cs" />
+    <Compile Include="D:\Programs\Windows Software\schoolERP\educore-erp\src\SchoolERP\obj\Debug\net48\LoginWindow.g.cs" />
+    <Compile Include="D:\Programs\Windows Software\schoolERP\educore-erp\src\SchoolERP\obj\Debug\net48\MainWindow.g.cs" />
+    <Compile Include="D:\Programs\Windows Software\schoolERP\educore-erp\src\SchoolERP\obj\Debug\net48\Views\AddEditExpenseWindow.g.cs" />
+    <Compile Include="D:\Programs\Windows Software\schoolERP\educore-erp\src\SchoolERP\obj\Debug\net48\Views\AddEditFeeWindow.g.cs" />
+    <Compile Include="D:\Programs\Windows Software\schoolERP\educore-erp\src\SchoolERP\obj\Debug\net48\Views\AddEditStaffWindow.g.cs" />
+    <Compile Include="D:\Programs\Windows Software\schoolERP\educore-erp\src\SchoolERP\obj\Debug\net48\Views\AddEditStudentWindow.g.cs" />
+    <Compile Include="D:\Programs\Windows Software\schoolERP\educore-erp\src\SchoolERP\obj\Debug\net48\Views\AttendanceView.g.cs" />
+    <Compile Include="D:\Programs\Windows Software\schoolERP\educore-erp\src\SchoolERP\obj\Debug\net48\Views\DashboardView.g.cs" />
+    <Compile Include="D:\Programs\Windows Software\schoolERP\educore-erp\src\SchoolERP\obj\Debug\net48\Views\FeeDetailWindow.g.cs" />
+    <Compile Include="D:\Programs\Windows Software\schoolERP\educore-erp\src\SchoolERP\obj\Debug\net48\Views\FeeReceiptWindow.g.cs" />
+    <Compile Include="D:\Programs\Windows Software\schoolERP\educore-erp\src\SchoolERP\obj\Debug\net48\Views\FeesView.g.cs" />
+    <Compile Include="D:\Programs\Windows Software\schoolERP\educore-erp\src\SchoolERP\obj\Debug\net48\Views\FinanceView.g.cs" />
+    <Compile Include="D:\Programs\Windows Software\schoolERP\educore-erp\src\SchoolERP\obj\Debug\net48\Views\PaySalaryWindow.g.cs" />
+    <Compile Include="D:\Programs\Windows Software\schoolERP\educore-erp\src\SchoolERP\obj\Debug\net48\Views\RecordFeePaymentWindow.g.cs" />
+    <Compile Include="D:\Programs\Windows Software\schoolERP\educore-erp\src\SchoolERP\obj\Debug\net48\Views\ReportsView.g.cs" />
+    <Compile Include="D:\Programs\Windows Software\schoolERP\educore-erp\src\SchoolERP\obj\Debug\net48\Views\SalaryHistoryWindow.g.cs" />
+    <Compile Include="D:\Programs\Windows Software\schoolERP\educore-erp\src\SchoolERP\obj\Debug\net48\Views\StaffDetailWindow.g.cs" />
+    <Compile Include="D:\Programs\Windows Software\schoolERP\educore-erp\src\SchoolERP\obj\Debug\net48\Views\StaffListView.g.cs" />
+    <Compile Include="D:\Programs\Windows Software\schoolERP\educore-erp\src\SchoolERP\obj\Debug\net48\Views\StudentDetailWindow.g.cs" />
+    <Compile Include="D:\Programs\Windows Software\schoolERP\educore-erp\src\SchoolERP\obj\Debug\net48\Views\StudentListView.g.cs" />
+    <Compile Include="D:\Programs\Windows Software\schoolERP\educore-erp\src\SchoolERP\obj\Debug\net48\Views\StudentsView.g.cs" />
+    <Compile Include="D:\Programs\Windows Software\schoolERP\educore-erp\src\SchoolERP\obj\Debug\net48\App.g.cs" />
+    <Compile Include="D:\Programs\Windows Software\schoolERP\educore-erp\src\SchoolERP\obj\Debug\net48\GeneratedInternalTypeHelper.g.cs" />
+  </ItemGroup>
+  <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk.WindowsDesktop" />
+</Project>

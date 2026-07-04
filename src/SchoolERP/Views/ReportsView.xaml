@@ -53,6 +53,7 @@
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
                     
@@ -87,14 +88,26 @@
                         </Border>
                     </StackPanel>
                     
-                    <TextBlock Grid.Row="2" Text="{Binding FeeStatusMessage}" Foreground="#DC2626" Margin="0,0,0,8"/>
-                    <TextBlock Grid.Row="3" Text="Loading..." Foreground="#64748B" Visibility="{Binding IsLoadingFee, Converter={StaticResource BoolToVisibility}}" Margin="0,0,0,8"/>
+                    <WrapPanel Grid.Row="2" Margin="0,0,0,12">
+                        <TextBlock Text="Search" VerticalAlignment="Center" Foreground="#64748B" Margin="0,0,6,0"/>
+                        <TextBox Width="220" Height="34" Text="{Binding FeeSearchText, UpdateSourceTrigger=PropertyChanged}" VerticalContentAlignment="Center" Margin="0,0,10,0"/>
+                        <TextBlock Text="Class" VerticalAlignment="Center" Foreground="#64748B" Margin="0,0,6,0"/>
+                        <ComboBox Width="150" Height="34" ItemsSource="{Binding FeeClassOptions}" SelectedItem="{Binding SelectedFeeClass}" VerticalContentAlignment="Center" Margin="0,0,10,0"/>
+                        <TextBlock Text="Section" VerticalAlignment="Center" Foreground="#64748B" Margin="0,0,6,0"/>
+                        <ComboBox Width="130" Height="34" ItemsSource="{Binding FeeSectionOptions}" SelectedItem="{Binding SelectedFeeSection}" VerticalContentAlignment="Center" Margin="0,0,10,0"/>
+                        <TextBlock Text="Status" VerticalAlignment="Center" Foreground="#64748B" Margin="0,0,6,0"/>
+                        <ComboBox Width="130" Height="34" ItemsSource="{Binding FeeStatusOptions}" SelectedItem="{Binding SelectedFeeStatus}" VerticalContentAlignment="Center" Margin="0,0,10,0"/>
+                    </WrapPanel>
                     
-                    <DataGrid Grid.Row="4" ItemsSource="{Binding FeeRows}" Style="{StaticResource ModuleDataGridStyle}">
+                    <TextBlock Grid.Row="3" Text="{Binding FeeStatusMessage}" Foreground="#DC2626" Margin="0,0,0,8"/>
+                    <TextBlock Grid.Row="4" Text="Loading..." Foreground="#64748B" Visibility="{Binding IsLoadingFee, Converter={StaticResource BoolToVisibility}}" Margin="0,0,0,8"/>
+                    
+                    <DataGrid Grid.Row="5" ItemsSource="{Binding FeeRows}" Style="{StaticResource ModuleDataGridStyle}">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="Student Name" Binding="{Binding StudentName}" Width="*"/>
                             <DataGridTextColumn Header="Reg No" Binding="{Binding RegistrationNo}" Width="100"/>
                             <DataGridTextColumn Header="Class" Binding="{Binding ClassName}" Width="90"/>
+                            <DataGridTextColumn Header="Section" Binding="{Binding Section}" Width="80"/>
                             <DataGridTextColumn Header="Monthly Fee" Binding="{Binding MonthlyFee, StringFormat='Rs {0:N0}'}" Width="110"/>
                             <DataGridTextColumn Header="Paid" Binding="{Binding AmountPaid, StringFormat='Rs {0:N0}'}" Width="110"/>
                             <DataGridTemplateColumn Header="Status" Width="80">
@@ -163,8 +176,15 @@
                         </Border>
                     </StackPanel>
                     
-                    <TextBlock Grid.Row="2" Text="{Binding AttendanceStatusMessage}" Foreground="#DC2626" Margin="0,0,0,8"/>
-                    <TextBlock Grid.Row="3" Text="Loading..." Foreground="#64748B" Visibility="{Binding IsLoadingAttendance, Converter={StaticResource BoolToVisibility}}" Margin="0,0,0,8"/>
+                    <WrapPanel Grid.Row="2" Margin="0,0,0,12">
+                        <TextBlock Text="Search" VerticalAlignment="Center" Foreground="#64748B" Margin="0,0,6,0"/>
+                        <TextBox Width="220" Height="34" Text="{Binding AttendanceSearchText, UpdateSourceTrigger=PropertyChanged}" VerticalContentAlignment="Center" Margin="0,0,10,0"/>
+                        <TextBlock Text="Rate" VerticalAlignment="Center" Foreground="#64748B" Margin="0,0,6,0"/>
+                        <ComboBox Width="150" Height="34" ItemsSource="{Binding AttendanceRateOptions}" SelectedItem="{Binding SelectedAttendanceRate}" VerticalContentAlignment="Center" Margin="0,0,10,0"/>
+                    </WrapPanel>
+                    
+                    <TextBlock Grid.Row="3" Text="{Binding AttendanceStatusMessage}" Foreground="#DC2626" Margin="0,0,0,8"/>
+                    <TextBlock Grid.Row="4" Text="Loading..." Foreground="#64748B" Visibility="{Binding IsLoadingAttendance, Converter={StaticResource BoolToVisibility}}" Margin="0,0,0,8"/>
                     
                     <DataGrid Grid.Row="5" ItemsSource="{Binding AttendanceRows}" Style="{StaticResource ModuleDataGridStyle}">
                         <DataGrid.Columns>
@@ -266,6 +286,12 @@
                         <Rectangle Height="1" Fill="#E2E8F0" Margin="0,16"/>
                         
                         <TextBlock Text="Expenses Detail" FontSize="16" FontWeight="SemiBold" Foreground="#0F172A" Margin="0,16,0,8"/>
+                        <WrapPanel Margin="0,0,0,10">
+                            <TextBlock Text="Search" VerticalAlignment="Center" Foreground="#64748B" Margin="0,0,6,0"/>
+                            <TextBox Width="220" Height="34" Text="{Binding ExpenseSearchText, UpdateSourceTrigger=PropertyChanged}" VerticalContentAlignment="Center" Margin="0,0,10,0"/>
+                            <TextBlock Text="Category" VerticalAlignment="Center" Foreground="#64748B" Margin="0,0,6,0"/>
+                            <ComboBox Width="180" Height="34" ItemsSource="{Binding ExpenseCategoryOptions}" SelectedItem="{Binding SelectedExpenseCategory}" VerticalContentAlignment="Center" Margin="0,0,10,0"/>
+                        </WrapPanel>
                         <DataGrid ItemsSource="{Binding ExpenseRows}" Style="{StaticResource ModuleDataGridStyle}" Margin="0,0,0,16">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="Date" Binding="{Binding Date, StringFormat={}{0:dd MMM yyyy}}" Width="120"/>
@@ -276,6 +302,12 @@
                         </DataGrid>
                         
                         <TextBlock Text="Salary Payments Detail" FontSize="16" FontWeight="SemiBold" Foreground="#0F172A" Margin="0,0,0,8"/>
+                        <WrapPanel Margin="0,0,0,10">
+                            <TextBlock Text="Search" VerticalAlignment="Center" Foreground="#64748B" Margin="0,0,6,0"/>
+                            <TextBox Width="220" Height="34" Text="{Binding SalarySearchText, UpdateSourceTrigger=PropertyChanged}" VerticalContentAlignment="Center" Margin="0,0,10,0"/>
+                            <TextBlock Text="Teacher" VerticalAlignment="Center" Foreground="#64748B" Margin="0,0,6,0"/>
+                            <ComboBox Width="180" Height="34" ItemsSource="{Binding SalaryTeacherOptions}" SelectedItem="{Binding SelectedSalaryTeacher}" VerticalContentAlignment="Center" Margin="0,0,10,0"/>
+                        </WrapPanel>
                         <DataGrid ItemsSource="{Binding SalaryRows}" Style="{StaticResource ModuleDataGridStyle}">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="Teacher" Binding="{Binding TeacherName}" Width="*"/>

@@ -20,12 +20,13 @@ namespace SchoolERP.Services
 
             var document = BuildDocument(
                 "Fee Collection Report — " + month,
-                new[] { "Student", "Reg No", "Class", "Monthly Fee", "Paid", "Status", "Payment Date" },
+                new[] { "Student", "Reg No", "Class", "Section", "Monthly Fee", "Paid", "Status", "Payment Date" },
                 rows.Select(r => new[]
                 {
                     r.StudentName ?? string.Empty,
                     r.RegistrationNo ?? string.Empty,
                     r.ClassName ?? string.Empty,
+                    r.Section ?? string.Empty,
                     r.MonthlyFee.ToString("N0"),
                     r.AmountPaid.ToString("N0"),
                     r.Status ?? string.Empty,

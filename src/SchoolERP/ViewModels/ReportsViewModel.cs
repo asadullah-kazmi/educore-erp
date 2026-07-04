@@ -28,6 +28,8 @@ namespace SchoolERP.ViewModels
             IsAdmin = true;
 
             PersonTypeOptions = new List<string> { "Teacher", "Student" };
+            FeeClassOptions.Add("All Classes");
+            FeeSectionOptions.Add("All Sections");
 
             // Initialize month options for Fee and Finance
             MonthOptions = new ObservableCollection<string>();
@@ -96,7 +98,15 @@ namespace SchoolERP.ViewModels
         #region Tab 1: Fee Collection Report
 
         private string _selectedFeeMonth;
+        private readonly List<FeeCollectionReportRow> _allFeeRows = new List<FeeCollectionReportRow>();
         private ObservableCollection<FeeCollectionReportRow> _feeRows = new ObservableCollection<FeeCollectionReportRow>();
+        private ObservableCollection<string> _feeClassOptions = new ObservableCollection<string>();
+        private ObservableCollection<string> _feeSectionOptions = new ObservableCollection<string>();
+        private ObservableCollection<string> _feeStatusOptions = new ObservableCollection<string> { "All Statuses", "Paid", "Partial", "Due" };
+        private string _selectedFeeClass = "All Classes";
+        private string _selectedFeeSection = "All Sections";
+        private string _selectedFeeStatus = "All Statuses";
+        private string _feeSearchText;
         private int _feeTotalStudents;
         private decimal _feeTotalCollected;
         private decimal _feeTotalDue;
@@ -116,6 +126,15 @@ namespace SchoolERP.ViewModels
                     FeeTotalCollected = 0;
                     FeeTotalDue = 0;
                     FeeStatusMessage = string.Empty;
+                    _allFeeRows.Clear();
+                    FeeClassOptions.Clear();
+                    FeeClassOptions.Add("All Classes");
+                    FeeSectionOptions.Clear();
+                    FeeSectionOptions.Add("All Sections");
+                    SelectedFeeClass = "All Classes";
+                    SelectedFeeSection = "All Sections";
+                    SelectedFeeStatus = "All Statuses";
+                    FeeSearchText = string.Empty;
                     if (_isInitialized)
                     {
                         PrintFeeReportCommand.RaiseCanExecuteChanged();
@@ -128,6 +147,65 @@ namespace SchoolERP.ViewModels
         {
             get => _feeRows;
             set => SetProperty(ref _feeRows, value);
+        }
+        public ObservableCollection<string> FeeClassOptions
+        {
+            get => _feeClassOptions;
+            set => SetProperty(ref _feeClassOptions, value);
+        }
+        public ObservableCollection<string> FeeStatusOptions
+        {
+            get => _feeStatusOptions;
+            set => SetProperty(ref _feeStatusOptions, value);
+        }
+        public ObservableCollection<string> FeeSectionOptions
+        {
+            get => _feeSectionOptions;
+            set => SetProperty(ref _feeSectionOptions, value);
+        }
+        public string SelectedFeeClass
+        {
+            get => _selectedFeeClass;
+            set
+            {
+                if (SetProperty(ref _selectedFeeClass, value))
+                {
+                    ApplyFeeFilters();
+                }
+            }
+        }
+        public string SelectedFeeSection
+        {
+            get => _selectedFeeSection;
+            set
+            {
+                if (SetProperty(ref _selectedFeeSection, value))
+                {
+                    ApplyFeeFilters();
+                }
+            }
+        }
+        public string SelectedFeeStatus
+        {
+            get => _selectedFeeStatus;
+            set
+            {
+                if (SetProperty(ref _selectedFeeStatus, value))
+                {
+                    ApplyFeeFilters();
+                }
+            }
+        }
+        public string FeeSearchText
+        {
+            get => _feeSearchText;
+            set
+            {
+                if (SetProperty(ref _feeSearchText, value))
+                {
+                    ApplyFeeFilters();
+                }
+            }
         }
         public int FeeTotalStudents
         {
@@ -166,17 +244,11 @@ namespace SchoolERP.ViewModels
                 FeeStatusMessage = string.Empty;
 
                 var rows = await _monthlyRepo.GetFeeCollectionReportAsync(SelectedFeeMonth);
-                FeeRows.Clear();
-                foreach (var row in rows)
-                {
-                    FeeRows.Add(row);
-                }
-
-                FeeTotalStudents = FeeRows.Count;
-                FeeTotalCollected = FeeRows.Sum(r => r.AmountPaid);
-                FeeTotalDue = FeeRows.Sum(r => Math.Max(0, r.MonthlyFee - r.AmountPaid));
-
-                FeeStatusMessage = $"Loaded {FeeRows.Count} rows for {SelectedFeeMonth}";
+                _allFeeRows.Clear();
+                _allFeeRows.AddRange(rows);
+                RefreshFeeClassOptions();
+                RefreshFeeSectionOptions();
+                ApplyFeeFilters();
 
                 PrintFeeReportCommand.RaiseCanExecuteChanged();
                 ExportFeeReportCsvCommand.RaiseCanExecuteChanged();
@@ -197,6 +269,89 @@ namespace SchoolERP.ViewModels
             ReportPrintService.PrintFeeCollectionReport(FeeRows.ToList(), SelectedFeeMonth);
         }
 
+        private void RefreshFeeClassOptions()
+        {
+            var selected = SelectedFeeClass;
+            FeeClassOptions.Clear();
+            FeeClassOptions.Add("All Classes");
+            foreach (var className in _allFeeRows
+                .Select(r => string.IsNullOrWhiteSpace(r.ClassName) ? "Unassigned" : r.ClassName.Trim())
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .OrderBy(c => c))
+            {
+                FeeClassOptions.Add(className);
+            }
+
+            SelectedFeeClass = FeeClassOptions.Contains(selected) ? selected : "All Classes";
+        }
+
+        private void RefreshFeeSectionOptions()
+        {
+            var selected = SelectedFeeSection;
+            FeeSectionOptions.Clear();
+            FeeSectionOptions.Add("All Sections");
+            foreach (var section in _allFeeRows
+                .Select(r => string.IsNullOrWhiteSpace(r.Section) ? "Unassigned" : r.Section.Trim())
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .OrderBy(s => s))
+            {
+                FeeSectionOptions.Add(section);
+            }
+
+            SelectedFeeSection = FeeSectionOptions.Contains(selected) ? selected : "All Sections";
+        }
+
+        private void ApplyFeeFilters()
+        {
+            var query = _allFeeRows.AsEnumerable();
+
+            if (!string.IsNullOrWhiteSpace(SelectedFeeClass) && SelectedFeeClass != "All Classes")
+            {
+                query = query.Where(r => string.Equals(
+                    string.IsNullOrWhiteSpace(r.ClassName) ? "Unassigned" : r.ClassName.Trim(),
+                    SelectedFeeClass,
+                    StringComparison.OrdinalIgnoreCase));
+            }
+
+            if (!string.IsNullOrWhiteSpace(SelectedFeeSection) && SelectedFeeSection != "All Sections")
+            {
+                query = query.Where(r => string.Equals(
+                    string.IsNullOrWhiteSpace(r.Section) ? "Unassigned" : r.Section.Trim(),
+                    SelectedFeeSection,
+                    StringComparison.OrdinalIgnoreCase));
+            }
+
+            if (!string.IsNullOrWhiteSpace(SelectedFeeStatus) && SelectedFeeStatus != "All Statuses")
+            {
+                query = query.Where(r => string.Equals(r.Status, SelectedFeeStatus, StringComparison.OrdinalIgnoreCase));
+            }
+
+            if (!string.IsNullOrWhiteSpace(FeeSearchText))
+            {
+                var search = FeeSearchText.Trim();
+                query = query.Where(r =>
+                    ContainsText(r.StudentName, search) ||
+                    ContainsText(r.RegistrationNo, search) ||
+                    ContainsText(r.ClassName, search) ||
+                    ContainsText(r.Section, search));
+            }
+
+            FeeRows.Clear();
+            foreach (var row in query)
+            {
+                FeeRows.Add(row);
+            }
+
+            FeeTotalStudents = FeeRows.Count;
+            FeeTotalCollected = FeeRows.Sum(r => r.AmountPaid);
+            FeeTotalDue = FeeRows.Sum(r => Math.Max(0, r.MonthlyFee - r.AmountPaid));
+            FeeStatusMessage = $"Showing {FeeRows.Count} of {_allFeeRows.Count} rows for {SelectedFeeMonth}";
+
+            PrintFeeReportCommand.RaiseCanExecuteChanged();
+            ExportFeeReportCsvCommand.RaiseCanExecuteChanged();
+            CommandManager.InvalidateRequerySuggested();
+        }
+
         private void ExportFeeReportCsv()
         {
             var saveFileDialog = new SaveFileDialog
@@ -209,10 +364,10 @@ namespace SchoolERP.ViewModels
             if (saveFileDialog.ShowDialog() != true) return;
 
             var csv = new StringBuilder();
-            csv.AppendLine("Student,Reg No,Class,Monthly Fee,Paid,Status,Payment Date");
+            csv.AppendLine("Student,Reg No,Class,Section,Monthly Fee,Paid,Status,Payment Date");
             foreach (var row in FeeRows)
             {
-                csv.AppendLine($"{EscapeCsv(row.StudentName)},{EscapeCsv(row.RegistrationNo)},{EscapeCsv(row.ClassName)},{row.MonthlyFee.ToString(CultureInfo.InvariantCulture)},{row.AmountPaid.ToString(CultureInfo.InvariantCulture)},{EscapeCsv(row.Status)},{(row.PaymentDate.HasValue ? row.PaymentDate.Value.ToString("dd MMM yyyy") : "—")}");
+                csv.AppendLine($"{EscapeCsv(row.StudentName)},{EscapeCsv(row.RegistrationNo)},{EscapeCsv(row.ClassName)},{EscapeCsv(row.Section)},{row.MonthlyFee.ToString(CultureInfo.InvariantCulture)},{row.AmountPaid.ToString(CultureInfo.InvariantCulture)},{EscapeCsv(row.Status)},{(row.PaymentDate.HasValue ? row.PaymentDate.Value.ToString("dd MMM yyyy") : "-")}");
             }
 
             File.WriteAllText(saveFileDialog.FileName, csv.ToString(), Encoding.UTF8);
@@ -225,7 +380,11 @@ namespace SchoolERP.ViewModels
         private DateTime _attendanceFrom;
         private DateTime _attendanceTo;
         private string _attendancePersonType;
+        private readonly List<AttendanceSummaryRow> _allAttendanceRows = new List<AttendanceSummaryRow>();
         private ObservableCollection<AttendanceSummaryRow> _attendanceRows = new ObservableCollection<AttendanceSummaryRow>();
+        private ObservableCollection<string> _attendanceRateOptions = new ObservableCollection<string> { "All Rates", "75% and above", "Below 75%", "No Records" };
+        private string _selectedAttendanceRate = "All Rates";
+        private string _attendanceSearchText;
         private bool _isLoadingAttendance;
         private string _attendanceStatusMessage;
         private int _attendanceTotalPresent;
@@ -245,12 +404,46 @@ namespace SchoolERP.ViewModels
         public string AttendancePersonType
         {
             get => _attendancePersonType;
-            set => SetProperty(ref _attendancePersonType, value);
+            set
+            {
+                if (SetProperty(ref _attendancePersonType, value))
+                {
+                    AttendanceSearchText = string.Empty;
+                    SelectedAttendanceRate = "All Rates";
+                }
+            }
         }
         public ObservableCollection<AttendanceSummaryRow> AttendanceRows
         {
             get => _attendanceRows;
             set => SetProperty(ref _attendanceRows, value);
+        }
+        public ObservableCollection<string> AttendanceRateOptions
+        {
+            get => _attendanceRateOptions;
+            set => SetProperty(ref _attendanceRateOptions, value);
+        }
+        public string SelectedAttendanceRate
+        {
+            get => _selectedAttendanceRate;
+            set
+            {
+                if (SetProperty(ref _selectedAttendanceRate, value))
+                {
+                    ApplyAttendanceFilters();
+                }
+            }
+        }
+        public string AttendanceSearchText
+        {
+            get => _attendanceSearchText;
+            set
+            {
+                if (SetProperty(ref _attendanceSearchText, value))
+                {
+                    ApplyAttendanceFilters();
+                }
+            }
         }
         public bool IsLoadingAttendance
         {
@@ -290,14 +483,9 @@ namespace SchoolERP.ViewModels
                 }
 
                 var rows = await _monthlyRepo.GetAttendanceSummaryAsync(AttendanceFrom, AttendanceTo, AttendancePersonType);
-                AttendanceRows.Clear();
-                foreach (var row in rows)
-                {
-                    AttendanceRows.Add(row);
-                }
-
-                AttendanceTotalPresent = AttendanceRows.Sum(r => r.PresentDays);
-                AttendanceTotalAbsent = AttendanceRows.Sum(r => r.AbsentDays);
+                _allAttendanceRows.Clear();
+                _allAttendanceRows.AddRange(rows);
+                ApplyAttendanceFilters();
 
                 PrintAttendanceReportCommand.RaiseCanExecuteChanged();
                 ExportAttendanceCsvCommand.RaiseCanExecuteChanged();
@@ -316,6 +504,47 @@ namespace SchoolERP.ViewModels
         private void PrintAttendanceReport()
         {
             ReportPrintService.PrintAttendanceReport(AttendanceRows.ToList(), $"Attendance Summary — {AttendanceFrom:dd MMM yyyy} to {AttendanceTo:dd MMM yyyy} ({AttendancePersonType})");
+        }
+
+        private void ApplyAttendanceFilters()
+        {
+            var query = _allAttendanceRows.AsEnumerable();
+
+            if (!string.IsNullOrWhiteSpace(SelectedAttendanceRate) && SelectedAttendanceRate != "All Rates")
+            {
+                if (SelectedAttendanceRate == "75% and above")
+                {
+                    query = query.Where(r => r.TotalDays > 0 && r.AttendancePercent >= 75);
+                }
+                else if (SelectedAttendanceRate == "Below 75%")
+                {
+                    query = query.Where(r => r.TotalDays > 0 && r.AttendancePercent < 75);
+                }
+                else if (SelectedAttendanceRate == "No Records")
+                {
+                    query = query.Where(r => r.TotalDays == 0);
+                }
+            }
+
+            if (!string.IsNullOrWhiteSpace(AttendanceSearchText))
+            {
+                var search = AttendanceSearchText.Trim();
+                query = query.Where(r => ContainsText(r.Name, search));
+            }
+
+            AttendanceRows.Clear();
+            foreach (var row in query)
+            {
+                AttendanceRows.Add(row);
+            }
+
+            AttendanceTotalPresent = AttendanceRows.Sum(r => r.PresentDays);
+            AttendanceTotalAbsent = AttendanceRows.Sum(r => r.AbsentDays);
+            AttendanceStatusMessage = $"Showing {AttendanceRows.Count} of {_allAttendanceRows.Count} rows";
+
+            PrintAttendanceReportCommand.RaiseCanExecuteChanged();
+            ExportAttendanceCsvCommand.RaiseCanExecuteChanged();
+            CommandManager.InvalidateRequerySuggested();
         }
 
         private void ExportAttendanceCsv()
@@ -346,8 +575,16 @@ namespace SchoolERP.ViewModels
         private ObservableCollection<string> _financeMonthOptions;
         private string _selectedFinanceMonth;
         private MonthlyFinanceSummary _financeSummary;
+        private readonly List<Expense> _allExpenseRows = new List<Expense>();
+        private readonly List<SalaryPayment> _allSalaryRows = new List<SalaryPayment>();
         private ObservableCollection<Expense> _expenseRows = new ObservableCollection<Expense>();
         private ObservableCollection<SalaryPayment> _salaryRows = new ObservableCollection<SalaryPayment>();
+        private ObservableCollection<string> _expenseCategoryOptions = new ObservableCollection<string> { "All Categories" };
+        private ObservableCollection<string> _salaryTeacherOptions = new ObservableCollection<string> { "All Teachers" };
+        private string _selectedExpenseCategory = "All Categories";
+        private string _selectedSalaryTeacher = "All Teachers";
+        private string _expenseSearchText;
+        private string _salarySearchText;
         private bool _isLoadingFinance;
         private string _financeStatusMessage;
 
@@ -365,6 +602,16 @@ namespace SchoolERP.ViewModels
                 {
                     ExpenseRows.Clear();
                     SalaryRows.Clear();
+                    _allExpenseRows.Clear();
+                    _allSalaryRows.Clear();
+                    ExpenseCategoryOptions.Clear();
+                    ExpenseCategoryOptions.Add("All Categories");
+                    SalaryTeacherOptions.Clear();
+                    SalaryTeacherOptions.Add("All Teachers");
+                    SelectedExpenseCategory = "All Categories";
+                    SelectedSalaryTeacher = "All Teachers";
+                    ExpenseSearchText = string.Empty;
+                    SalarySearchText = string.Empty;
                     FinanceSummary = null;
                     FinanceStatusMessage = string.Empty;
                     if (_isInitialized)
@@ -397,6 +644,60 @@ namespace SchoolERP.ViewModels
         {
             get => _salaryRows;
             set => SetProperty(ref _salaryRows, value);
+        }
+        public ObservableCollection<string> ExpenseCategoryOptions
+        {
+            get => _expenseCategoryOptions;
+            set => SetProperty(ref _expenseCategoryOptions, value);
+        }
+        public ObservableCollection<string> SalaryTeacherOptions
+        {
+            get => _salaryTeacherOptions;
+            set => SetProperty(ref _salaryTeacherOptions, value);
+        }
+        public string SelectedExpenseCategory
+        {
+            get => _selectedExpenseCategory;
+            set
+            {
+                if (SetProperty(ref _selectedExpenseCategory, value))
+                {
+                    ApplyFinanceFilters();
+                }
+            }
+        }
+        public string SelectedSalaryTeacher
+        {
+            get => _selectedSalaryTeacher;
+            set
+            {
+                if (SetProperty(ref _selectedSalaryTeacher, value))
+                {
+                    ApplyFinanceFilters();
+                }
+            }
+        }
+        public string ExpenseSearchText
+        {
+            get => _expenseSearchText;
+            set
+            {
+                if (SetProperty(ref _expenseSearchText, value))
+                {
+                    ApplyFinanceFilters();
+                }
+            }
+        }
+        public string SalarySearchText
+        {
+            get => _salarySearchText;
+            set
+            {
+                if (SetProperty(ref _salarySearchText, value))
+                {
+                    ApplyFinanceFilters();
+                }
+            }
         }
         public bool IsLoadingFinance
         {
@@ -432,18 +733,15 @@ namespace SchoolERP.ViewModels
                 FinanceSummary = await _monthlyRepo.GetMonthlySummaryAsync(SelectedFinanceMonth);
 
                 var expenses = await _expenseRepo.GetAllExpensesAsync(SelectedFinanceMonth);
-                ExpenseRows.Clear();
-                foreach (var expense in expenses)
-                {
-                    ExpenseRows.Add(expense);
-                }
+                _allExpenseRows.Clear();
+                _allExpenseRows.AddRange(expenses);
+                RefreshExpenseCategoryOptions();
 
                 var salaries = await _salaryRepo.GetAllPaymentsAsync(SelectedFinanceMonth);
-                SalaryRows.Clear();
-                foreach (var salary in salaries)
-                {
-                    SalaryRows.Add(salary);
-                }
+                _allSalaryRows.Clear();
+                _allSalaryRows.AddRange(salaries);
+                RefreshSalaryTeacherOptions();
+                ApplyFinanceFilters();
 
                 FinanceStatusMessage = $"Loaded {ExpenseRows.Count} expenses and {SalaryRows.Count} salary payments for {SelectedFinanceMonth}";
 
@@ -461,6 +759,95 @@ namespace SchoolERP.ViewModels
             {
                 IsLoadingFinance = false;
             }
+        }
+
+        private void RefreshExpenseCategoryOptions()
+        {
+            var selected = SelectedExpenseCategory;
+            ExpenseCategoryOptions.Clear();
+            ExpenseCategoryOptions.Add("All Categories");
+            foreach (var category in _allExpenseRows
+                .Select(e => string.IsNullOrWhiteSpace(e.Category) ? "Uncategorized" : e.Category.Trim())
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .OrderBy(c => c))
+            {
+                ExpenseCategoryOptions.Add(category);
+            }
+
+            SelectedExpenseCategory = ExpenseCategoryOptions.Contains(selected) ? selected : "All Categories";
+        }
+
+        private void RefreshSalaryTeacherOptions()
+        {
+            var selected = SelectedSalaryTeacher;
+            SalaryTeacherOptions.Clear();
+            SalaryTeacherOptions.Add("All Teachers");
+            foreach (var teacher in _allSalaryRows
+                .Select(s => string.IsNullOrWhiteSpace(s.TeacherName) ? "Unknown Teacher" : s.TeacherName.Trim())
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .OrderBy(t => t))
+            {
+                SalaryTeacherOptions.Add(teacher);
+            }
+
+            SelectedSalaryTeacher = SalaryTeacherOptions.Contains(selected) ? selected : "All Teachers";
+        }
+
+        private void ApplyFinanceFilters()
+        {
+            var expenseQuery = _allExpenseRows.AsEnumerable();
+            if (!string.IsNullOrWhiteSpace(SelectedExpenseCategory) && SelectedExpenseCategory != "All Categories")
+            {
+                expenseQuery = expenseQuery.Where(e => string.Equals(
+                    string.IsNullOrWhiteSpace(e.Category) ? "Uncategorized" : e.Category.Trim(),
+                    SelectedExpenseCategory,
+                    StringComparison.OrdinalIgnoreCase));
+            }
+
+            if (!string.IsNullOrWhiteSpace(ExpenseSearchText))
+            {
+                var search = ExpenseSearchText.Trim();
+                expenseQuery = expenseQuery.Where(e =>
+                    ContainsText(e.Category, search) ||
+                    ContainsText(e.Notes, search));
+            }
+
+            ExpenseRows.Clear();
+            foreach (var expense in expenseQuery)
+            {
+                ExpenseRows.Add(expense);
+            }
+
+            var salaryQuery = _allSalaryRows.AsEnumerable();
+            if (!string.IsNullOrWhiteSpace(SelectedSalaryTeacher) && SelectedSalaryTeacher != "All Teachers")
+            {
+                salaryQuery = salaryQuery.Where(s => string.Equals(
+                    string.IsNullOrWhiteSpace(s.TeacherName) ? "Unknown Teacher" : s.TeacherName.Trim(),
+                    SelectedSalaryTeacher,
+                    StringComparison.OrdinalIgnoreCase));
+            }
+
+            if (!string.IsNullOrWhiteSpace(SalarySearchText))
+            {
+                var search = SalarySearchText.Trim();
+                salaryQuery = salaryQuery.Where(s =>
+                    ContainsText(s.TeacherName, search) ||
+                    ContainsText(s.Designation, search) ||
+                    ContainsText(s.Notes, search));
+            }
+
+            SalaryRows.Clear();
+            foreach (var salary in salaryQuery)
+            {
+                SalaryRows.Add(salary);
+            }
+
+            FinanceStatusMessage = $"Showing {ExpenseRows.Count} of {_allExpenseRows.Count} expenses and {SalaryRows.Count} of {_allSalaryRows.Count} salary payments for {SelectedFinanceMonth}";
+
+            PrintExpenseReportCommand.RaiseCanExecuteChanged();
+            PrintSalaryReportCommand.RaiseCanExecuteChanged();
+            ExportFinanceCsvCommand.RaiseCanExecuteChanged();
+            CommandManager.InvalidateRequerySuggested();
         }
 
         private void PrintExpenseReport()
@@ -532,6 +919,12 @@ namespace SchoolERP.ViewModels
                 return $"\"{value.Replace("\"", "\"\"")}\"";
             }
             return value;
+        }
+
+        private bool ContainsText(string value, string search)
+        {
+            return !string.IsNullOrWhiteSpace(value) &&
+                   value.IndexOf(search, StringComparison.OrdinalIgnoreCase) >= 0;
         }
 
         #endregion
