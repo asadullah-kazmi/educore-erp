@@ -421,6 +421,12 @@ namespace SchoolERP.ViewModels
                 return;
             }
 
+            if (fee.PaidAmount > 0)
+            {
+                MessageBox.Show("This fee already has a recorded payment and cannot be edited.", "Edit Not Available", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
             var window = new AddEditFeeWindow(fee);
             window.Owner = Application.Current.MainWindow;
             if (window.ShowDialog() == true)

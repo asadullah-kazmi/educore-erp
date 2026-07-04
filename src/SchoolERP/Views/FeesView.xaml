@@ -309,6 +309,7 @@
                                 <DataTrigger Binding="{Binding Status}" Value="Partial">
                                     <Setter TargetName="BtnMarkPaid" Property="Visibility" Value="Visible"/>
                                     <Setter TargetName="BtnPrintReceipt" Property="Visibility" Value="Visible"/>
+                                    <Setter TargetName="BtnEditFee" Property="Visibility" Value="Collapsed"/>
                                 </DataTrigger>
                             </DataTemplate.Triggers>
                         </DataTemplate>
