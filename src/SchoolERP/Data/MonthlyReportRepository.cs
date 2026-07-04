@@ -68,6 +68,73 @@ WHERE FORMAT(PaymentDate, 'MMM yyyy') = @Month;";
             }
         }
 
+        public async Task<MonthlyFinanceSummary> GetFinanceSummaryAsync(DateTime from, DateTime to, string label)
+        {
+            await EnsureFeePaymentColumnsAsync().ConfigureAwait(false);
+
+            const string feesSql = @"
+SELECT ISNULL(SUM(ISNULL(PaidAmount, CASE WHEN Status = 'Paid' THEN Amount ELSE 0 END)), 0)
+FROM dbo.Fees
+WHERE ISNULL(PaidAmount, CASE WHEN Status = 'Paid' THEN Amount ELSE 0 END) > 0
+  AND PaymentDate >= @From
+  AND PaymentDate < @ToExclusive;";
+
+            const string expensesSql = @"
+SELECT ISNULL(SUM(Amount), 0)
+FROM dbo.Expenses
+WHERE [Date] >= @From
+  AND [Date] < @ToExclusive;";
+
+            const string salariesSql = @"
+SELECT ISNULL(SUM(Amount), 0)
+FROM dbo.SalaryPayments
+WHERE PaymentDate >= @From
+  AND PaymentDate < @ToExclusive;";
+
+            using (var connection = Database.GetConnection())
+            {
+                await connection.OpenAsync().ConfigureAwait(false);
+
+                var fromDate = from.Date;
+                var toExclusive = to.Date.AddDays(1);
+
+                decimal totalFeesCollected;
+                using (var command = new SqlCommand(feesSql, connection))
+                {
+                    command.Parameters.AddWithValue("@From", fromDate);
+                    command.Parameters.AddWithValue("@ToExclusive", toExclusive);
+                    var result = await command.ExecuteScalarAsync().ConfigureAwait(false);
+                    totalFeesCollected = result == null || result == DBNull.Value ? 0m : Convert.ToDecimal(result);
+                }
+
+                decimal totalExpenses;
+                using (var command = new SqlCommand(expensesSql, connection))
+                {
+                    command.Parameters.AddWithValue("@From", fromDate);
+                    command.Parameters.AddWithValue("@ToExclusive", toExclusive);
+                    var result = await command.ExecuteScalarAsync().ConfigureAwait(false);
+                    totalExpenses = result == null || result == DBNull.Value ? 0m : Convert.ToDecimal(result);
+                }
+
+                decimal totalSalariesPaid;
+                using (var command = new SqlCommand(salariesSql, connection))
+                {
+                    command.Parameters.AddWithValue("@From", fromDate);
+                    command.Parameters.AddWithValue("@ToExclusive", toExclusive);
+                    var result = await command.ExecuteScalarAsync().ConfigureAwait(false);
+                    totalSalariesPaid = result == null || result == DBNull.Value ? 0m : Convert.ToDecimal(result);
+                }
+
+                return new MonthlyFinanceSummary
+                {
+                    Month = label,
+                    TotalFeesCollected = totalFeesCollected,
+                    TotalExpenses = totalExpenses,
+                    TotalSalariesPaid = totalSalariesPaid
+                };
+            }
+        }
+
         public async Task<List<FeeCollectionReportRow>> GetFeeCollectionReportAsync(string month)
         {
             await EnsureFeePaymentColumnsAsync().ConfigureAwait(false);

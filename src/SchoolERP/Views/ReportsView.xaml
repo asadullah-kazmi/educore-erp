@@ -208,17 +208,26 @@
             <TabItem Header="Finance Summary">
                 <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
                     <StackPanel>
-                        <DockPanel Margin="0,0,0,16">
-                            <TextBlock Text="Finance Summary Report" FontSize="24" FontWeight="Bold" Foreground="#0F172A" DockPanel.Dock="Left"/>
-                            <StackPanel HorizontalAlignment="Right" Orientation="Horizontal" DockPanel.Dock="Right">
-                                <ComboBox Width="130" Height="36" ItemsSource="{Binding FinanceMonthOptions}" SelectedItem="{Binding SelectedFinanceMonth}" VerticalContentAlignment="Center" Margin="0,0,8,0"/>
-                                <Button Content="Generate" Style="{StaticResource GreenButtonStyle}" Command="{Binding GenerateFinanceReportCommand}" Margin="0,0,8,0"/>
-                                <Button Content="Print Summary" Style="{StaticResource PrimaryButtonStyle}" Command="{Binding PrintFinanceSummaryCommand}" Margin="0,0,8,0"/>
-                                <Button Content="Print Expenses" Style="{StaticResource PrimaryButtonStyle}" Command="{Binding PrintExpenseReportCommand}" Margin="0,0,8,0"/>
-                                <Button Content="Print Salaries" Style="{StaticResource PrimaryButtonStyle}" Command="{Binding PrintSalaryReportCommand}" Margin="0,0,8,0"/>
-                                <Button Content="Export CSV" Style="{StaticResource PurpleButtonStyle}" Command="{Binding ExportFinanceCsvCommand}" Visibility="{Binding IsAdmin, Converter={StaticResource BoolToVisibility}}"/>
+                        <Grid Margin="0,0,0,16">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <TextBlock Text="Finance Summary Report" FontSize="24" FontWeight="Bold" Foreground="#0F172A"/>
+                            <StackPanel Grid.Row="1" HorizontalAlignment="Right" Orientation="Horizontal" Margin="0,8,0,0">
+                                <TextBlock Text="Period" VerticalAlignment="Center" Foreground="#64748B" Margin="0,0,6,0"/>
+                                <ComboBox Width="145" Height="36" ItemsSource="{Binding FinancePeriodOptions}" SelectedItem="{Binding SelectedFinancePeriod}" VerticalContentAlignment="Center" Margin="0,0,8,0"/>
+                                <TextBlock Text="From" VerticalAlignment="Center" Foreground="#64748B" Margin="0,0,6,0" Visibility="{Binding IsCustomFinancePeriod, Converter={StaticResource BoolToVisibility}}"/>
+                                <DatePicker Width="125" Height="36" SelectedDate="{Binding FinanceCustomFrom}" VerticalContentAlignment="Center" Margin="0,0,8,0" Visibility="{Binding IsCustomFinancePeriod, Converter={StaticResource BoolToVisibility}}"/>
+                                <TextBlock Text="To" VerticalAlignment="Center" Foreground="#64748B" Margin="0,0,6,0" Visibility="{Binding IsCustomFinancePeriod, Converter={StaticResource BoolToVisibility}}"/>
+                                <DatePicker Width="125" Height="36" SelectedDate="{Binding FinanceCustomTo}" VerticalContentAlignment="Center" Margin="0,0,8,0" Visibility="{Binding IsCustomFinancePeriod, Converter={StaticResource BoolToVisibility}}"/>
+                                <Button Content="Generate" Style="{StaticResource GreenButtonStyle}" Command="{Binding GenerateFinanceReportCommand}" Padding="12,9" FontSize="12" Margin="0,0,8,0"/>
+                                <Button Content="Print Summary" Style="{StaticResource PrimaryButtonStyle}" Command="{Binding PrintFinanceSummaryCommand}" Padding="12,9" FontSize="12" Margin="0,0,8,0"/>
+                                <Button Content="Print Expenses" Style="{StaticResource PrimaryButtonStyle}" Command="{Binding PrintExpenseReportCommand}" Padding="12,9" FontSize="12" Margin="0,0,8,0"/>
+                                <Button Content="Print Salaries" Style="{StaticResource PrimaryButtonStyle}" Command="{Binding PrintSalaryReportCommand}" Padding="12,9" FontSize="12" Margin="0,0,8,0"/>
+                                <Button Content="Export CSV" Style="{StaticResource PurpleButtonStyle}" Command="{Binding ExportFinanceCsvCommand}" Padding="12,9" FontSize="12" Visibility="{Binding IsAdmin, Converter={StaticResource BoolToVisibility}}"/>
                             </StackPanel>
-                        </DockPanel>
+                        </Grid>
                         
                         <UniformGrid Columns="2" Margin="0,0,0,16">
                             <Border CornerRadius="18" Padding="18" Margin="0,0,12,12" Height="110" Background="White" BorderThickness="4,1,1,1" BorderBrush="#10B981">

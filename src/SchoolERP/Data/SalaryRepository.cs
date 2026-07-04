@@ -74,6 +74,52 @@ INNER JOIN dbo.Teachers t ON t.TeacherID = sp.TeacherID";
             return payments;
         }
 
+        public async Task<List<SalaryPayment>> GetPaymentsByDateRangeAsync(DateTime from, DateTime to, int? teacherId = null)
+        {
+            await EnsureSalaryReportColumnsAsync().ConfigureAwait(false);
+
+            var sql = SelectBase;
+            var conditions = new List<string>
+            {
+                "sp.PaymentDate >= @From",
+                "sp.PaymentDate < @ToExclusive"
+            };
+
+            if (teacherId.HasValue)
+            {
+                conditions.Add("sp.TeacherID = @TeacherID");
+            }
+
+            sql += " WHERE " + string.Join(" AND ", conditions);
+            sql += " ORDER BY sp.PaymentDate DESC;";
+
+            var payments = new List<SalaryPayment>();
+
+            using (var connection = Database.GetConnection())
+            using (var command = new SqlCommand(sql, connection))
+            {
+                command.Parameters.AddWithValue("@From", from.Date);
+                command.Parameters.AddWithValue("@ToExclusive", to.Date.AddDays(1));
+
+                if (teacherId.HasValue)
+                {
+                    command.Parameters.AddWithValue("@TeacherID", teacherId.Value);
+                }
+
+                await connection.OpenAsync().ConfigureAwait(false);
+
+                using (var reader = await command.ExecuteReaderAsync().ConfigureAwait(false))
+                {
+                    while (await reader.ReadAsync().ConfigureAwait(false))
+                    {
+                        payments.Add(MapSalaryPayment(reader));
+                    }
+                }
+            }
+
+            return payments;
+        }
+
         public async Task<List<SalaryPayment>> GetPaymentHistoryAsync(int teacherId)
         {
             await EnsureSalaryReportColumnsAsync().ConfigureAwait(false);

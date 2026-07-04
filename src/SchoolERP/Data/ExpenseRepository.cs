@@ -63,6 +63,50 @@ FROM dbo.Expenses";
             return expenses;
         }
 
+        public async Task<List<Expense>> GetExpensesByDateRangeAsync(DateTime from, DateTime to, string category = null)
+        {
+            var sql = SelectBase;
+            var conditions = new List<string>
+            {
+                "[Date] >= @From",
+                "[Date] < @ToExclusive"
+            };
+
+            if (!string.IsNullOrEmpty(category) && category != "All Categories")
+            {
+                conditions.Add("Category = @Category");
+            }
+
+            sql += " WHERE " + string.Join(" AND ", conditions);
+            sql += " ORDER BY [Date] DESC;";
+
+            var expenses = new List<Expense>();
+
+            using (var connection = Database.GetConnection())
+            using (var command = new SqlCommand(sql, connection))
+            {
+                command.Parameters.AddWithValue("@From", from.Date);
+                command.Parameters.AddWithValue("@ToExclusive", to.Date.AddDays(1));
+
+                if (!string.IsNullOrEmpty(category) && category != "All Categories")
+                {
+                    command.Parameters.AddWithValue("@Category", category);
+                }
+
+                await connection.OpenAsync().ConfigureAwait(false);
+
+                using (var reader = await command.ExecuteReaderAsync().ConfigureAwait(false))
+                {
+                    while (await reader.ReadAsync().ConfigureAwait(false))
+                    {
+                        expenses.Add(MapExpense(reader));
+                    }
+                }
+            }
+
+            return expenses;
+        }
+
         public async Task<Expense> GetExpenseByIdAsync(int id)
         {
             var sql = SelectBase + " WHERE ExpenseID = @ExpenseID;";

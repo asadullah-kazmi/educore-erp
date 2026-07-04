@@ -20,6 +20,13 @@ namespace SchoolERP.ViewModels
         private readonly ExpenseRepository _expenseRepo = new ExpenseRepository();
         private readonly SalaryRepository _salaryRepo = new SalaryRepository();
 
+        private const string FinancePeriodToday = "Today";
+        private const string FinancePeriodLastSevenDays = "Last 7 Days";
+        private const string FinancePeriodLastThirtyDays = "Last 30 Days";
+        private const string FinancePeriodThisMonth = "This Month";
+        private const string FinancePeriodLastMonth = "Last Month";
+        private const string FinancePeriodCustomRange = "Custom Range";
+
         private bool _isInitialized;
         private bool _hasLoadedInitialReports;
 
@@ -34,12 +41,23 @@ namespace SchoolERP.ViewModels
             // Initialize month options for Fee and Finance
             MonthOptions = new ObservableCollection<string>();
             FinanceMonthOptions = new ObservableCollection<string>();
+            FinancePeriodOptions = new ObservableCollection<string>
+            {
+                FinancePeriodToday,
+                FinancePeriodLastSevenDays,
+                FinancePeriodLastThirtyDays,
+                FinancePeriodThisMonth,
+                FinancePeriodLastMonth,
+                FinancePeriodCustomRange
+            };
+
             var startDate = new DateTime(2025, 1, 1);
             for (int i = 0; i < 24; i++)
             {
                 var monthStr = startDate.AddMonths(i).ToString("MMM yyyy");
                 MonthOptions.Add(monthStr);
                 FinanceMonthOptions.Add(monthStr);
+                FinancePeriodOptions.Add(monthStr);
             }
 
             // Initialize commands FIRST before setting defaults
@@ -62,6 +80,9 @@ namespace SchoolERP.ViewModels
             AttendanceTo = DateTime.Now;
             AttendancePersonType = "Teacher";
             SelectedFinanceMonth = DateTime.Now.ToString("MMM yyyy");
+            SelectedFinancePeriod = SelectedFinanceMonth;
+            FinanceCustomFrom = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
+            FinanceCustomTo = DateTime.Now;
 
             _isInitialized = true;
 
@@ -573,7 +594,11 @@ namespace SchoolERP.ViewModels
         #region Tab 3: Finance Summary Report
 
         private ObservableCollection<string> _financeMonthOptions;
+        private ObservableCollection<string> _financePeriodOptions;
+        private string _selectedFinancePeriod;
         private string _selectedFinanceMonth;
+        private DateTime? _financeCustomFrom;
+        private DateTime? _financeCustomTo;
         private MonthlyFinanceSummary _financeSummary;
         private readonly List<Expense> _allExpenseRows = new List<Expense>();
         private readonly List<SalaryPayment> _allSalaryRows = new List<SalaryPayment>();
@@ -595,6 +620,28 @@ namespace SchoolERP.ViewModels
             get => _financeMonthOptions;
             set => SetProperty(ref _financeMonthOptions, value);
         }
+        public ObservableCollection<string> FinancePeriodOptions
+        {
+            get => _financePeriodOptions;
+            set => SetProperty(ref _financePeriodOptions, value);
+        }
+        public string SelectedFinancePeriod
+        {
+            get => _selectedFinancePeriod;
+            set
+            {
+                if (SetProperty(ref _selectedFinancePeriod, value))
+                {
+                    OnPropertyChanged(nameof(IsCustomFinancePeriod));
+                    if (IsFinanceMonthOption(value))
+                    {
+                        SelectedFinanceMonth = value;
+                    }
+                    ClearFinanceReport();
+                }
+            }
+        }
+        public bool IsCustomFinancePeriod => SelectedFinancePeriod == FinancePeriodCustomRange;
         public string SelectedFinanceMonth
         {
             get => _selectedFinanceMonth;
@@ -602,30 +649,29 @@ namespace SchoolERP.ViewModels
             {
                 if (SetProperty(ref _selectedFinanceMonth, value))
                 {
-                    ExpenseRows.Clear();
-                    SalaryRows.Clear();
-                    _allExpenseRows.Clear();
-                    _allSalaryRows.Clear();
-                    ExpenseCategoryOptions.Clear();
-                    ExpenseCategoryOptions.Add("All Categories");
-                    SalaryTeacherOptions.Clear();
-                    SalaryTeacherOptions.Add("All Teachers");
-                    SalaryStaffTypeOptions.Clear();
-                    SalaryStaffTypeOptions.Add("All Staff Types");
-                    SelectedExpenseCategory = "All Categories";
-                    SelectedSalaryTeacher = "All Teachers";
-                    SelectedSalaryStaffType = "All Staff Types";
-                    ExpenseSearchText = string.Empty;
-                    SalarySearchText = string.Empty;
-                    FinanceSummary = null;
-                    FinanceStatusMessage = string.Empty;
-                    if (_isInitialized)
-                    {
-                        PrintExpenseReportCommand.RaiseCanExecuteChanged();
-                        PrintSalaryReportCommand.RaiseCanExecuteChanged();
-                        PrintFinanceSummaryCommand.RaiseCanExecuteChanged();
-                        ExportFinanceCsvCommand.RaiseCanExecuteChanged();
-                    }
+                    ClearFinanceReport();
+                }
+            }
+        }
+        public DateTime? FinanceCustomFrom
+        {
+            get => _financeCustomFrom;
+            set
+            {
+                if (SetProperty(ref _financeCustomFrom, value))
+                {
+                    ClearFinanceReport();
+                }
+            }
+        }
+        public DateTime? FinanceCustomTo
+        {
+            get => _financeCustomTo;
+            set
+            {
+                if (SetProperty(ref _financeCustomTo, value))
+                {
+                    ClearFinanceReport();
                 }
             }
         }
@@ -744,6 +790,35 @@ namespace SchoolERP.ViewModels
         public RelayCommand PrintSalaryReportCommand { get; }
         public RelayCommand ExportFinanceCsvCommand { get; }
 
+        private void ClearFinanceReport()
+        {
+            ExpenseRows.Clear();
+            SalaryRows.Clear();
+            _allExpenseRows.Clear();
+            _allSalaryRows.Clear();
+            ExpenseCategoryOptions.Clear();
+            ExpenseCategoryOptions.Add("All Categories");
+            SalaryTeacherOptions.Clear();
+            SalaryTeacherOptions.Add("All Teachers");
+            SalaryStaffTypeOptions.Clear();
+            SalaryStaffTypeOptions.Add("All Staff Types");
+            SelectedExpenseCategory = "All Categories";
+            SelectedSalaryTeacher = "All Teachers";
+            SelectedSalaryStaffType = "All Staff Types";
+            ExpenseSearchText = string.Empty;
+            SalarySearchText = string.Empty;
+            FinanceSummary = null;
+            FinanceStatusMessage = string.Empty;
+
+            if (_isInitialized)
+            {
+                PrintExpenseReportCommand.RaiseCanExecuteChanged();
+                PrintSalaryReportCommand.RaiseCanExecuteChanged();
+                PrintFinanceSummaryCommand.RaiseCanExecuteChanged();
+                ExportFinanceCsvCommand.RaiseCanExecuteChanged();
+            }
+        }
+
         private async Task GenerateFinanceReportAsync()
         {
             try
@@ -751,21 +826,29 @@ namespace SchoolERP.ViewModels
                 IsLoadingFinance = true;
                 FinanceStatusMessage = string.Empty;
 
-                FinanceSummary = await _monthlyRepo.GetMonthlySummaryAsync(SelectedFinanceMonth);
+                var period = ResolveFinancePeriod();
 
-                var expenses = await _expenseRepo.GetAllExpensesAsync(SelectedFinanceMonth);
+                FinanceSummary = period.UseMonth
+                    ? await _monthlyRepo.GetMonthlySummaryAsync(SelectedFinanceMonth)
+                    : await _monthlyRepo.GetFinanceSummaryAsync(period.From, period.To, period.Label);
+
+                var expenses = period.UseMonth
+                    ? await _expenseRepo.GetAllExpensesAsync(SelectedFinanceMonth)
+                    : await _expenseRepo.GetExpensesByDateRangeAsync(period.From, period.To);
                 _allExpenseRows.Clear();
                 _allExpenseRows.AddRange(expenses);
                 RefreshExpenseCategoryOptions();
 
-                var salaries = await _salaryRepo.GetAllPaymentsAsync(SelectedFinanceMonth);
+                var salaries = period.UseMonth
+                    ? await _salaryRepo.GetAllPaymentsAsync(SelectedFinanceMonth)
+                    : await _salaryRepo.GetPaymentsByDateRangeAsync(period.From, period.To);
                 _allSalaryRows.Clear();
                 _allSalaryRows.AddRange(salaries);
                 RefreshSalaryTeacherOptions();
                 RefreshSalaryStaffTypeOptions();
                 ApplyFinanceFilters();
 
-                FinanceStatusMessage = $"Loaded {ExpenseRows.Count} expenses and {SalaryRows.Count} salary payments for {SelectedFinanceMonth}";
+                FinanceStatusMessage = $"Loaded {ExpenseRows.Count} expenses and {SalaryRows.Count} salary payments for {period.Label}";
 
                 PrintFinanceSummaryCommand.RaiseCanExecuteChanged();
                 PrintExpenseReportCommand.RaiseCanExecuteChanged();
@@ -781,6 +864,81 @@ namespace SchoolERP.ViewModels
             {
                 IsLoadingFinance = false;
             }
+        }
+
+        private FinancePeriodRange ResolveFinancePeriod()
+        {
+            var today = DateTime.Today;
+
+            if (SelectedFinancePeriod == FinancePeriodToday)
+            {
+                return new FinancePeriodRange(today, today, FinancePeriodToday, false);
+            }
+
+            if (SelectedFinancePeriod == FinancePeriodLastSevenDays)
+            {
+                return new FinancePeriodRange(today.AddDays(-6), today, FinancePeriodLastSevenDays, false);
+            }
+
+            if (SelectedFinancePeriod == FinancePeriodLastThirtyDays)
+            {
+                return new FinancePeriodRange(today.AddDays(-29), today, FinancePeriodLastThirtyDays, false);
+            }
+
+            if (SelectedFinancePeriod == FinancePeriodThisMonth)
+            {
+                return new FinancePeriodRange(new DateTime(today.Year, today.Month, 1), today, FinancePeriodThisMonth, false);
+            }
+
+            if (SelectedFinancePeriod == FinancePeriodLastMonth)
+            {
+                var firstOfThisMonth = new DateTime(today.Year, today.Month, 1);
+                var from = firstOfThisMonth.AddMonths(-1);
+                var to = firstOfThisMonth.AddDays(-1);
+                return new FinancePeriodRange(from, to, FinancePeriodLastMonth, false);
+            }
+
+            if (SelectedFinancePeriod == FinancePeriodCustomRange)
+            {
+                var from = FinanceCustomFrom?.Date ?? new DateTime(today.Year, today.Month, 1);
+                var to = FinanceCustomTo?.Date ?? today;
+                if (from > to)
+                {
+                    throw new InvalidOperationException("Custom finance period From date cannot be after To date.");
+                }
+
+                return new FinancePeriodRange(from, to, FormatDateRangeLabel(from, to), false);
+            }
+
+            var monthLabel = IsFinanceMonthOption(SelectedFinancePeriod)
+                ? SelectedFinancePeriod
+                : SelectedFinanceMonth;
+
+            monthLabel = string.IsNullOrWhiteSpace(monthLabel)
+                ? today.ToString("MMM yyyy", CultureInfo.CurrentCulture)
+                : monthLabel;
+
+            if (!DateTime.TryParseExact(monthLabel, "MMM yyyy", CultureInfo.CurrentCulture, DateTimeStyles.None, out var monthStart))
+            {
+                monthStart = new DateTime(today.Year, today.Month, 1);
+                monthLabel = monthStart.ToString("MMM yyyy", CultureInfo.CurrentCulture);
+            }
+
+            var monthEnd = monthStart.AddMonths(1).AddDays(-1);
+            return new FinancePeriodRange(monthStart, monthEnd, monthLabel, true);
+        }
+
+        private static bool IsFinanceMonthOption(string value)
+        {
+            return !string.IsNullOrWhiteSpace(value) &&
+                   DateTime.TryParseExact(value, "MMM yyyy", CultureInfo.CurrentCulture, DateTimeStyles.None, out _);
+        }
+
+        private static string FormatDateRangeLabel(DateTime from, DateTime to)
+        {
+            return from.Date == to.Date
+                ? from.ToString("dd MMM yyyy", CultureInfo.CurrentCulture)
+                : $"{from:dd MMM yyyy} - {to:dd MMM yyyy}";
         }
 
         private void RefreshExpenseCategoryOptions()
@@ -889,7 +1047,7 @@ namespace SchoolERP.ViewModels
                 SalaryRows.Add(salary);
             }
 
-            FinanceStatusMessage = $"Showing {ExpenseRows.Count} of {_allExpenseRows.Count} expenses and {SalaryRows.Count} of {_allSalaryRows.Count} salary payments for {SelectedFinanceMonth}";
+            FinanceStatusMessage = $"Showing {ExpenseRows.Count} of {_allExpenseRows.Count} expenses and {SalaryRows.Count} of {_allSalaryRows.Count} salary payments for {GetFinanceReportLabel()}";
 
             PrintExpenseReportCommand.RaiseCanExecuteChanged();
             PrintSalaryReportCommand.RaiseCanExecuteChanged();
@@ -899,7 +1057,7 @@ namespace SchoolERP.ViewModels
 
         private void PrintExpenseReport()
         {
-            ReportPrintService.PrintExpenseReport(ExpenseRows.ToList(), SelectedFinanceMonth);
+            ReportPrintService.PrintExpenseReport(ExpenseRows.ToList(), GetFinanceReportLabel());
         }
 
         private void PrintFinanceSummary()
@@ -912,7 +1070,7 @@ namespace SchoolERP.ViewModels
 
         private void PrintSalaryReport()
         {
-            ReportPrintService.PrintSalaryReport(SalaryRows.ToList(), SelectedFinanceMonth);
+            ReportPrintService.PrintSalaryReport(SalaryRows.ToList(), GetFinanceReportLabel());
         }
 
         private void ExportFinanceCsv()
@@ -920,7 +1078,7 @@ namespace SchoolERP.ViewModels
             var saveFileDialog = new SaveFileDialog
             {
                 Filter = "CSV|*.csv",
-                FileName = $"FinanceReport_{SelectedFinanceMonth.Replace(" ", "_")}.csv",
+                FileName = $"FinanceReport_{MakeSafeFileName(GetFinanceReportLabel())}.csv",
                 InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop)
             };
 
@@ -929,7 +1087,7 @@ namespace SchoolERP.ViewModels
 
             var csv = new StringBuilder();
             csv.AppendLine("Finance Summary");
-            csv.AppendLine($"Month,{FinanceSummary.Month}");
+            csv.AppendLine($"Period,{FinanceSummary.Month}");
             csv.AppendLine($"Fees Collected,{FinanceSummary.TotalFeesCollected.ToString(CultureInfo.InvariantCulture)}");
             csv.AppendLine($"Total Expenses,{FinanceSummary.TotalExpenses.ToString(CultureInfo.InvariantCulture)}");
             csv.AppendLine($"Total Salaries Paid,{FinanceSummary.TotalSalariesPaid.ToString(CultureInfo.InvariantCulture)}");
@@ -954,9 +1112,61 @@ namespace SchoolERP.ViewModels
             File.WriteAllText(saveFileDialog.FileName, csv.ToString(), Encoding.UTF8);
         }
 
+        private string GetFinanceReportLabel()
+        {
+            if (!string.IsNullOrWhiteSpace(FinanceSummary?.Month))
+            {
+                return FinanceSummary.Month;
+            }
+
+            if (IsFinanceMonthOption(SelectedFinancePeriod))
+            {
+                return SelectedFinancePeriod;
+            }
+
+            return string.IsNullOrWhiteSpace(SelectedFinancePeriod)
+                ? DateTime.Today.ToString("MMM yyyy", CultureInfo.CurrentCulture)
+                : SelectedFinancePeriod;
+        }
+
+        private static string MakeSafeFileName(string value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                return "FinanceReport";
+            }
+
+            var builder = new StringBuilder(value.Length);
+            foreach (var ch in value)
+            {
+                builder.Append(Path.GetInvalidFileNameChars().Contains(ch) ? '_' : ch);
+            }
+
+            return builder.ToString().Replace(" ", "_");
+        }
+
         #endregion
 
         #region Helpers
+
+        private class FinancePeriodRange
+        {
+            public FinancePeriodRange(DateTime from, DateTime to, string label, bool useMonth)
+            {
+                From = from;
+                To = to;
+                Label = label;
+                UseMonth = useMonth;
+            }
+
+            public DateTime From { get; }
+
+            public DateTime To { get; }
+
+            public string Label { get; }
+
+            public bool UseMonth { get; }
+        }
 
         private string EscapeCsv(string value)
         {
