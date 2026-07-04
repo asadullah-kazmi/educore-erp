@@ -258,7 +258,7 @@
 
                 <DataGridTextColumn Header="Payment Date" Binding="{Binding PaymentDate, StringFormat={}{0:dd MMM yyyy}}" Width="120" MinWidth="115" ElementStyle="{StaticResource GridCellTextStyle}"/>
 
-                <DataGridTemplateColumn Header="Actions" Width="150" MinWidth="140">
+                <DataGridTemplateColumn Header="Actions" Width="120" MinWidth="110">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
@@ -285,15 +285,6 @@
                                         CommandParameter="{Binding}"
                                         ToolTip="Edit">
                                     <TextBlock Text="&#xE70F;" FontFamily="Segoe MDL2 Assets" FontSize="16" Foreground="#3B82F6"/>
-                                </Button>
-
-                                <!-- Delete button -->
-                                <Button Style="{StaticResource IconButtonStyle}"
-                                        Command="{Binding DataContext.DeleteFeeCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                        CommandParameter="{Binding}"
-                                        ToolTip="Delete"
-                                        Visibility="{Binding DataContext.IsAdmin, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BoolToVisibility}}">
-                                    <TextBlock Text="&#xE74D;" FontFamily="Segoe MDL2 Assets" FontSize="16" Foreground="#DC2626"/>
                                 </Button>
                             </StackPanel>
                             <DataTemplate.Triggers>
