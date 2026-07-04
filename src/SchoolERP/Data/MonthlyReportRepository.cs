@@ -18,7 +18,7 @@ namespace SchoolERP.Data
 SELECT ISNULL(SUM(ISNULL(PaidAmount, CASE WHEN Status = 'Paid' THEN Amount ELSE 0 END)), 0)
 FROM dbo.Fees
 WHERE ISNULL(PaidAmount, CASE WHEN Status = 'Paid' THEN Amount ELSE 0 END) > 0
-  AND FORMAT(PaymentDate, 'MMM yyyy') = @Month;";
+  AND LTRIM(RTRIM([Month])) = @Month;";
 
             const string expensesSql = @"
 SELECT ISNULL(SUM(Amount), 0)
@@ -76,9 +76,13 @@ WHERE FORMAT(PaymentDate, 'MMM yyyy') = @Month;";
 SELECT s.Name,
        s.RegistrationNo,
        c.ClassName,
-       s.MonthlyFee,
-       ISNULL(f.PaidAmount, CASE WHEN f.Status = 'Paid' THEN f.Amount ELSE 0 END) AS AmountPaid,
-       ISNULL(f.Status, 'Due') AS Status,
+       valuesForReport.ReportFee AS MonthlyFee,
+       valuesForReport.AmountPaid,
+       CASE
+           WHEN valuesForReport.AmountPaid >= valuesForReport.ReportFee AND valuesForReport.ReportFee > 0 THEN 'Paid'
+           WHEN valuesForReport.AmountPaid > 0 THEN 'Partial'
+           ELSE 'Due'
+       END AS Status,
        f.PaymentDate
 FROM dbo.Students s
 LEFT JOIN dbo.Classes c ON s.ClassID = c.ClassID
@@ -86,6 +90,11 @@ LEFT JOIN dbo.Fees f
   ON f.StudentID = s.StudentID
   AND LTRIM(RTRIM(f.Month)) = @Month
   AND f.FeeType = 'Monthly Tuition'
+CROSS APPLY (
+    SELECT
+        CAST(ISNULL(f.Amount, s.MonthlyFee) AS DECIMAL(18,2)) AS ReportFee,
+        CAST(ISNULL(f.PaidAmount, CASE WHEN f.Status = 'Paid' THEN f.Amount ELSE 0 END) AS DECIMAL(18,2)) AS AmountPaid
+) valuesForReport
 ORDER BY c.ClassName, s.Name;";
 
             var rows = new List<FeeCollectionReportRow>();
@@ -131,6 +140,10 @@ IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('dbo.Fees')
 BEGIN
     ALTER TABLE dbo.Fees ADD PaidAmount DECIMAL(18,2) NOT NULL CONSTRAINT DF_Fees_PaidAmount DEFAULT 0;
     EXEC('UPDATE dbo.Fees SET PaidAmount = Amount WHERE Status = ''Paid''');
+END
+IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('dbo.Fees') AND name = 'FeeType')
+BEGIN
+    ALTER TABLE dbo.Fees ADD FeeType NVARCHAR(100) NULL;
 END
 EXEC('UPDATE dbo.Fees
 SET Status =

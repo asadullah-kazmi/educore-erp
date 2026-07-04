@@ -5,6 +5,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using Microsoft.Win32;
 using SchoolERP.Data;
@@ -20,10 +21,11 @@ namespace SchoolERP.ViewModels
         private readonly SalaryRepository _salaryRepo = new SalaryRepository();
 
         private bool _isInitialized;
+        private bool _hasLoadedInitialReports;
 
         public ReportsViewModel()
         {
-            IsAdmin = true; // Temporary: Force Admin for testing export buttons!
+            IsAdmin = true;
 
             PersonTypeOptions = new List<string> { "Teacher", "Student" };
 
@@ -48,76 +50,41 @@ namespace SchoolERP.ViewModels
             ExportAttendanceCsvCommand = new RelayCommand(_ => ExportAttendanceCsv(), _ => IsAdmin && AttendanceRows.Count > 0);
 
             GenerateFinanceReportCommand = new RelayCommand(async _ => await GenerateFinanceReportAsync());
+            PrintFinanceSummaryCommand = new RelayCommand(_ => PrintFinanceSummary(), _ => FinanceSummary != null);
             PrintExpenseReportCommand = new RelayCommand(_ => PrintExpenseReport(), _ => ExpenseRows.Count > 0);
             PrintSalaryReportCommand = new RelayCommand(_ => PrintSalaryReport(), _ => SalaryRows.Count > 0);
-            ExportFinanceCsvCommand = new RelayCommand(_ => ExportFinanceCsv(), _ => IsAdmin && (ExpenseRows.Count > 0 || SalaryRows.Count > 0));
+            ExportFinanceCsvCommand = new RelayCommand(_ => ExportFinanceCsv(), _ => IsAdmin && (FinanceSummary != null || ExpenseRows.Count > 0 || SalaryRows.Count > 0));
 
-            // Add test data to all collections to verify buttons work!
-            FeeRows.Add(new FeeCollectionReportRow
-            {
-                StudentName = "Test Student",
-                RegistrationNo = "12345",
-                ClassName = "10th",
-                MonthlyFee = 1000,
-                AmountPaid = 1000,
-                Status = "Paid",
-                PaymentDate = DateTime.Now
-            });
-
-            AttendanceRows.Add(new AttendanceSummaryRow
-            {
-                Name = "Test Teacher",
-                PresentDays = 20,
-                AbsentDays = 2,
-                TotalDays = 22
-            });
-
-            ExpenseRows.Add(new Expense
-            {
-                ExpenseID = 1,
-                Category = "Test Expense",
-                Amount = 500,
-                Date = DateTime.Now,
-                Notes = "Test Note"
-            });
-
-            SalaryRows.Add(new SalaryPayment
-            {
-                SalaryPaymentID = 1,
-                TeacherName = "Test Teacher",
-                Designation = "Teacher",
-                BaseSalary = 30000,
-                Amount = 30000,
-                PaymentDate = DateTime.Now,
-                Notes = "Test Payment"
-            });
-
-            FinanceSummary = new MonthlyFinanceSummary
-            {
-                Month = DateTime.Now.ToString("MMM yyyy"),
-                TotalFeesCollected = 1000,
-                TotalExpenses = 500,
-                TotalSalariesPaid = 30000
-            };
-
-            _isInitialized = true;
-
-            // Set defaults AFTER commands are initialized
             SelectedFeeMonth = DateTime.Now.ToString("MMM yyyy");
             AttendanceFrom = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
             AttendanceTo = DateTime.Now;
             AttendancePersonType = "Teacher";
             SelectedFinanceMonth = DateTime.Now.ToString("MMM yyyy");
 
-            // Force all commands to reevaluate CanExecute!
+            _isInitialized = true;
+
             PrintFeeReportCommand.RaiseCanExecuteChanged();
             ExportFeeReportCsvCommand.RaiseCanExecuteChanged();
             PrintAttendanceReportCommand.RaiseCanExecuteChanged();
             ExportAttendanceCsvCommand.RaiseCanExecuteChanged();
+            PrintFinanceSummaryCommand.RaiseCanExecuteChanged();
             PrintExpenseReportCommand.RaiseCanExecuteChanged();
             PrintSalaryReportCommand.RaiseCanExecuteChanged();
             ExportFinanceCsvCommand.RaiseCanExecuteChanged();
             CommandManager.InvalidateRequerySuggested();
+        }
+
+        public async Task InitializeAsync()
+        {
+            if (_hasLoadedInitialReports)
+            {
+                return;
+            }
+
+            _hasLoadedInitialReports = true;
+            await GenerateFeeReportAsync().ConfigureAwait(true);
+            await GenerateAttendanceReportAsync().ConfigureAwait(true);
+            await GenerateFinanceReportAsync().ConfigureAwait(true);
         }
 
         #region Common Properties
@@ -191,7 +158,7 @@ namespace SchoolERP.ViewModels
         public RelayCommand PrintFeeReportCommand { get; }
         public RelayCommand ExportFeeReportCsvCommand { get; }
 
-        private async System.Threading.Tasks.Task GenerateFeeReportAsync()
+        private async Task GenerateFeeReportAsync()
         {
             try
             {
@@ -206,8 +173,8 @@ namespace SchoolERP.ViewModels
                 }
 
                 FeeTotalStudents = FeeRows.Count;
-                FeeTotalCollected = FeeRows.Where(r => r.Status == "Paid").Sum(r => r.AmountPaid);
-                FeeTotalDue = FeeRows.Where(r => r.Status != "Paid").Sum(r => r.MonthlyFee - r.AmountPaid);
+                FeeTotalCollected = FeeRows.Sum(r => r.AmountPaid);
+                FeeTotalDue = FeeRows.Sum(r => Math.Max(0, r.MonthlyFee - r.AmountPaid));
 
                 FeeStatusMessage = $"Loaded {FeeRows.Count} rows for {SelectedFeeMonth}";
 
@@ -309,7 +276,7 @@ namespace SchoolERP.ViewModels
         public RelayCommand PrintAttendanceReportCommand { get; }
         public RelayCommand ExportAttendanceCsvCommand { get; }
 
-        private async System.Threading.Tasks.Task GenerateAttendanceReportAsync()
+        private async Task GenerateAttendanceReportAsync()
         {
             try
             {
@@ -404,6 +371,7 @@ namespace SchoolERP.ViewModels
                     {
                         PrintExpenseReportCommand.RaiseCanExecuteChanged();
                         PrintSalaryReportCommand.RaiseCanExecuteChanged();
+                        PrintFinanceSummaryCommand.RaiseCanExecuteChanged();
                         ExportFinanceCsvCommand.RaiseCanExecuteChanged();
                     }
                 }
@@ -449,11 +417,12 @@ namespace SchoolERP.ViewModels
             }
         }
         public RelayCommand GenerateFinanceReportCommand { get; }
+        public RelayCommand PrintFinanceSummaryCommand { get; }
         public RelayCommand PrintExpenseReportCommand { get; }
         public RelayCommand PrintSalaryReportCommand { get; }
         public RelayCommand ExportFinanceCsvCommand { get; }
 
-        private async System.Threading.Tasks.Task GenerateFinanceReportAsync()
+        private async Task GenerateFinanceReportAsync()
         {
             try
             {
@@ -478,6 +447,7 @@ namespace SchoolERP.ViewModels
 
                 FinanceStatusMessage = $"Loaded {ExpenseRows.Count} expenses and {SalaryRows.Count} salary payments for {SelectedFinanceMonth}";
 
+                PrintFinanceSummaryCommand.RaiseCanExecuteChanged();
                 PrintExpenseReportCommand.RaiseCanExecuteChanged();
                 PrintSalaryReportCommand.RaiseCanExecuteChanged();
                 ExportFinanceCsvCommand.RaiseCanExecuteChanged();
@@ -498,6 +468,14 @@ namespace SchoolERP.ViewModels
             ReportPrintService.PrintExpenseReport(ExpenseRows.ToList(), SelectedFinanceMonth);
         }
 
+        private void PrintFinanceSummary()
+        {
+            if (FinanceSummary != null)
+            {
+                ReportPrintService.PrintFinanceSummaryReport(FinanceSummary);
+            }
+        }
+
         private void PrintSalaryReport()
         {
             ReportPrintService.PrintSalaryReport(SalaryRows.ToList(), SelectedFinanceMonth);
@@ -513,6 +491,7 @@ namespace SchoolERP.ViewModels
             };
 
             if (saveFileDialog.ShowDialog() != true) return;
+            if (FinanceSummary == null) return;
 
             var csv = new StringBuilder();
             csv.AppendLine("Finance Summary");

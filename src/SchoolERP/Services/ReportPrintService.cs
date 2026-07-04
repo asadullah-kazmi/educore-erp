@@ -104,6 +104,33 @@ namespace SchoolERP.Services
             printDialog.PrintDocument(((IDocumentPaginatorSource)document).DocumentPaginator, "Salary Payment Report");
         }
 
+        public static void PrintFinanceSummaryReport(MonthlyFinanceSummary summary)
+        {
+            if (summary == null)
+            {
+                return;
+            }
+
+            var printDialog = new PrintDialog();
+            if (printDialog.ShowDialog() != true)
+            {
+                return;
+            }
+
+            var document = BuildDocument(
+                "Finance Summary Report - " + summary.Month,
+                new[] { "Item", "Amount" },
+                new[]
+                {
+                    new[] { "Fees Collected", summary.TotalFeesCollected.ToString("N0") },
+                    new[] { "Total Expenses", summary.TotalExpenses.ToString("N0") },
+                    new[] { "Salaries Paid", summary.TotalSalariesPaid.ToString("N0") },
+                    new[] { "Net Surplus", summary.NetSurplus.ToString("N0") }
+                });
+
+            printDialog.PrintDocument(((IDocumentPaginatorSource)document).DocumentPaginator, "Finance Summary Report");
+        }
+
         private static FlowDocument BuildDocument(string title, string[] headers, IEnumerable<string[]> rows)
         {
             var document = new FlowDocument

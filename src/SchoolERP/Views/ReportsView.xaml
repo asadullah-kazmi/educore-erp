@@ -107,6 +107,9 @@
                                             <DataTrigger Binding="{Binding Status}" Value="Paid">
                                                 <Setter Property="Background" TargetName="StatusBorder" Value="#10B981"/>
                                             </DataTrigger>
+                                            <DataTrigger Binding="{Binding Status}" Value="Partial">
+                                                <Setter Property="Background" TargetName="StatusBorder" Value="#F59E0B"/>
+                                            </DataTrigger>
                                             <DataTrigger Binding="{Binding Status}" Value="Due">
                                                 <Setter Property="Background" TargetName="StatusBorder" Value="#FF6B35"/>
                                             </DataTrigger>
@@ -114,7 +117,7 @@
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
-                            <DataGridTextColumn Header="Payment Date" Binding="{Binding PaymentDate, StringFormat={}{0:dd MMM yyyy}, TargetNullValue='—'}" Width="120"/>
+                            <DataGridTextColumn Header="Payment Date" Binding="{Binding PaymentDate, StringFormat={}{0:dd MMM yyyy}, TargetNullValue='-'}" Width="120"/>
                         </DataGrid.Columns>
                     </DataGrid>
                 </Grid>
@@ -190,6 +193,7 @@
                             <StackPanel HorizontalAlignment="Right" Orientation="Horizontal" DockPanel.Dock="Right">
                                 <ComboBox Width="130" Height="36" ItemsSource="{Binding FinanceMonthOptions}" SelectedItem="{Binding SelectedFinanceMonth}" VerticalContentAlignment="Center" Margin="0,0,8,0"/>
                                 <Button Content="Generate" Style="{StaticResource GreenButtonStyle}" Command="{Binding GenerateFinanceReportCommand}" Margin="0,0,8,0"/>
+                                <Button Content="Print Summary" Style="{StaticResource PrimaryButtonStyle}" Command="{Binding PrintFinanceSummaryCommand}" Margin="0,0,8,0"/>
                                 <Button Content="Print Expenses" Style="{StaticResource PrimaryButtonStyle}" Command="{Binding PrintExpenseReportCommand}" Margin="0,0,8,0"/>
                                 <Button Content="Print Salaries" Style="{StaticResource PrimaryButtonStyle}" Command="{Binding PrintSalaryReportCommand}" Margin="0,0,8,0"/>
                                 <Button Content="Export CSV" Style="{StaticResource PurpleButtonStyle}" Command="{Binding ExportFinanceCsvCommand}" Visibility="{Binding IsAdmin, Converter={StaticResource BoolToVisibility}}"/>
