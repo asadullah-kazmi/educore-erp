@@ -91,10 +91,11 @@ namespace SchoolERP.Services
 
             var document = BuildDocument(
                 "Salary Payment Report — " + month,
-                new[] { "Teacher", "Designation", "Base Salary", "Amount Paid", "Payment Date", "Notes" },
+                new[] { "Staff", "Staff Type", "Designation", "Base Salary", "Amount Paid", "Payment Date", "Notes" },
                 rows.Select(r => new[]
                 {
                     r.TeacherName ?? string.Empty,
+                    r.StaffType ?? string.Empty,
                     r.Designation ?? string.Empty,
                     r.BaseSalary.ToString("N0"),
                     r.Amount.ToString("N0"),

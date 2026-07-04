@@ -307,10 +307,13 @@
                             <TextBox Width="220" Height="34" Text="{Binding SalarySearchText, UpdateSourceTrigger=PropertyChanged}" VerticalContentAlignment="Center" Margin="0,0,10,0"/>
                             <TextBlock Text="Teacher" VerticalAlignment="Center" Foreground="#64748B" Margin="0,0,6,0"/>
                             <ComboBox Width="180" Height="34" ItemsSource="{Binding SalaryTeacherOptions}" SelectedItem="{Binding SelectedSalaryTeacher}" VerticalContentAlignment="Center" Margin="0,0,10,0"/>
+                            <TextBlock Text="Staff Type" VerticalAlignment="Center" Foreground="#64748B" Margin="0,0,6,0"/>
+                            <ComboBox Width="180" Height="34" ItemsSource="{Binding SalaryStaffTypeOptions}" SelectedItem="{Binding SelectedSalaryStaffType}" VerticalContentAlignment="Center" Margin="0,0,10,0"/>
                         </WrapPanel>
                         <DataGrid ItemsSource="{Binding SalaryRows}" Style="{StaticResource ModuleDataGridStyle}">
                             <DataGrid.Columns>
-                                <DataGridTextColumn Header="Teacher" Binding="{Binding TeacherName}" Width="*"/>
+                                <DataGridTextColumn Header="Staff" Binding="{Binding TeacherName}" Width="*"/>
+                                <DataGridTextColumn Header="Staff Type" Binding="{Binding StaffType}" Width="120"/>
                                 <DataGridTextColumn Header="Designation" Binding="{Binding Designation}" Width="120"/>
                                 <DataGridTextColumn Header="Base Salary" Binding="{Binding BaseSalary, StringFormat='Rs {0:N0}'}" Width="110"/>
                                 <DataGridTextColumn Header="Amount Paid" Binding="{Binding Amount, StringFormat='Rs {0:N0}'}" Width="110"/>

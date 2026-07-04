@@ -581,8 +581,10 @@ namespace SchoolERP.ViewModels
         private ObservableCollection<SalaryPayment> _salaryRows = new ObservableCollection<SalaryPayment>();
         private ObservableCollection<string> _expenseCategoryOptions = new ObservableCollection<string> { "All Categories" };
         private ObservableCollection<string> _salaryTeacherOptions = new ObservableCollection<string> { "All Teachers" };
+        private ObservableCollection<string> _salaryStaffTypeOptions = new ObservableCollection<string> { "All Staff Types" };
         private string _selectedExpenseCategory = "All Categories";
         private string _selectedSalaryTeacher = "All Teachers";
+        private string _selectedSalaryStaffType = "All Staff Types";
         private string _expenseSearchText;
         private string _salarySearchText;
         private bool _isLoadingFinance;
@@ -608,8 +610,11 @@ namespace SchoolERP.ViewModels
                     ExpenseCategoryOptions.Add("All Categories");
                     SalaryTeacherOptions.Clear();
                     SalaryTeacherOptions.Add("All Teachers");
+                    SalaryStaffTypeOptions.Clear();
+                    SalaryStaffTypeOptions.Add("All Staff Types");
                     SelectedExpenseCategory = "All Categories";
                     SelectedSalaryTeacher = "All Teachers";
+                    SelectedSalaryStaffType = "All Staff Types";
                     ExpenseSearchText = string.Empty;
                     SalarySearchText = string.Empty;
                     FinanceSummary = null;
@@ -655,6 +660,11 @@ namespace SchoolERP.ViewModels
             get => _salaryTeacherOptions;
             set => SetProperty(ref _salaryTeacherOptions, value);
         }
+        public ObservableCollection<string> SalaryStaffTypeOptions
+        {
+            get => _salaryStaffTypeOptions;
+            set => SetProperty(ref _salaryStaffTypeOptions, value);
+        }
         public string SelectedExpenseCategory
         {
             get => _selectedExpenseCategory;
@@ -672,6 +682,17 @@ namespace SchoolERP.ViewModels
             set
             {
                 if (SetProperty(ref _selectedSalaryTeacher, value))
+                {
+                    ApplyFinanceFilters();
+                }
+            }
+        }
+        public string SelectedSalaryStaffType
+        {
+            get => _selectedSalaryStaffType;
+            set
+            {
+                if (SetProperty(ref _selectedSalaryStaffType, value))
                 {
                     ApplyFinanceFilters();
                 }
@@ -741,6 +762,7 @@ namespace SchoolERP.ViewModels
                 _allSalaryRows.Clear();
                 _allSalaryRows.AddRange(salaries);
                 RefreshSalaryTeacherOptions();
+                RefreshSalaryStaffTypeOptions();
                 ApplyFinanceFilters();
 
                 FinanceStatusMessage = $"Loaded {ExpenseRows.Count} expenses and {SalaryRows.Count} salary payments for {SelectedFinanceMonth}";
@@ -793,6 +815,22 @@ namespace SchoolERP.ViewModels
             SelectedSalaryTeacher = SalaryTeacherOptions.Contains(selected) ? selected : "All Teachers";
         }
 
+        private void RefreshSalaryStaffTypeOptions()
+        {
+            var selected = SelectedSalaryStaffType;
+            SalaryStaffTypeOptions.Clear();
+            SalaryStaffTypeOptions.Add("All Staff Types");
+            foreach (var staffType in _allSalaryRows
+                .Select(s => string.IsNullOrWhiteSpace(s.StaffType) ? "Teacher" : s.StaffType.Trim())
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .OrderBy(t => t))
+            {
+                SalaryStaffTypeOptions.Add(staffType);
+            }
+
+            SelectedSalaryStaffType = SalaryStaffTypeOptions.Contains(selected) ? selected : "All Staff Types";
+        }
+
         private void ApplyFinanceFilters()
         {
             var expenseQuery = _allExpenseRows.AsEnumerable();
@@ -827,11 +865,20 @@ namespace SchoolERP.ViewModels
                     StringComparison.OrdinalIgnoreCase));
             }
 
+            if (!string.IsNullOrWhiteSpace(SelectedSalaryStaffType) && SelectedSalaryStaffType != "All Staff Types")
+            {
+                salaryQuery = salaryQuery.Where(s => string.Equals(
+                    string.IsNullOrWhiteSpace(s.StaffType) ? "Teacher" : s.StaffType.Trim(),
+                    SelectedSalaryStaffType,
+                    StringComparison.OrdinalIgnoreCase));
+            }
+
             if (!string.IsNullOrWhiteSpace(SalarySearchText))
             {
                 var search = SalarySearchText.Trim();
                 salaryQuery = salaryQuery.Where(s =>
                     ContainsText(s.TeacherName, search) ||
+                    ContainsText(s.StaffType, search) ||
                     ContainsText(s.Designation, search) ||
                     ContainsText(s.Notes, search));
             }
@@ -898,10 +945,10 @@ namespace SchoolERP.ViewModels
             csv.AppendLine();
 
             csv.AppendLine("Salary Payments Detail");
-            csv.AppendLine("Teacher,Designation,Amount,Payment Date,Notes");
+            csv.AppendLine("Staff,Staff Type,Designation,Amount,Payment Date,Notes");
             foreach (var salary in SalaryRows)
             {
-                csv.AppendLine($"{EscapeCsv(salary.TeacherName)},{EscapeCsv(salary.Designation)},{salary.Amount.ToString(CultureInfo.InvariantCulture)},{salary.PaymentDate:dd MMM yyyy},{EscapeCsv(salary.Notes)}");
+                csv.AppendLine($"{EscapeCsv(salary.TeacherName)},{EscapeCsv(salary.StaffType)},{EscapeCsv(salary.Designation)},{salary.Amount.ToString(CultureInfo.InvariantCulture)},{salary.PaymentDate:dd MMM yyyy},{EscapeCsv(salary.Notes)}");
             }
 
             File.WriteAllText(saveFileDialog.FileName, csv.ToString(), Encoding.UTF8);

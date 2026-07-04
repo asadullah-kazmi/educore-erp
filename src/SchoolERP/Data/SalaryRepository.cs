@@ -15,6 +15,7 @@ SELECT sp.SalaryPaymentID,
        sp.PaymentDate,
        sp.Notes,
        t.Name AS TeacherName,
+       ISNULL(NULLIF(LTRIM(RTRIM(t.StaffType)), ''), 'Teacher') AS StaffType,
        t.Designation,
        t.Salary AS BaseSalary
 FROM dbo.SalaryPayments sp
@@ -22,6 +23,8 @@ INNER JOIN dbo.Teachers t ON t.TeacherID = sp.TeacherID";
 
         public async Task<List<SalaryPayment>> GetAllPaymentsAsync(string month = null, int? teacherId = null)
         {
+            await EnsureSalaryReportColumnsAsync().ConfigureAwait(false);
+
             var sql = SelectBase;
             var conditions = new List<string>();
 
@@ -73,6 +76,8 @@ INNER JOIN dbo.Teachers t ON t.TeacherID = sp.TeacherID";
 
         public async Task<List<SalaryPayment>> GetPaymentHistoryAsync(int teacherId)
         {
+            await EnsureSalaryReportColumnsAsync().ConfigureAwait(false);
+
             var sql = SelectBase + @"
 WHERE sp.TeacherID = @TeacherID
 ORDER BY sp.PaymentDate DESC;";
@@ -152,6 +157,8 @@ VALUES (@TeacherID, @Amount, @PaymentDate, @Notes);";
 
         public async Task<bool> HasPaidThisMonthAsync(int teacherId, string month)
         {
+            await EnsureSalaryReportColumnsAsync().ConfigureAwait(false);
+
             const string sql = @"
 SELECT COUNT(1)
 FROM dbo.SalaryPayments
@@ -171,6 +178,8 @@ WHERE TeacherID = @TeacherID
 
         public async Task<decimal> GetTotalSalariesPaidAsync(string month)
         {
+            await EnsureSalaryReportColumnsAsync().ConfigureAwait(false);
+
             const string sql = @"
 SELECT ISNULL(SUM(Amount), 0)
 FROM dbo.SalaryPayments
@@ -206,12 +215,30 @@ WHERE FORMAT(PaymentDate, 'MMM yyyy') = @Month;";
                 SalaryPaymentID = reader.GetInt32(reader.GetOrdinal("SalaryPaymentID")),
                 TeacherID = reader.GetInt32(reader.GetOrdinal("TeacherID")),
                 TeacherName = reader["TeacherName"] as string,
+                StaffType = reader["StaffType"] as string,
                 Designation = reader["Designation"] as string,
                 BaseSalary = reader["BaseSalary"] == DBNull.Value ? 0m : Convert.ToDecimal(reader["BaseSalary"]),
                 Amount = reader["Amount"] == DBNull.Value ? 0m : Convert.ToDecimal(reader["Amount"]),
                 PaymentDate = reader.GetDateTime(reader.GetOrdinal("PaymentDate")),
                 Notes = reader["Notes"] as string
             };
+        }
+
+        private static async Task EnsureSalaryReportColumnsAsync()
+        {
+            const string sql = @"
+IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('dbo.Teachers') AND name = 'StaffType')
+BEGIN
+    ALTER TABLE dbo.Teachers ADD StaffType NVARCHAR(100) NULL;
+END
+EXEC('UPDATE dbo.Teachers SET StaffType = ''Teacher'' WHERE StaffType IS NULL OR LTRIM(RTRIM(StaffType)) = ''''');";
+
+            using (var connection = Database.GetConnection())
+            using (var command = new SqlCommand(sql, connection))
+            {
+                await connection.OpenAsync().ConfigureAwait(false);
+                await command.ExecuteNonQueryAsync().ConfigureAwait(false);
+            }
         }
     }
 }

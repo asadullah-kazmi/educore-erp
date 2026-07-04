@@ -7,6 +7,7 @@ namespace SchoolERP.Models
         public int SalaryPaymentID { get; set; }
         public int TeacherID { get; set; }
         public string TeacherName { get; set; }
+        public string StaffType { get; set; }
         public string Designation { get; set; }
         public decimal BaseSalary { get; set; }
         public decimal Amount { get; set; }
