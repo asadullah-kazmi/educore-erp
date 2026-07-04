@@ -1,7 +1,10 @@
 using System;
 using System.IO;
+using System.Windows;
+using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using Microsoft.Win32;
 using SchoolERP.Models;
 
 namespace SchoolERP.ViewModels
@@ -33,6 +36,11 @@ namespace SchoolERP.ViewModels
         public string CertificatesFileName { get; set; }
         public int? FingerprintId { get; set; }
 
+        public StaffViewModel()
+        {
+            DownloadDocumentCommand = new RelayCommand(DownloadDocument);
+        }
+
         public string SalaryDisplay => Salary.ToString("N0");
         public string DOBDisplay => DOB?.ToString("dd MMM yyyy") ?? "-";
         public string DateOfJoiningDisplay => DateOfJoining?.ToString("dd MMM yyyy") ?? "-";
@@ -48,6 +56,7 @@ namespace SchoolERP.ViewModels
         public string CnicBackStoredLabel => GetStoredLabel(CnicBackImageData, CnicBackImageFileName, CnicBackImagePath);
         public string EducationalDocumentStoredLabel => GetStoredLabel(EducationalDocumentsData, EducationalDocumentsFileName, EducationalDocumentsPath);
         public string CertificateStoredLabel => GetStoredLabel(CertificatesData, CertificatesFileName, CertificatesPath);
+        public ICommand DownloadDocumentCommand { get; }
 
         public static StaffViewModel FromModel(Teacher teacher)
         {
@@ -163,6 +172,104 @@ namespace SchoolERP.ViewModels
             return string.IsNullOrWhiteSpace(legacyPath)
                 ? "-"
                 : "Path only: " + legacyPath;
+        }
+
+        private void DownloadDocument(object parameter)
+        {
+            var documentKey = parameter as string;
+            var document = GetDocument(documentKey);
+
+            if (document == null || !document.HasContent)
+            {
+                MessageBox.Show("No document is available to download.", "Download Document", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
+            var dialog = new SaveFileDialog
+            {
+                Title = "Download document",
+                FileName = document.FileName,
+                Filter = "Image files (*.jpg;*.jpeg;*.png;*.bmp)|*.jpg;*.jpeg;*.png;*.bmp|All files (*.*)|*.*"
+            };
+
+            if (dialog.ShowDialog() != true)
+            {
+                return;
+            }
+
+            try
+            {
+                if (document.Data != null && document.Data.Length > 0)
+                {
+                    File.WriteAllBytes(dialog.FileName, document.Data);
+                }
+                else
+                {
+                    File.Copy(document.Path, dialog.FileName, true);
+                }
+
+                MessageBox.Show("Document downloaded successfully.", "Download Document", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (IOException ex)
+            {
+                MessageBox.Show("Unable to download document: " + ex.Message, "Download Document", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                MessageBox.Show("Unable to download document: " + ex.Message, "Download Document", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private DocumentDownloadInfo GetDocument(string documentKey)
+        {
+            switch (documentKey)
+            {
+                case "CnicFront":
+                    return new DocumentDownloadInfo(CnicFrontImageData, CnicFrontImageFileName, CnicFrontImagePath);
+                case "CnicBack":
+                    return new DocumentDownloadInfo(CnicBackImageData, CnicBackImageFileName, CnicBackImagePath);
+                case "EducationalDocuments":
+                    return new DocumentDownloadInfo(EducationalDocumentsData, EducationalDocumentsFileName, EducationalDocumentsPath);
+                case "Certificates":
+                    return new DocumentDownloadInfo(CertificatesData, CertificatesFileName, CertificatesPath);
+                default:
+                    return null;
+            }
+        }
+
+        private class DocumentDownloadInfo
+        {
+            public DocumentDownloadInfo(byte[] data, string fileName, string path)
+            {
+                Data = data;
+                Path = path;
+                FileName = GetDownloadFileName(fileName, path);
+            }
+
+            public byte[] Data { get; }
+
+            public string Path { get; }
+
+            public string FileName { get; }
+
+            public bool HasContent =>
+                (Data != null && Data.Length > 0) ||
+                (!string.IsNullOrWhiteSpace(Path) && File.Exists(Path));
+
+            private static string GetDownloadFileName(string fileName, string path)
+            {
+                if (!string.IsNullOrWhiteSpace(fileName))
+                {
+                    return fileName;
+                }
+
+                if (!string.IsNullOrWhiteSpace(path))
+                {
+                    return System.IO.Path.GetFileName(path);
+                }
+
+                return "document";
+            }
         }
     }
 }

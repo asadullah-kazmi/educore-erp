@@ -5,6 +5,7 @@
     <UseWPF>true</UseWPF>
     <AssemblyName>SchoolERP</AssemblyName>
     <RootNamespace>SchoolERP</RootNamespace>
+    <DefaultItemExcludes>$(DefaultItemExcludes);bin\**;obj\**</DefaultItemExcludes>
   </PropertyGroup>
 
   <ItemGroup>

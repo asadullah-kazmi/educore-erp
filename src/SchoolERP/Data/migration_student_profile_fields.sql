@@ -17,8 +17,24 @@ IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('dbo.Studen
     ALTER TABLE dbo.Students ADD StudentFormBOrCnicFrontPicturePath NVARCHAR(1000) NULL;
 GO
 
+IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('dbo.Students') AND name = 'StudentFormBOrCnicFrontPictureData')
+    ALTER TABLE dbo.Students ADD StudentFormBOrCnicFrontPictureData VARBINARY(MAX) NULL;
+GO
+
+IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('dbo.Students') AND name = 'StudentFormBOrCnicFrontPictureFileName')
+    ALTER TABLE dbo.Students ADD StudentFormBOrCnicFrontPictureFileName NVARCHAR(260) NULL;
+GO
+
 IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('dbo.Students') AND name = 'StudentFormBOrCnicBackPicturePath')
     ALTER TABLE dbo.Students ADD StudentFormBOrCnicBackPicturePath NVARCHAR(1000) NULL;
+GO
+
+IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('dbo.Students') AND name = 'StudentFormBOrCnicBackPictureData')
+    ALTER TABLE dbo.Students ADD StudentFormBOrCnicBackPictureData VARBINARY(MAX) NULL;
+GO
+
+IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('dbo.Students') AND name = 'StudentFormBOrCnicBackPictureFileName')
+    ALTER TABLE dbo.Students ADD StudentFormBOrCnicBackPictureFileName NVARCHAR(260) NULL;
 GO
 
 IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('dbo.Students') AND name = 'GuardianCnicNumber')
@@ -33,8 +49,24 @@ IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('dbo.Studen
     ALTER TABLE dbo.Students ADD GuardianCnicFrontPicturePath NVARCHAR(1000) NULL;
 GO
 
+IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('dbo.Students') AND name = 'GuardianCnicFrontPictureData')
+    ALTER TABLE dbo.Students ADD GuardianCnicFrontPictureData VARBINARY(MAX) NULL;
+GO
+
+IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('dbo.Students') AND name = 'GuardianCnicFrontPictureFileName')
+    ALTER TABLE dbo.Students ADD GuardianCnicFrontPictureFileName NVARCHAR(260) NULL;
+GO
+
 IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('dbo.Students') AND name = 'GuardianCnicBackPicturePath')
     ALTER TABLE dbo.Students ADD GuardianCnicBackPicturePath NVARCHAR(1000) NULL;
+GO
+
+IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('dbo.Students') AND name = 'GuardianCnicBackPictureData')
+    ALTER TABLE dbo.Students ADD GuardianCnicBackPictureData VARBINARY(MAX) NULL;
+GO
+
+IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('dbo.Students') AND name = 'GuardianCnicBackPictureFileName')
+    ALTER TABLE dbo.Students ADD GuardianCnicBackPictureFileName NVARCHAR(260) NULL;
 GO
 
 IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('dbo.Students') AND name = 'GuardianPhone')
@@ -48,5 +80,5 @@ GO
 IF OBJECT_ID('dbo.SchemaVersions') IS NOT NULL
    AND NOT EXISTS (SELECT 1 FROM dbo.SchemaVersions WHERE VersionName = '3.0-student-profile-fields')
     INSERT INTO dbo.SchemaVersions(VersionName, Notes)
-    VALUES ('3.0-student-profile-fields', 'Adds section, student Form-B/CNIC, guardian CNIC, guardian phone, emergency contact, and front/back picture path fields.');
+    VALUES ('3.0-student-profile-fields', 'Adds section, student Form-B/CNIC, guardian CNIC, guardian phone, emergency contact, and front/back document image fields.');
 GO

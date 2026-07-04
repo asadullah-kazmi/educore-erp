@@ -34,16 +34,11 @@ namespace SchoolERP.ViewModels
         public string SummaryText =>
             $"Total Paid: Rs {TotalPaid:N0}    |    Total Due: Rs {TotalDue:N0}";
 
-        private static bool CanDownloadImage(string imagePath)
+        private void DownloadImage(object parameter)
         {
-            return !string.IsNullOrWhiteSpace(imagePath) && File.Exists(imagePath);
-        }
+            var image = GetImageDownloadInfo(parameter as string);
 
-        private static void DownloadImage(object parameter)
-        {
-            var imagePath = parameter as string;
-
-            if (!CanDownloadImage(imagePath))
+            if (image == null || !image.HasContent)
             {
                 MessageBox.Show("The selected image file could not be found.", "Download Image", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
@@ -52,7 +47,7 @@ namespace SchoolERP.ViewModels
             var dialog = new SaveFileDialog
             {
                 Title = "Download image",
-                FileName = Path.GetFileName(imagePath),
+                FileName = image.FileName,
                 Filter = "Image files (*.jpg;*.jpeg;*.png;*.bmp)|*.jpg;*.jpeg;*.png;*.bmp|All files (*.*)|*.*"
             };
 
@@ -63,7 +58,15 @@ namespace SchoolERP.ViewModels
 
             try
             {
-                File.Copy(imagePath, dialog.FileName, true);
+                if (image.Data != null && image.Data.Length > 0)
+                {
+                    File.WriteAllBytes(dialog.FileName, image.Data);
+                }
+                else
+                {
+                    File.Copy(image.Path, dialog.FileName, true);
+                }
+
                 MessageBox.Show("Image downloaded successfully.", "Download Image", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (IOException ex)
@@ -73,6 +76,58 @@ namespace SchoolERP.ViewModels
             catch (UnauthorizedAccessException ex)
             {
                 MessageBox.Show("Unable to download image: " + ex.Message, "Download Image", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private ImageDownloadInfo GetImageDownloadInfo(string imageKey)
+        {
+            switch (imageKey)
+            {
+                case "StudentFront":
+                    return new ImageDownloadInfo(Student.StudentFormBOrCnicFrontPictureData, Student.StudentFormBOrCnicFrontPictureFileName, Student.StudentFormBOrCnicFrontPicturePath);
+                case "StudentBack":
+                    return new ImageDownloadInfo(Student.StudentFormBOrCnicBackPictureData, Student.StudentFormBOrCnicBackPictureFileName, Student.StudentFormBOrCnicBackPicturePath);
+                case "GuardianFront":
+                    return new ImageDownloadInfo(Student.GuardianCnicFrontPictureData, Student.GuardianCnicFrontPictureFileName, Student.GuardianCnicFrontPicturePath);
+                case "GuardianBack":
+                    return new ImageDownloadInfo(Student.GuardianCnicBackPictureData, Student.GuardianCnicBackPictureFileName, Student.GuardianCnicBackPicturePath);
+                default:
+                    return null;
+            }
+        }
+
+        private class ImageDownloadInfo
+        {
+            public ImageDownloadInfo(byte[] data, string fileName, string path)
+            {
+                Data = data;
+                Path = path;
+                FileName = GetDownloadFileName(fileName, path);
+            }
+
+            public byte[] Data { get; }
+
+            public string Path { get; }
+
+            public string FileName { get; }
+
+            public bool HasContent =>
+                (Data != null && Data.Length > 0) ||
+                (!string.IsNullOrWhiteSpace(Path) && File.Exists(Path));
+
+            private static string GetDownloadFileName(string fileName, string path)
+            {
+                if (!string.IsNullOrWhiteSpace(fileName))
+                {
+                    return fileName;
+                }
+
+                if (!string.IsNullOrWhiteSpace(path))
+                {
+                    return System.IO.Path.GetFileName(path);
+                }
+
+                return "image";
             }
         }
     }

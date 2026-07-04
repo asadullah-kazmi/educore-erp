@@ -32,6 +32,17 @@
             <Setter Property="HorizontalAlignment" Value="Left"/>
             <Setter Property="Margin" Value="0,6,0,6"/>
         </Style>
+        <Style x:Key="DocumentDownloadButtonStyle" TargetType="Button">
+            <Setter Property="Width" Value="92"/>
+            <Setter Property="Height" Value="30"/>
+            <Setter Property="Margin" Value="0,8,0,0"/>
+            <Setter Property="HorizontalAlignment" Value="Left"/>
+            <Setter Property="Background" Value="#001A3F"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+        </Style>
     </Window.Resources>
 
     <Border Background="White"
@@ -152,6 +163,10 @@
                             <TextBlock Text="CNIC Front Image" Style="{StaticResource CardLabelStyle}"/>
                             <Image Source="{Binding CnicFrontImage}" Style="{StaticResource DocumentPreviewStyle}" Visibility="{Binding HasCnicFrontImage, Converter={StaticResource BoolToVisibility}}"/>
                             <TextBlock Text="{Binding CnicFrontStoredLabel}" TextWrapping="Wrap" Style="{StaticResource CardValueStyle}"/>
+                            <Button Content="Download"
+                                    Command="{Binding DownloadDocumentCommand}"
+                                    CommandParameter="CnicFront"
+                                    Style="{StaticResource DocumentDownloadButtonStyle}"/>
                         </StackPanel>
                     </Border>
                     <Border Grid.Row="6" Grid.Column="1" Style="{StaticResource InfoCardStyle}">
@@ -159,6 +174,10 @@
                             <TextBlock Text="CNIC Back Image" Style="{StaticResource CardLabelStyle}"/>
                             <Image Source="{Binding CnicBackImage}" Style="{StaticResource DocumentPreviewStyle}" Visibility="{Binding HasCnicBackImage, Converter={StaticResource BoolToVisibility}}"/>
                             <TextBlock Text="{Binding CnicBackStoredLabel}" TextWrapping="Wrap" Style="{StaticResource CardValueStyle}"/>
+                            <Button Content="Download"
+                                    Command="{Binding DownloadDocumentCommand}"
+                                    CommandParameter="CnicBack"
+                                    Style="{StaticResource DocumentDownloadButtonStyle}"/>
                         </StackPanel>
                     </Border>
                     <Border Grid.Row="7" Grid.Column="0" Style="{StaticResource InfoCardStyle}">
@@ -166,6 +185,10 @@
                             <TextBlock Text="Educational Documents" Style="{StaticResource CardLabelStyle}"/>
                             <Image Source="{Binding EducationalDocumentImage}" Style="{StaticResource DocumentPreviewStyle}" Visibility="{Binding HasEducationalDocumentImage, Converter={StaticResource BoolToVisibility}}"/>
                             <TextBlock Text="{Binding EducationalDocumentStoredLabel}" TextWrapping="Wrap" Style="{StaticResource CardValueStyle}"/>
+                            <Button Content="Download"
+                                    Command="{Binding DownloadDocumentCommand}"
+                                    CommandParameter="EducationalDocuments"
+                                    Style="{StaticResource DocumentDownloadButtonStyle}"/>
                         </StackPanel>
                     </Border>
                     <Border Grid.Row="7" Grid.Column="1" Style="{StaticResource InfoCardStyle}">
@@ -173,6 +196,10 @@
                             <TextBlock Text="Certificates" Style="{StaticResource CardLabelStyle}"/>
                             <Image Source="{Binding CertificateImage}" Style="{StaticResource DocumentPreviewStyle}" Visibility="{Binding HasCertificateImage, Converter={StaticResource BoolToVisibility}}"/>
                             <TextBlock Text="{Binding CertificateStoredLabel}" TextWrapping="Wrap" Style="{StaticResource CardValueStyle}"/>
+                            <Button Content="Download"
+                                    Command="{Binding DownloadDocumentCommand}"
+                                    CommandParameter="Certificates"
+                                    Style="{StaticResource DocumentDownloadButtonStyle}"/>
                         </StackPanel>
                     </Border>
                 </Grid>

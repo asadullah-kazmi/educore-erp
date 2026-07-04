@@ -1,5 +1,6 @@
 using System;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
@@ -25,11 +26,19 @@ namespace SchoolERP.ViewModels
         private string studentFormBOrCnicNumber;
         private string studentFormBOrCnicPicturePath;
         private string studentFormBOrCnicFrontPicturePath;
+        private byte[] studentFormBOrCnicFrontPictureData;
+        private string studentFormBOrCnicFrontPictureFileName;
         private string studentFormBOrCnicBackPicturePath;
+        private byte[] studentFormBOrCnicBackPictureData;
+        private string studentFormBOrCnicBackPictureFileName;
         private string guardianCnicNumber;
         private string guardianCnicPicturePath;
         private string guardianCnicFrontPicturePath;
+        private byte[] guardianCnicFrontPictureData;
+        private string guardianCnicFrontPictureFileName;
         private string guardianCnicBackPicturePath;
+        private byte[] guardianCnicBackPictureData;
+        private string guardianCnicBackPictureFileName;
         private string guardianPhone;
         private string emergencyContactNumber;
         private DateTime? admissionDate = DateTime.Today;
@@ -246,11 +255,19 @@ namespace SchoolERP.ViewModels
                         StudentFormBOrCnicNumber = student.StudentFormBOrCnicNumber;
                         StudentFormBOrCnicPicturePath = student.StudentFormBOrCnicPicturePath;
                         StudentFormBOrCnicFrontPicturePath = student.StudentFormBOrCnicFrontPicturePath;
+                        studentFormBOrCnicFrontPictureData = student.StudentFormBOrCnicFrontPictureData;
+                        studentFormBOrCnicFrontPictureFileName = student.StudentFormBOrCnicFrontPictureFileName;
                         StudentFormBOrCnicBackPicturePath = student.StudentFormBOrCnicBackPicturePath;
+                        studentFormBOrCnicBackPictureData = student.StudentFormBOrCnicBackPictureData;
+                        studentFormBOrCnicBackPictureFileName = student.StudentFormBOrCnicBackPictureFileName;
                         GuardianCnicNumber = student.GuardianCnicNumber;
                         GuardianCnicPicturePath = student.GuardianCnicPicturePath;
                         GuardianCnicFrontPicturePath = student.GuardianCnicFrontPicturePath;
+                        guardianCnicFrontPictureData = student.GuardianCnicFrontPictureData;
+                        guardianCnicFrontPictureFileName = student.GuardianCnicFrontPictureFileName;
                         GuardianCnicBackPicturePath = student.GuardianCnicBackPicturePath;
+                        guardianCnicBackPictureData = student.GuardianCnicBackPictureData;
+                        guardianCnicBackPictureFileName = student.GuardianCnicBackPictureFileName;
                         GuardianPhone = student.GuardianPhone;
                         EmergencyContactNumber = student.EmergencyContactNumber;
                         AdmissionDate = student.AdmissionDate ?? DateTime.Today;
@@ -296,6 +313,11 @@ namespace SchoolERP.ViewModels
                 }
 
                 var selectedClass = Classes.FirstOrDefault(c => c.ClassID == SelectedClassId);
+                var studentFrontImage = BuildImageDocument(StudentFormBOrCnicFrontPicturePath, studentFormBOrCnicFrontPictureData, studentFormBOrCnicFrontPictureFileName);
+                var studentBackImage = BuildImageDocument(StudentFormBOrCnicBackPicturePath, studentFormBOrCnicBackPictureData, studentFormBOrCnicBackPictureFileName);
+                var guardianFrontImage = BuildImageDocument(GuardianCnicFrontPicturePath, guardianCnicFrontPictureData, guardianCnicFrontPictureFileName);
+                var guardianBackImage = BuildImageDocument(GuardianCnicBackPicturePath, guardianCnicBackPictureData, guardianCnicBackPictureFileName);
+
                 var student = new Student
                 {
                     StudentID = studentId ?? 0,
@@ -312,11 +334,19 @@ namespace SchoolERP.ViewModels
                     StudentFormBOrCnicNumber = string.IsNullOrWhiteSpace(StudentFormBOrCnicNumber) ? null : StudentFormBOrCnicNumber.Trim(),
                     StudentFormBOrCnicPicturePath = NormalizePicturePath(StudentFormBOrCnicFrontPicturePath, StudentFormBOrCnicPicturePath),
                     StudentFormBOrCnicFrontPicturePath = NormalizePicturePath(StudentFormBOrCnicFrontPicturePath, StudentFormBOrCnicPicturePath),
+                    StudentFormBOrCnicFrontPictureData = studentFrontImage.Data,
+                    StudentFormBOrCnicFrontPictureFileName = studentFrontImage.FileName,
                     StudentFormBOrCnicBackPicturePath = NormalizePicturePath(StudentFormBOrCnicBackPicturePath),
+                    StudentFormBOrCnicBackPictureData = studentBackImage.Data,
+                    StudentFormBOrCnicBackPictureFileName = studentBackImage.FileName,
                     GuardianCnicNumber = string.IsNullOrWhiteSpace(GuardianCnicNumber) ? null : GuardianCnicNumber.Trim(),
                     GuardianCnicPicturePath = NormalizePicturePath(GuardianCnicFrontPicturePath, GuardianCnicPicturePath),
                     GuardianCnicFrontPicturePath = NormalizePicturePath(GuardianCnicFrontPicturePath, GuardianCnicPicturePath),
+                    GuardianCnicFrontPictureData = guardianFrontImage.Data,
+                    GuardianCnicFrontPictureFileName = guardianFrontImage.FileName,
                     GuardianCnicBackPicturePath = NormalizePicturePath(GuardianCnicBackPicturePath),
+                    GuardianCnicBackPictureData = guardianBackImage.Data,
+                    GuardianCnicBackPictureFileName = guardianBackImage.FileName,
                     GuardianPhone = string.IsNullOrWhiteSpace(GuardianPhone) ? null : GuardianPhone.Trim(),
                     EmergencyContactNumber = string.IsNullOrWhiteSpace(EmergencyContactNumber) ? null : EmergencyContactNumber.Trim(),
                     AdmissionDate = AdmissionDate ?? DateTime.Today
@@ -374,6 +404,31 @@ namespace SchoolERP.ViewModels
             }
 
             return null;
+        }
+
+        private static ImageDocument BuildImageDocument(string path, byte[] existingData, string existingFileName)
+        {
+            if (!string.IsNullOrWhiteSpace(path) && File.Exists(path))
+            {
+                return new ImageDocument
+                {
+                    Data = File.ReadAllBytes(path),
+                    FileName = Path.GetFileName(path)
+                };
+            }
+
+            return new ImageDocument
+            {
+                Data = existingData,
+                FileName = existingFileName
+            };
+        }
+
+        private class ImageDocument
+        {
+            public byte[] Data { get; set; }
+
+            public string FileName { get; set; }
         }
     }
 }
