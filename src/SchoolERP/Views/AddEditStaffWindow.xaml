@@ -25,6 +25,14 @@
             <Setter Property="Background" Value="#F8FAFC"/>
             <Setter Property="FontSize" Value="14"/>
         </Style>
+        <Style x:Key="FieldComboStyle" TargetType="ComboBox">
+            <Setter Property="Height" Value="38"/>
+            <Setter Property="Padding" Value="8,6"/>
+            <Setter Property="BorderBrush" Value="#CBD5E1"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Background" Value="#F8FAFC"/>
+            <Setter Property="FontSize" Value="14"/>
+        </Style>
         <Style x:Key="ErrorTextStyle" TargetType="TextBlock">
             <Setter Property="Foreground" Value="#DC2626"/>
             <Setter Property="FontSize" Value="12"/>
@@ -69,6 +77,7 @@
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
 
                         <StackPanel Grid.Row="0" Grid.Column="0" Margin="0,0,0,18">
@@ -78,6 +87,15 @@
                         </StackPanel>
 
                         <StackPanel Grid.Row="0" Grid.Column="2" Margin="0,0,0,18">
+                            <TextBlock Text="Staff Type *" Style="{StaticResource FieldLabelStyle}"/>
+                            <ComboBox ItemsSource="{Binding StaffTypeOptions}"
+                                      Text="{Binding StaffType, UpdateSourceTrigger=PropertyChanged}"
+                                      IsEditable="True"
+                                      Style="{StaticResource FieldComboStyle}"/>
+                            <TextBlock Text="{Binding StaffTypeError}" Style="{StaticResource ErrorTextStyle}"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Row="1" Grid.Column="2" Margin="0,0,0,18">
                             <TextBlock Text="Designation *" Style="{StaticResource FieldLabelStyle}"/>
                             <TextBox Text="{Binding Designation, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldInputStyle}"/>
                             <TextBlock Text="{Binding DesignationError}" Style="{StaticResource ErrorTextStyle}"/>
@@ -89,7 +107,7 @@
                             <TextBlock Text="{Binding DOBError}" Style="{StaticResource ErrorTextStyle}"/>
                         </StackPanel>
 
-                        <StackPanel Grid.Row="1" Grid.Column="2" Margin="0,0,0,18">
+                        <StackPanel Grid.Row="2" Grid.Column="2" Margin="0,0,0,18">
                             <TextBlock Text="Age" Style="{StaticResource FieldLabelStyle}"/>
                             <TextBox Text="{Binding AgeText, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldInputStyle}"/>
                             <TextBlock Text="{Binding AgeError}" Style="{StaticResource ErrorTextStyle}"/>
@@ -101,7 +119,7 @@
                             <TextBlock Text="{Binding ContactNumberError}" Style="{StaticResource ErrorTextStyle}"/>
                         </StackPanel>
 
-                        <StackPanel Grid.Row="2" Grid.Column="2" Margin="0,0,0,18">
+                        <StackPanel Grid.Row="3" Grid.Column="2" Margin="0,0,0,18">
                             <TextBlock Text="Date of Joining *" Style="{StaticResource FieldLabelStyle}"/>
                             <DatePicker SelectedDate="{Binding DateOfJoining}" Height="38"/>
                             <TextBlock Text="{Binding DateOfJoiningError}" Style="{StaticResource ErrorTextStyle}"/>
@@ -113,7 +131,7 @@
                             <TextBlock Text="{Binding SalaryError}" Style="{StaticResource ErrorTextStyle}"/>
                         </StackPanel>
 
-                        <StackPanel Grid.Row="3" Grid.Column="2" Margin="0,0,0,18">
+                        <StackPanel Grid.Row="4" Grid.Column="2" Margin="0,0,0,18">
                             <TextBlock Text="Experience" Style="{StaticResource FieldLabelStyle}"/>
                             <TextBox Text="{Binding Experience, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldInputStyle}"/>
                         </StackPanel>
@@ -124,13 +142,13 @@
                             <TextBlock Text="{Binding CnicNumberError}" Style="{StaticResource ErrorTextStyle}"/>
                         </StackPanel>
 
-                        <StackPanel Grid.Row="4" Grid.Column="2" Margin="0,0,0,18">
+                        <StackPanel Grid.Row="5" Grid.Column="2" Margin="0,0,0,18">
                             <TextBlock Text="Fingerprint ID" Style="{StaticResource FieldLabelStyle}"/>
                             <TextBox Text="{Binding FingerprintIdText, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource FieldInputStyle}"/>
                             <TextBlock Text="{Binding FingerprintIdError}" Style="{StaticResource ErrorTextStyle}"/>
                         </StackPanel>
 
-                        <StackPanel Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="3" Margin="0,0,0,18">
+                        <StackPanel Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="3" Margin="0,0,0,18">
                             <TextBlock Text="Address" Style="{StaticResource FieldLabelStyle}"/>
                             <TextBox Text="{Binding Address, UpdateSourceTrigger=PropertyChanged}"
                                      Height="70"
@@ -140,7 +158,7 @@
                                      Style="{StaticResource FieldInputStyle}"/>
                         </StackPanel>
 
-                        <StackPanel Grid.Row="6" Grid.Column="0" Margin="0,0,0,18">
+                        <StackPanel Grid.Row="7" Grid.Column="0" Margin="0,0,0,18">
                             <TextBlock Text="CNIC Image Front" Style="{StaticResource FieldLabelStyle}"/>
                             <DockPanel>
                                 <Button Content="Browse" Width="86" Height="38" Command="{Binding BrowseCnicFrontCommand}" DockPanel.Dock="Right" Margin="8,0,0,0"/>
@@ -148,7 +166,7 @@
                             </DockPanel>
                         </StackPanel>
 
-                        <StackPanel Grid.Row="6" Grid.Column="2" Margin="0,0,0,18">
+                        <StackPanel Grid.Row="7" Grid.Column="2" Margin="0,0,0,18">
                             <TextBlock Text="CNIC Image Back" Style="{StaticResource FieldLabelStyle}"/>
                             <DockPanel>
                                 <Button Content="Browse" Width="86" Height="38" Command="{Binding BrowseCnicBackCommand}" DockPanel.Dock="Right" Margin="8,0,0,0"/>
@@ -156,7 +174,7 @@
                             </DockPanel>
                         </StackPanel>
 
-                        <StackPanel Grid.Row="7" Grid.Column="0" Margin="0,0,0,2">
+                        <StackPanel Grid.Row="8" Grid.Column="0" Margin="0,0,0,2">
                             <TextBlock Text="Educational Documents" Style="{StaticResource FieldLabelStyle}"/>
                             <DockPanel>
                                 <Button Content="Browse" Width="86" Height="38" Command="{Binding BrowseEducationalDocumentsCommand}" DockPanel.Dock="Right" Margin="8,0,0,0"/>
@@ -164,7 +182,7 @@
                             </DockPanel>
                         </StackPanel>
 
-                        <StackPanel Grid.Row="7" Grid.Column="2" Margin="0,0,0,2">
+                        <StackPanel Grid.Row="8" Grid.Column="2" Margin="0,0,0,2">
                             <TextBlock Text="Certificates" Style="{StaticResource FieldLabelStyle}"/>
                             <DockPanel>
                                 <Button Content="Browse" Width="86" Height="38" Command="{Binding BrowseCertificatesCommand}" DockPanel.Dock="Right" Margin="8,0,0,0"/>

@@ -116,7 +116,9 @@ namespace SchoolERP.ViewModels
             var filtered = string.IsNullOrEmpty(query)
                 ? Staff
                 : Staff.Where(s =>
-                    !string.IsNullOrEmpty(s.Name) && s.Name.IndexOf(query, StringComparison.OrdinalIgnoreCase) >= 0);
+                    ContainsText(s.Name, query) ||
+                    ContainsText(s.StaffType, query) ||
+                    ContainsText(s.Designation, query));
 
             foreach (var member in filtered)
             {
@@ -141,6 +143,12 @@ namespace SchoolERP.ViewModels
             if (staff == null) return;
             var window = new StaffDetailWindow(staff) { Owner = Application.Current.MainWindow };
             window.ShowDialog();
+        }
+
+        private static bool ContainsText(string value, string query)
+        {
+            return !string.IsNullOrWhiteSpace(value) &&
+                   value.IndexOf(query, StringComparison.OrdinalIgnoreCase) >= 0;
         }
     }
 }

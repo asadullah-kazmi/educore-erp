@@ -1,4 +1,5 @@
 using System;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Threading.Tasks;
 using System.Windows.Input;
@@ -18,6 +19,7 @@ namespace SchoolERP.ViewModels
         private DateTime? dob;
         private string contactNumber;
         private DateTime? dateOfJoining;
+        private string staffType;
         private string designation;
         private string salaryText;
         private string address;
@@ -40,6 +42,7 @@ namespace SchoolERP.ViewModels
         private string dobError;
         private string contactNumberError;
         private string dateOfJoiningError;
+        private string staffTypeError;
         private string designationError;
         private string salaryError;
         private string cnicNumberError;
@@ -51,6 +54,20 @@ namespace SchoolERP.ViewModels
             this.teacherId = teacherId;
             IsEditMode = teacherId.HasValue;
             WindowTitle = IsEditMode ? "Edit Staff" : "Add Staff";
+            StaffTypeOptions = new ObservableCollection<string>
+            {
+                "Teacher",
+                "Peon",
+                "Security Guard",
+                "Clerk",
+                "Accountant",
+                "Receptionist",
+                "Librarian",
+                "Cleaner",
+                "Driver",
+                "Other"
+            };
+            StaffType = "Teacher";
 
             SaveCommand = new RelayCommand(_ => SaveAsync(), _ => !IsSaving);
             CancelCommand = new RelayCommand(_ => RequestClose?.Invoke(false));
@@ -70,6 +87,8 @@ namespace SchoolERP.ViewModels
         public bool IsEditMode { get; }
 
         public string WindowTitle { get; }
+
+        public ObservableCollection<string> StaffTypeOptions { get; }
 
         public string Name
         {
@@ -105,6 +124,12 @@ namespace SchoolERP.ViewModels
         {
             get => dateOfJoining;
             set => SetProperty(ref dateOfJoining, value);
+        }
+
+        public string StaffType
+        {
+            get => staffType;
+            set => SetProperty(ref staffType, value);
         }
 
         public string Designation
@@ -191,6 +216,12 @@ namespace SchoolERP.ViewModels
             set => SetProperty(ref dateOfJoiningError, value);
         }
 
+        public string StaffTypeError
+        {
+            get => staffTypeError;
+            set => SetProperty(ref staffTypeError, value);
+        }
+
         public string DesignationError
         {
             get => designationError;
@@ -246,6 +277,7 @@ namespace SchoolERP.ViewModels
                     DOB = teacher.DOB;
                     ContactNumber = teacher.ContactNumber;
                     DateOfJoining = teacher.DateOfJoining;
+                    StaffType = string.IsNullOrWhiteSpace(teacher.StaffType) ? "Teacher" : teacher.StaffType;
                     Designation = teacher.Designation;
                     SalaryText = teacher.Salary.ToString("0.##");
                     Address = teacher.Address;
@@ -278,6 +310,7 @@ namespace SchoolERP.ViewModels
             DOBError = null;
             ContactNumberError = null;
             DateOfJoiningError = null;
+            StaffTypeError = null;
             DesignationError = null;
             SalaryError = null;
             CnicNumberError = null;
@@ -316,6 +349,11 @@ namespace SchoolERP.ViewModels
                 DateOfJoiningError = "Date of joining is required.";
             }
 
+            if (string.IsNullOrWhiteSpace(StaffType))
+            {
+                StaffTypeError = "Staff type is required.";
+            }
+
             if (string.IsNullOrWhiteSpace(Designation))
             {
                 DesignationError = "Designation is required.";
@@ -347,7 +385,7 @@ namespace SchoolERP.ViewModels
             if (!string.IsNullOrEmpty(NameError) || !string.IsNullOrEmpty(AgeError) ||
                 !string.IsNullOrEmpty(DOBError) ||
                 !string.IsNullOrEmpty(ContactNumberError) || !string.IsNullOrEmpty(DateOfJoiningError) ||
-                !string.IsNullOrEmpty(DesignationError) || !string.IsNullOrEmpty(SalaryError) ||
+                !string.IsNullOrEmpty(StaffTypeError) || !string.IsNullOrEmpty(DesignationError) || !string.IsNullOrEmpty(SalaryError) ||
                 !string.IsNullOrEmpty(CnicNumberError) || !string.IsNullOrEmpty(FingerprintIdError))
             {
                 return;
@@ -366,6 +404,7 @@ namespace SchoolERP.ViewModels
                     DOB = DOB,
                     ContactNumber = ContactNumber.Trim(),
                     DateOfJoining = DateOfJoining,
+                    StaffType = StaffType.Trim(),
                     Designation = Designation.Trim(),
                     Salary = salary,
                     Address = Address?.Trim(),

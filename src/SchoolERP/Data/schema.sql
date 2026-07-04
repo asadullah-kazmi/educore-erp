@@ -104,6 +104,7 @@ BEGIN
         DOB DATE NULL,
         ContactNumber NVARCHAR(50) NULL,
         DateOfJoining DATE NULL,
+        StaffType NVARCHAR(100) NULL DEFAULT('Teacher'),
         Designation NVARCHAR(150) NULL,
         Salary DECIMAL(18,2) NULL,
         Address NVARCHAR(1000) NULL,

@@ -9,6 +9,7 @@ namespace SchoolERP.Models
         public System.DateTime? DOB { get; set; }
         public string ContactNumber { get; set; }
         public System.DateTime? DateOfJoining { get; set; }
+        public string StaffType { get; set; }
         public string Designation { get; set; }
         public decimal Salary { get; set; }
         public string Address { get; set; }

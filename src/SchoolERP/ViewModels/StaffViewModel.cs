@@ -18,6 +18,7 @@ namespace SchoolERP.ViewModels
         public DateTime? DOB { get; set; }
         public string ContactNumber { get; set; }
         public DateTime? DateOfJoining { get; set; }
+        public string StaffType { get; set; }
         public string Designation { get; set; }
         public decimal Salary { get; set; }
         public string Address { get; set; }
@@ -74,6 +75,7 @@ namespace SchoolERP.ViewModels
                 DOB = teacher.DOB,
                 ContactNumber = teacher.ContactNumber,
                 DateOfJoining = teacher.DateOfJoining,
+                StaffType = teacher.StaffType,
                 Designation = teacher.Designation,
                 Salary = teacher.Salary,
                 Address = teacher.Address,
@@ -105,6 +107,7 @@ namespace SchoolERP.ViewModels
                 DOB = DOB,
                 ContactNumber = ContactNumber,
                 DateOfJoining = DateOfJoining,
+                StaffType = StaffType,
                 Designation = Designation,
                 Salary = Salary,
                 Address = Address,

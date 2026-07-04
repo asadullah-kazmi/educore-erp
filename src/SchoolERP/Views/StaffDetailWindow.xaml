@@ -68,6 +68,10 @@
                                FontSize="14"
                                Foreground="#D6E2F2"
                                Margin="0,4,0,0"/>
+                    <TextBlock Text="{Binding StaffType}"
+                               FontSize="13"
+                               Foreground="#AFC3DF"
+                               Margin="0,2,0,0"/>
                 </StackPanel>
             </Border>
 
@@ -99,60 +103,66 @@
                     </Border>
                     <Border Grid.Row="0" Grid.Column="1" Style="{StaticResource InfoCardStyle}">
                         <StackPanel>
+                            <TextBlock Text="Staff Type" Style="{StaticResource CardLabelStyle}"/>
+                            <TextBlock Text="{Binding StaffType, TargetNullValue='Teacher'}" Style="{StaticResource CardValueStyle}"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Grid.Row="1" Grid.Column="0" Style="{StaticResource InfoCardStyle}">
+                        <StackPanel>
                             <TextBlock Text="Designation" Style="{StaticResource CardLabelStyle}"/>
                             <TextBlock Text="{Binding Designation}" Style="{StaticResource CardValueStyle}"/>
                         </StackPanel>
                     </Border>
-                    <Border Grid.Row="1" Grid.Column="0" Style="{StaticResource InfoCardStyle}">
+                    <Border Grid.Row="1" Grid.Column="1" Style="{StaticResource InfoCardStyle}">
                         <StackPanel>
                             <TextBlock Text="Base Salary" Style="{StaticResource CardLabelStyle}"/>
                             <TextBlock Text="{Binding SalaryDisplay}" Style="{StaticResource CardValueStyle}"/>
                         </StackPanel>
                     </Border>
-                    <Border Grid.Row="1" Grid.Column="1" Style="{StaticResource InfoCardStyle}">
+                    <Border Grid.Row="2" Grid.Column="0" Style="{StaticResource InfoCardStyle}">
                         <StackPanel>
                             <TextBlock Text="Fingerprint ID" Style="{StaticResource CardLabelStyle}"/>
                             <TextBlock Text="{Binding FingerprintId, TargetNullValue='Not Assigned'}"
                                        Style="{StaticResource CardValueStyle}"/>
                         </StackPanel>
                     </Border>
-                    <Border Grid.Row="2" Grid.Column="0" Style="{StaticResource InfoCardStyle}">
+                    <Border Grid.Row="2" Grid.Column="1" Style="{StaticResource InfoCardStyle}">
                         <StackPanel>
                             <TextBlock Text="DOB" Style="{StaticResource CardLabelStyle}"/>
                             <TextBlock Text="{Binding DOBDisplay}" Style="{StaticResource CardValueStyle}"/>
                         </StackPanel>
                     </Border>
-                    <Border Grid.Row="2" Grid.Column="1" Style="{StaticResource InfoCardStyle}">
+                    <Border Grid.Row="3" Grid.Column="0" Style="{StaticResource InfoCardStyle}">
                         <StackPanel>
                             <TextBlock Text="Age" Style="{StaticResource CardLabelStyle}"/>
                             <TextBlock Text="{Binding Age, TargetNullValue='-'}" Style="{StaticResource CardValueStyle}"/>
                         </StackPanel>
                     </Border>
-                    <Border Grid.Row="3" Grid.Column="0" Style="{StaticResource InfoCardStyle}">
+                    <Border Grid.Row="3" Grid.Column="1" Style="{StaticResource InfoCardStyle}">
                         <StackPanel>
                             <TextBlock Text="Contact Number" Style="{StaticResource CardLabelStyle}"/>
                             <TextBlock Text="{Binding ContactNumber, TargetNullValue='-'}" Style="{StaticResource CardValueStyle}"/>
                         </StackPanel>
                     </Border>
-                    <Border Grid.Row="3" Grid.Column="1" Style="{StaticResource InfoCardStyle}">
+                    <Border Grid.Row="4" Grid.Column="0" Style="{StaticResource InfoCardStyle}">
                         <StackPanel>
                             <TextBlock Text="Date of Joining" Style="{StaticResource CardLabelStyle}"/>
                             <TextBlock Text="{Binding DateOfJoiningDisplay}" Style="{StaticResource CardValueStyle}"/>
                         </StackPanel>
                     </Border>
-                    <Border Grid.Row="4" Grid.Column="0" Style="{StaticResource InfoCardStyle}">
+                    <Border Grid.Row="4" Grid.Column="1" Style="{StaticResource InfoCardStyle}">
                         <StackPanel>
                             <TextBlock Text="Experience" Style="{StaticResource CardLabelStyle}"/>
                             <TextBlock Text="{Binding Experience, TargetNullValue='-'}" Style="{StaticResource CardValueStyle}"/>
                         </StackPanel>
                     </Border>
-                    <Border Grid.Row="4" Grid.Column="1" Style="{StaticResource InfoCardStyle}">
+                    <Border Grid.Row="5" Grid.Column="0" Style="{StaticResource InfoCardStyle}">
                         <StackPanel>
                             <TextBlock Text="CNIC Number" Style="{StaticResource CardLabelStyle}"/>
                             <TextBlock Text="{Binding CnicNumber, TargetNullValue='-'}" Style="{StaticResource CardValueStyle}"/>
                         </StackPanel>
                     </Border>
-                    <Border Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="2" Style="{StaticResource InfoCardStyle}">
+                    <Border Grid.Row="5" Grid.Column="1" Style="{StaticResource InfoCardStyle}">
                         <StackPanel>
                             <TextBlock Text="Address" Style="{StaticResource CardLabelStyle}"/>
                             <TextBlock Text="{Binding Address, TargetNullValue='-'}" TextWrapping="Wrap" Style="{StaticResource CardValueStyle}"/>
