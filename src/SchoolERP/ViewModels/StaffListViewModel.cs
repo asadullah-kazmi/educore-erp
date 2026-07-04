@@ -14,11 +14,13 @@ namespace SchoolERP.ViewModels
     {
         private readonly StaffRepository repository = new StaffRepository();
         private string searchText = string.Empty;
+        private string selectedStaffType = "All Staff Types";
 
         public StaffListViewModel()
         {
             Staff = new ObservableCollection<StaffViewModel>();
             FilteredStaff = new ObservableCollection<StaffViewModel>();
+            StaffTypeOptions = new ObservableCollection<string> { "All Staff Types" };
 
             AddStaffCommand = new RelayCommand(_ => OpenAddStaff(), _ => CanAddStaff);
             LoadStaffCommand = new RelayCommand(async _ => await LoadStaffAsync());
@@ -57,12 +59,26 @@ namespace SchoolERP.ViewModels
 
         public ObservableCollection<StaffViewModel> FilteredStaff { get; }
 
+        public ObservableCollection<string> StaffTypeOptions { get; }
+
         public string SearchText
         {
             get => searchText;
             set
             {
                 if (SetProperty(ref searchText, value))
+                {
+                    ApplyFilter();
+                }
+            }
+        }
+
+        public string SelectedStaffType
+        {
+            get => selectedStaffType;
+            set
+            {
+                if (SetProperty(ref selectedStaffType, value))
                 {
                     ApplyFilter();
                 }
@@ -98,6 +114,7 @@ namespace SchoolERP.ViewModels
                     Staff.Add(member);
                 }
 
+                RefreshStaffTypeOptions();
                 ApplyFilter();
                 OnPropertyChanged(nameof(StatusText));
             }
@@ -110,15 +127,24 @@ namespace SchoolERP.ViewModels
         private void ApplyFilter()
         {
             var query = (SearchText ?? string.Empty).Trim();
+            var staffType = (SelectedStaffType ?? string.Empty).Trim();
 
             FilteredStaff.Clear();
 
-            var filtered = string.IsNullOrEmpty(query)
-                ? Staff
-                : Staff.Where(s =>
+            var filtered = Staff.AsEnumerable();
+
+            if (!string.IsNullOrEmpty(staffType) && !string.Equals(staffType, "All Staff Types", StringComparison.OrdinalIgnoreCase))
+            {
+                filtered = filtered.Where(s => string.Equals(GetStaffTypeValue(s), staffType, StringComparison.OrdinalIgnoreCase));
+            }
+
+            if (!string.IsNullOrEmpty(query))
+            {
+                filtered = filtered.Where(s =>
                     ContainsText(s.Name, query) ||
                     ContainsText(s.StaffType, query) ||
                     ContainsText(s.Designation, query));
+            }
 
             foreach (var member in filtered)
             {
@@ -126,6 +152,23 @@ namespace SchoolERP.ViewModels
             }
 
             OnPropertyChanged(nameof(StatusText));
+        }
+
+        private void RefreshStaffTypeOptions()
+        {
+            var selected = SelectedStaffType;
+            StaffTypeOptions.Clear();
+            StaffTypeOptions.Add("All Staff Types");
+
+            foreach (var staffType in Staff
+                .Select(GetStaffTypeValue)
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .OrderBy(type => type))
+            {
+                StaffTypeOptions.Add(staffType);
+            }
+
+            SelectedStaffType = StaffTypeOptions.Contains(selected) ? selected : "All Staff Types";
         }
 
         private void OpenAddStaff()
@@ -149,6 +192,13 @@ namespace SchoolERP.ViewModels
         {
             return !string.IsNullOrWhiteSpace(value) &&
                    value.IndexOf(query, StringComparison.OrdinalIgnoreCase) >= 0;
+        }
+
+        private static string GetStaffTypeValue(StaffViewModel staff)
+        {
+            return string.IsNullOrWhiteSpace(staff?.StaffType)
+                ? "Teacher"
+                : staff.StaffType.Trim();
         }
     }
 }

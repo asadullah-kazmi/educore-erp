@@ -302,53 +302,6 @@
                     </StackPanel>
                 </Border>
 
-                <Border Style="{StaticResource PanelStyle}"
-                        MinWidth="380"
-                        MaxWidth="620"
-                        Margin="0,0,0,16">
-                    <StackPanel>
-                        <Grid Margin="0,0,0,22">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="Auto" />
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Text="Staff Attendance"
-                                       FontSize="18"
-                                       FontWeight="SemiBold"
-                                       Foreground="#0F172A" />
-                            <TextBlock Text="{Binding AttendanceMarkedCount, StringFormat='{}{0} marks'}"
-                                       Grid.Column="1"
-                                       Foreground="#64748B"
-                                       Margin="20,4,0,0" />
-                        </Grid>
-
-                        <WrapPanel>
-                            <Border Background="#ECFDF5" Style="{StaticResource PanelMetricTileStyle}" MinWidth="180" MinHeight="128">
-                                <StackPanel HorizontalAlignment="Center">
-                                    <TextBlock Text="Present" Style="{StaticResource SmallLabelStyle}" HorizontalAlignment="Center" />
-                                    <TextBlock Text="{Binding PresentTodayCount}" FontSize="34" FontWeight="Bold" Foreground="#047857" HorizontalAlignment="Center" Margin="0,4,0,0" />
-                                </StackPanel>
-                            </Border>
-
-                            <Border Background="#FEF2F2" Style="{StaticResource PanelMetricTileStyle}" MinWidth="180" MinHeight="128">
-                                <StackPanel HorizontalAlignment="Center">
-                                    <TextBlock Text="Absent" Style="{StaticResource SmallLabelStyle}" HorizontalAlignment="Center" />
-                                    <TextBlock Text="{Binding AbsentTodayCount}" FontSize="34" FontWeight="Bold" Foreground="#DC2626" HorizontalAlignment="Center" Margin="0,4,0,0" />
-                                </StackPanel>
-                            </Border>
-                        </WrapPanel>
-
-                        <TextBlock Text="{Binding AttendanceRate, StringFormat='Presence rate {0:P0}'}"
-                                   FontWeight="SemiBold"
-                                   Foreground="#334155"
-                                   Margin="0,18,0,8" />
-                        <ProgressBar Height="10"
-                                     Maximum="1"
-                                     Value="{Binding AttendanceRate}"
-                                     Foreground="#2563EB"
-                                     Background="#E2E8F0" />
-                    </StackPanel>
-                </Border>
             </WrapPanel>
 
             <Border Style="{StaticResource PanelStyle}" Margin="0,16,0,0">

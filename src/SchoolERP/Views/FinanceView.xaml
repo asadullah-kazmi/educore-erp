@@ -334,7 +334,7 @@
             </TabItem>
 
             <!-- TAB 3 — Summary -->
-            <TabItem Header="Summary">
+            <TabItem Header="Summary" Visibility="Collapsed">
                 <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="0,4,8,4">
                     <StackPanel>
 

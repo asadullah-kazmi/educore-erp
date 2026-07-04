@@ -1,4 +1,5 @@
 using System;
+using System.Collections.ObjectModel;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Globalization;
@@ -25,6 +26,8 @@ namespace SchoolERP.ViewModels
         private decimal feesDueThisMonth;
         private int presentTodayCount;
         private int absentTodayCount;
+        private int notMarkedStaffCount;
+        private int expectedAttendanceMarks;
         private decimal totalExpenses;
         private decimal salariesPaid;
         private decimal netBalance;
@@ -56,6 +59,7 @@ namespace SchoolERP.ViewModels
 
             RefreshCommand = new RelayCommand(_ => LoadStats(), _ => !IsBusy);
             ApplyCustomRangeCommand = new RelayCommand(_ => ApplyCustomRange(), _ => !IsBusy && IsCustomPeriod);
+            AttendanceChartPoints = new ObservableCollection<AttendanceChartPoint>();
 
             selectedPeriod = ThisMonthPeriod;
             SetDateRangeForSelectedPeriod();
@@ -67,6 +71,8 @@ namespace SchoolERP.ViewModels
         public ICommand RefreshCommand { get; }
 
         public ICommand ApplyCustomRangeCommand { get; }
+
+        public ObservableCollection<AttendanceChartPoint> AttendanceChartPoints { get; }
 
         public int TotalStudents
         {
@@ -110,6 +116,18 @@ namespace SchoolERP.ViewModels
             set => SetProperty(ref absentTodayCount, value);
         }
 
+        public int NotMarkedStaffCount
+        {
+            get => notMarkedStaffCount;
+            set => SetProperty(ref notMarkedStaffCount, value);
+        }
+
+        public int ExpectedAttendanceMarks
+        {
+            get => expectedAttendanceMarks;
+            set => SetProperty(ref expectedAttendanceMarks, value);
+        }
+
         public decimal TotalExpenses
         {
             get => totalExpenses;
@@ -149,8 +167,22 @@ namespace SchoolERP.ViewModels
         public decimal AttendanceRate
         {
             get => attendanceRate;
-            set => SetProperty(ref attendanceRate, value);
+            set
+            {
+                if (SetProperty(ref attendanceRate, value))
+                {
+                    OnPropertyChanged(nameof(AttendancePercentText));
+                }
+            }
         }
+
+        public decimal AbsentAttendanceRate =>
+            ExpectedAttendanceMarks > 0 ? (decimal)AbsentTodayCount / ExpectedAttendanceMarks : 0m;
+
+        public decimal NotMarkedAttendanceRate =>
+            ExpectedAttendanceMarks > 0 ? (decimal)NotMarkedStaffCount / ExpectedAttendanceMarks : 0m;
+
+        public string AttendancePercentText => AttendanceRate.ToString("P0", CultureInfo.CurrentCulture);
 
         public decimal AverageDailyCollection
         {
@@ -297,6 +329,7 @@ namespace SchoolERP.ViewModels
                 LoadOverviewStats();
                 LoadFinanceStats();
                 LoadAttendanceStats();
+                LoadAttendanceChart();
                 LoadAdmissionsStats();
                 UpdateDerivedStats();
                 UpdateDateRangeLabel();
@@ -424,25 +457,94 @@ SELECT
     SUM(CASE WHEN Status = 'Absent' THEN 1 ELSE 0 END) AS AbsentCount,
     COUNT(*) AS MarkedCount
 FROM dbo.Attendance
-WHERE [Date] BETWEEN @From AND @To
+WHERE [Date] >= @From
+  AND [Date] < @ToExclusive
+  AND TeacherID IS NOT NULL;
+
+SELECT
+    SUM(CASE WHEN Status = 'Present' THEN 1 ELSE 0 END) AS PresentCount,
+    SUM(CASE WHEN Status = 'Absent' THEN 1 ELSE 0 END) AS AbsentCount
+FROM dbo.Attendance
+WHERE [Date] >= @SummaryDate
+  AND [Date] < @SummaryDateExclusive
   AND TeacherID IS NOT NULL;";
 
             using (var connection = Database.GetConnection())
             using (var command = new SqlCommand(sql, connection))
             {
                 command.Parameters.AddWithValue("@From", fromDate.Date);
-                command.Parameters.AddWithValue("@To", toDate.Date);
+                command.Parameters.AddWithValue("@ToExclusive", toDate.Date.AddDays(1));
+                command.Parameters.AddWithValue("@SummaryDate", toDate.Date);
+                command.Parameters.AddWithValue("@SummaryDateExclusive", toDate.Date.AddDays(1));
 
                 connection.Open();
                 using (var reader = command.ExecuteReader())
                 {
                     if (reader.Read())
                     {
-                        PresentTodayCount = ToInt(reader["PresentCount"]);
-                        AbsentTodayCount = ToInt(reader["AbsentCount"]);
                         AttendanceMarkedCount = ToInt(reader["MarkedCount"]);
                     }
+
+                    if (reader.NextResult() && reader.Read())
+                    {
+                        PresentTodayCount = ToInt(reader["PresentCount"]);
+                        AbsentTodayCount = ToInt(reader["AbsentCount"]);
+                    }
                 }
+            }
+        }
+
+        private void LoadAttendanceChart()
+        {
+            AttendanceChartPoints.Clear();
+
+            var chartFrom = toDate.Date.AddDays(-6);
+            if (chartFrom < fromDate.Date)
+            {
+                chartFrom = fromDate.Date;
+            }
+
+            const string sql = @"
+SELECT CAST([Date] AS DATE) AS AttendanceDate,
+       SUM(CASE WHEN Status = 'Present' THEN 1 ELSE 0 END) AS PresentCount,
+       SUM(CASE WHEN Status = 'Absent' THEN 1 ELSE 0 END) AS AbsentCount
+FROM dbo.Attendance
+WHERE [Date] >= @From
+  AND [Date] < @ToExclusive
+  AND TeacherID IS NOT NULL
+GROUP BY CAST([Date] AS DATE);";
+
+            var daily = new Dictionary<DateTime, DailyAttendanceCounts>();
+
+            using (var connection = Database.GetConnection())
+            using (var command = new SqlCommand(sql, connection))
+            {
+                command.Parameters.AddWithValue("@From", chartFrom);
+                command.Parameters.AddWithValue("@ToExclusive", toDate.Date.AddDays(1));
+
+                connection.Open();
+                using (var reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        var date = Convert.ToDateTime(reader["AttendanceDate"]).Date;
+                        daily[date] = new DailyAttendanceCounts
+                        {
+                            Present = ToInt(reader["PresentCount"]),
+                            Absent = ToInt(reader["AbsentCount"])
+                        };
+                    }
+                }
+            }
+
+            var maxDailyMarks = Math.Max(1, TotalTeachers);
+            for (var date = chartFrom; date <= toDate.Date; date = date.AddDays(1))
+            {
+                daily.TryGetValue(date, out var counts);
+                var present = counts?.Present ?? 0;
+                var absent = counts?.Absent ?? 0;
+                var notMarked = Math.Max(0, TotalTeachers - present - absent);
+                AttendanceChartPoints.Add(new AttendanceChartPoint(date, present, absent, notMarked, maxDailyMarks));
             }
         }
 
@@ -471,9 +573,13 @@ WHERE AdmissionDate BETWEEN @From AND @To;";
             CollectionRate = expectedFees > 0 ? FeesPaidThisMonth / expectedFees : 0m;
 
             var attendanceTotal = PresentTodayCount + AbsentTodayCount;
-            AttendanceRate = attendanceTotal > 0 ? (decimal)PresentTodayCount / attendanceTotal : 0m;
-
             var totalDays = Math.Max(1, (toDate.Date - fromDate.Date).Days + 1);
+            ExpectedAttendanceMarks = TotalTeachers;
+            NotMarkedStaffCount = Math.Max(0, ExpectedAttendanceMarks - attendanceTotal);
+            AttendanceRate = ExpectedAttendanceMarks > 0 ? (decimal)PresentTodayCount / ExpectedAttendanceMarks : 0m;
+            OnPropertyChanged(nameof(AbsentAttendanceRate));
+            OnPropertyChanged(nameof(NotMarkedAttendanceRate));
+
             AverageDailyCollection = FeesPaidThisMonth / totalDays;
         }
 
@@ -533,6 +639,61 @@ WHERE AdmissionDate BETWEEN @From AND @To;";
             }
 
             public string Condition { get; }
+        }
+
+        private class DailyAttendanceCounts
+        {
+            public int Present { get; set; }
+
+            public int Absent { get; set; }
+        }
+    }
+
+    public class AttendanceChartPoint
+    {
+        private const double ChartHeight = 170;
+
+        public AttendanceChartPoint(DateTime date, int present, int absent, int notMarked, int maxDailyMarks)
+        {
+            Date = date;
+            Present = present;
+            Absent = absent;
+            NotMarked = notMarked;
+            MaxDailyMarks = Math.Max(1, maxDailyMarks);
+        }
+
+        public DateTime Date { get; }
+
+        public int Present { get; }
+
+        public int Absent { get; }
+
+        public int NotMarked { get; }
+
+        public int Total => Present + Absent + NotMarked;
+
+        public int MaxDailyMarks { get; }
+
+        public string DayLabel => Date.ToString("ddd", CultureInfo.CurrentCulture);
+
+        public string ShortDateLabel => Date.ToString("dd MMM", CultureInfo.CurrentCulture);
+
+        public string ToolTipText => $"{ShortDateLabel}: Present {Present}, Absent {Absent}, Not Marked {NotMarked}";
+
+        public double PresentHeight => GetHeight(Present);
+
+        public double AbsentHeight => GetHeight(Absent);
+
+        public double NotMarkedHeight => GetHeight(NotMarked);
+
+        private double GetHeight(int value)
+        {
+            if (value <= 0)
+            {
+                return 0;
+            }
+
+            return ChartHeight * value / MaxDailyMarks;
         }
     }
 }
