@@ -1,0 +1,225 @@
+<UserControl x:Class="SchoolERP.Views.ExamSlipsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Background="Transparent">
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVisibility"/>
+        <Style x:Key="PrimaryButtonStyle" TargetType="Button">
+            <Setter Property="Height" Value="38"/>
+            <Setter Property="Padding" Value="16,0"/>
+            <Setter Property="Background" Value="#001A3F"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Root" Background="{TemplateBinding Background}" CornerRadius="10">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Root" Property="Background" Value="#0A234F"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="Root" Property="Opacity" Value="0.45"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="GreenButtonStyle" TargetType="Button" BasedOn="{StaticResource PrimaryButtonStyle}">
+            <Setter Property="Background" Value="#22C55E"/>
+        </Style>
+        <Style x:Key="PurpleButtonStyle" TargetType="Button" BasedOn="{StaticResource PrimaryButtonStyle}">
+            <Setter Property="Background" Value="#6366F1"/>
+        </Style>
+        <Style x:Key="ActionButtonStyle" TargetType="Button" BasedOn="{StaticResource PrimaryButtonStyle}">
+            <Setter Property="MinWidth" Value="112"/>
+            <Setter Property="Padding" Value="12,0"/>
+            <Setter Property="Margin" Value="0,0,8,0"/>
+            <Setter Property="FontSize" Value="12"/>
+        </Style>
+        <Style x:Key="FilterFieldStyle" TargetType="StackPanel">
+            <Setter Property="Width" Value="195"/>
+            <Setter Property="Margin" Value="0,0,12,8"/>
+        </Style>
+        <Style x:Key="IconButtonStyle" TargetType="Button">
+            <Setter Property="Width" Value="34"/>
+            <Setter Property="Height" Value="34"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Root" Background="{TemplateBinding Background}" CornerRadius="8">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Root" Property="Background" Value="#F1F5F9"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="ModuleDataGridStyle" TargetType="DataGrid">
+            <Setter Property="AutoGenerateColumns" Value="False"/>
+            <Setter Property="CanUserAddRows" Value="False"/>
+            <Setter Property="CanUserDeleteRows" Value="False"/>
+            <Setter Property="IsReadOnly" Value="True"/>
+            <Setter Property="HeadersVisibility" Value="Column"/>
+            <Setter Property="GridLinesVisibility" Value="Horizontal"/>
+            <Setter Property="HorizontalGridLinesBrush" Value="#E2E8F0"/>
+            <Setter Property="BorderBrush" Value="#E2E8F0"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="RowBackground" Value="White"/>
+            <Setter Property="AlternatingRowBackground" Value="#F8FAFC"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="RowHeight" Value="42"/>
+            <Setter Property="ColumnHeaderHeight" Value="40"/>
+            <Setter Property="HorizontalScrollBarVisibility" Value="Auto"/>
+            <Setter Property="VerticalScrollBarVisibility" Value="Auto"/>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <DockPanel Grid.Row="0" Margin="0,0,0,12" LastChildFill="False">
+            <TextBlock Text="Exam Slips"
+                       FontSize="24"
+                       FontWeight="Bold"
+                       Foreground="#0F172A"
+                       VerticalAlignment="Center"
+                       DockPanel.Dock="Left"/>
+            <WrapPanel HorizontalAlignment="Right"
+                       VerticalAlignment="Center"
+                       DockPanel.Dock="Right">
+                <Button Content="Generate Slips"
+                        Command="{Binding GenerateCommand}"
+                        Background="#22C55E"
+                        Style="{StaticResource ActionButtonStyle}"/>
+                <Button Content="Print Selected"
+                        Command="{Binding PrintSelectedCommand}"
+                        Style="{StaticResource ActionButtonStyle}"/>
+                <Button Content="Print All"
+                        Command="{Binding PrintAllCommand}"
+                        Background="#6366F1"
+                        Style="{StaticResource ActionButtonStyle}"
+                        Margin="0"/>
+            </WrapPanel>
+        </DockPanel>
+
+        <WrapPanel Grid.Row="1" Margin="0,0,0,8">
+            <StackPanel Style="{StaticResource FilterFieldStyle}">
+                <TextBlock Text="Term" Foreground="#64748B" FontWeight="SemiBold" Margin="0,0,0,4"/>
+                <ComboBox Height="36"
+                          ItemsSource="{Binding TermOptions}"
+                          SelectedItem="{Binding SelectedTerm}"
+                          VerticalContentAlignment="Center"/>
+            </StackPanel>
+            <StackPanel Style="{StaticResource FilterFieldStyle}">
+                <TextBlock Text="Fee Month" Foreground="#64748B" FontWeight="SemiBold" Margin="0,0,0,4"/>
+                <ComboBox Height="36"
+                          ItemsSource="{Binding MonthOptions}"
+                          SelectedItem="{Binding SelectedFeeMonth}"
+                          VerticalContentAlignment="Center"/>
+            </StackPanel>
+            <StackPanel Style="{StaticResource FilterFieldStyle}">
+                <TextBlock Text="Class" Foreground="#64748B" FontWeight="SemiBold" Margin="0,0,0,4"/>
+                <ComboBox Height="36"
+                          ItemsSource="{Binding ClassOptions}"
+                          SelectedItem="{Binding SelectedClass}"
+                          VerticalContentAlignment="Center"/>
+            </StackPanel>
+            <StackPanel Style="{StaticResource FilterFieldStyle}">
+                <TextBlock Text="Section" Foreground="#64748B" FontWeight="SemiBold" Margin="0,0,0,4"/>
+                <ComboBox Height="36"
+                          ItemsSource="{Binding SectionOptions}"
+                          SelectedItem="{Binding SelectedSection}"
+                          VerticalContentAlignment="Center"/>
+            </StackPanel>
+            <Button Content="Refresh"
+                    Command="{Binding LoadCommand}"
+                    Style="{StaticResource PrimaryButtonStyle}"
+                    MinWidth="100"
+                    Margin="0,20,0,8"/>
+        </WrapPanel>
+
+        <Border Grid.Row="2"
+                BorderBrush="#10B981"
+                BorderThickness="4,1,1,1"
+                CornerRadius="12"
+                Padding="12"
+                Margin="0,0,0,8"
+                Background="White">
+            <WrapPanel>
+                <StackPanel MinWidth="180" Margin="0,0,24,0">
+                    <TextBlock Text="Eligible Paid Students" Foreground="#64748B"/>
+                    <TextBlock Text="{Binding EligibleStudentCount}" FontSize="22" FontWeight="Bold" Foreground="#0F172A"/>
+                </StackPanel>
+                <StackPanel MinWidth="180" Margin="0,0,24,0">
+                    <TextBlock Text="Generated Slips" Foreground="#64748B"/>
+                    <TextBlock Text="{Binding ExamSlips.Count}" FontSize="22" FontWeight="Bold" Foreground="#0F172A"/>
+                </StackPanel>
+                <TextBlock Text="Only students with fully paid monthly tuition for the selected fee month are eligible."
+                           Foreground="#64748B"
+                           VerticalAlignment="Center"
+                           TextWrapping="Wrap"
+                           MaxWidth="560"/>
+            </WrapPanel>
+        </Border>
+
+        <DataGrid Grid.Row="3"
+                  ItemsSource="{Binding ExamSlips}"
+                  SelectedItem="{Binding SelectedSlip}"
+                  MinHeight="260"
+                  Style="{StaticResource ModuleDataGridStyle}">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Exam No" Binding="{Binding ExamNumber}" Width="100"/>
+                <DataGridTextColumn Header="Student" Binding="{Binding StudentName}" Width="*"/>
+                <DataGridTextColumn Header="Father" Binding="{Binding FatherName}" Width="*"/>
+                <DataGridTextColumn Header="Reg No" Binding="{Binding RegistrationNo}" Width="130"/>
+                <DataGridTextColumn Header="Class" Binding="{Binding ClassName}" Width="110"/>
+                <DataGridTextColumn Header="Section" Binding="{Binding Section}" Width="80"/>
+                <DataGridTextColumn Header="Fee Paid" Binding="{Binding FeeStatusDisplay}" Width="120"/>
+                <DataGridTextColumn Header="Generated" Binding="{Binding GeneratedOnDisplay}" Width="120"/>
+                <DataGridTemplateColumn Header="Actions" Width="90">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Button Style="{StaticResource IconButtonStyle}"
+                                    Click="ViewSlip_Click"
+                                    ToolTip="View exam slip">
+                                <TextBlock Text="&#xE890;"
+                                           FontFamily="Segoe MDL2 Assets"
+                                           FontSize="16"
+                                           Foreground="#001A3F"/>
+                            </Button>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <DockPanel Grid.Row="4" Margin="0,8,0,0">
+            <TextBlock Text="{Binding StatusMessage}"
+                       Foreground="#DC2626"
+                       VerticalAlignment="Center"/>
+            <TextBlock Text="Loading..."
+                       DockPanel.Dock="Right"
+                       Foreground="#64748B"
+                       Visibility="{Binding IsBusy, Converter={StaticResource BoolToVisibility}}"/>
+        </DockPanel>
+    </Grid>
+</UserControl>

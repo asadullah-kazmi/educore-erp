@@ -133,6 +133,105 @@ namespace SchoolERP.Services
             printDialog.PrintDocument(((IDocumentPaginatorSource)document).DocumentPaginator, "Finance Summary Report");
         }
 
+        public static void PrintExamSlips(IEnumerable<ExamSlip> slips, string termName, string feeMonth)
+        {
+            var list = slips?.ToList() ?? new List<ExamSlip>();
+            if (list.Count == 0)
+            {
+                return;
+            }
+
+            var printDialog = new PrintDialog();
+            if (printDialog.ShowDialog() != true)
+            {
+                return;
+            }
+
+            var document = new FlowDocument
+            {
+                PagePadding = new Thickness(40),
+                FontFamily = new FontFamily("Segoe UI"),
+                FontSize = 12
+            };
+
+            document.Blocks.Add(new Paragraph(new Run("Exam Slips - " + termName + " - " + feeMonth))
+            {
+                FontSize = 18,
+                FontWeight = FontWeights.Bold,
+                Margin = new Thickness(0, 0, 0, 18)
+            });
+
+            foreach (var slip in list)
+            {
+                var border = new Border
+                {
+                    BorderBrush = Brushes.Black,
+                    BorderThickness = new Thickness(1),
+                    Padding = new Thickness(14),
+                    Margin = new Thickness(0, 0, 0, 14)
+                };
+
+                var panel = new StackPanel();
+                panel.Children.Add(new TextBlock
+                {
+                    Text = "GRAMMAR PUBLIC SCHOOL, GHAZIKOT, MANSEHRA",
+                    FontWeight = FontWeights.Bold,
+                    FontSize = 15,
+                    TextAlignment = TextAlignment.Center
+                });
+                panel.Children.Add(new TextBlock
+                {
+                    Text = termName + " Exam Slip",
+                    FontWeight = FontWeights.SemiBold,
+                    FontSize = 13,
+                    Margin = new Thickness(0, 4, 0, 10),
+                    TextAlignment = TextAlignment.Center
+                });
+
+                var grid = new Grid();
+                grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(130) });
+                grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+                grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(130) });
+                grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+
+                AddSlipRow(grid, 0, "Exam No", slip.ExamNumber, "Generated", slip.GeneratedOnDisplay);
+                AddSlipRow(grid, 1, "Student", slip.StudentName, "Father", slip.FatherName);
+                AddSlipRow(grid, 2, "Reg No", slip.RegistrationNo, "Class", slip.ClassName);
+                AddSlipRow(grid, 3, "Section", slip.Section, string.Empty, string.Empty);
+
+                panel.Children.Add(grid);
+
+                border.Child = panel;
+                document.Blocks.Add(new BlockUIContainer(border));
+            }
+
+            printDialog.PrintDocument(((IDocumentPaginatorSource)document).DocumentPaginator, "Exam Slips");
+        }
+
+        private static void AddSlipRow(Grid grid, int row, string leftLabel, string leftValue, string rightLabel, string rightValue)
+        {
+            grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+            AddSlipCell(grid, row, 0, string.IsNullOrWhiteSpace(leftLabel) ? string.Empty : leftLabel + ":", true);
+            AddSlipCell(grid, row, 1, leftValue ?? string.Empty, false);
+            AddSlipCell(grid, row, 2, string.IsNullOrWhiteSpace(rightLabel) ? string.Empty : rightLabel + ":", true);
+            AddSlipCell(grid, row, 3, rightValue ?? string.Empty, false);
+        }
+
+        private static void AddSlipCell(Grid grid, int row, int column, string text, bool isLabel)
+        {
+            var block = new TextBlock
+            {
+                Text = text,
+                FontWeight = isLabel ? FontWeights.SemiBold : FontWeights.Normal,
+                Margin = new Thickness(0, 3, 8, 3),
+                TextWrapping = TextWrapping.Wrap
+            };
+
+            Grid.SetRow(block, row);
+            Grid.SetColumn(block, column);
+            grid.Children.Add(block);
+        }
+
         private static FlowDocument BuildDocument(string title, string[] headers, IEnumerable<string[]> rows)
         {
             var document = new FlowDocument

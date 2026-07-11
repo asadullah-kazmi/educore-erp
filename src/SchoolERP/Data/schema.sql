@@ -161,6 +161,23 @@ BEGIN
 END
 GO
 
+-- Exam Slips
+IF OBJECT_ID('dbo.ExamSlips') IS NULL
+BEGIN
+    CREATE TABLE dbo.ExamSlips (
+        ExamSlipID INT IDENTITY(1,1) PRIMARY KEY,
+        StudentID INT NOT NULL,
+        TermName NVARCHAR(100) NOT NULL,
+        FeeMonth NVARCHAR(20) NOT NULL,
+        ExamNumber NVARCHAR(20) NOT NULL,
+        GeneratedOn DATETIME NOT NULL DEFAULT(GETDATE()),
+        CONSTRAINT FK_ExamSlips_Students FOREIGN KEY(StudentID) REFERENCES dbo.Students(StudentID) ON DELETE CASCADE
+    );
+    CREATE UNIQUE INDEX UX_ExamSlips_Student_Term_Month ON dbo.ExamSlips(StudentID, TermName, FeeMonth);
+    CREATE UNIQUE INDEX UX_ExamSlips_Term_Month_Number ON dbo.ExamSlips(TermName, FeeMonth, ExamNumber);
+END
+GO
+
 -- Expenses
 IF OBJECT_ID('dbo.Expenses') IS NULL
 BEGIN

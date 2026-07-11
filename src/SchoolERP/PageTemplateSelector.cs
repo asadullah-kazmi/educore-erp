@@ -19,6 +19,8 @@ namespace SchoolERP
 
         public DataTemplate ReportsTemplate { get; set; }
 
+        public DataTemplate ExamSlipsTemplate { get; set; }
+
         public override DataTemplate SelectTemplate(object item, DependencyObject container)
         {
             var page = item as string;
@@ -42,6 +44,8 @@ namespace SchoolERP
                     return StaffTemplate;
                 case "Reports":
                     return ReportsTemplate;
+                case "ExamSlips":
+                    return ExamSlipsTemplate;
                 case "Dashboard":
                 default:
                     return DashboardTemplate;

@@ -36,6 +36,9 @@
         <DataTemplate x:Key="ReportsTemplate">
             <views:ReportsView/>
         </DataTemplate>
+        <DataTemplate x:Key="ExamSlipsTemplate">
+            <views:ExamSlipsView/>
+        </DataTemplate>
 
                 <local:PageTemplateSelector x:Key="PageTemplateSelector"
                                                                         DashboardTemplate="{StaticResource DashboardTemplate}"
@@ -44,7 +47,8 @@
                                                                         FinanceTemplate="{StaticResource FinanceTemplate}"
                                                                         AttendanceTemplate="{StaticResource AttendanceTemplate}"
                                                                         StaffTemplate="{StaticResource StaffTemplate}"
-                                                                        ReportsTemplate="{StaticResource ReportsTemplate}" />
+                                                                        ReportsTemplate="{StaticResource ReportsTemplate}"
+                                                                        ExamSlipsTemplate="{StaticResource ExamSlipsTemplate}" />
 
                 <Style x:Key="PageContentStyle"
                            TargetType="ContentControl">
@@ -326,6 +330,24 @@
                                                 <StackPanel Orientation="Horizontal">
                                                         <TextBlock Text="&#xE9D2;" FontFamily="Segoe MDL2 Assets" FontSize="16" Width="24" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/>
                                                         <TextBlock Text="Reports" VerticalAlignment="Center"/>
+                                                </StackPanel>
+                                        </Button>
+                                        <Button Command="{Binding Navigation.NavigateCommand}"
+                                                        CommandParameter="ExamSlips">
+                                                <Button.Style>
+                                                        <Style TargetType="Button" BasedOn="{StaticResource SidebarButtonStyle}">
+                                                                <Style.Triggers>
+                                                                        <DataTrigger Binding="{Binding Navigation.CurrentPage}" Value="ExamSlips">
+                                                                                <Setter Property="Background" Value="#EAF0F8"/>
+                                                                                <Setter Property="Foreground" Value="#001A3F"/>
+                                                                                <Setter Property="FontWeight" Value="Bold"/>
+                                                                        </DataTrigger>
+                                                                </Style.Triggers>
+                                                        </Style>
+                                                </Button.Style>
+                                                <StackPanel Orientation="Horizontal">
+                                                        <TextBlock Text="&#xE8A5;" FontFamily="Segoe MDL2 Assets" FontSize="16" Width="24" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/>
+                                                        <TextBlock Text="Exam Slips" VerticalAlignment="Center"/>
                                                 </StackPanel>
                                         </Button>
                 </StackPanel>
