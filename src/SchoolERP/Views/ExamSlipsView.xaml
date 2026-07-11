@@ -92,6 +92,7 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
@@ -181,7 +182,30 @@
             </WrapPanel>
         </Border>
 
-        <DataGrid Grid.Row="3"
+        <DockPanel Grid.Row="3" Margin="0,0,0,8" LastChildFill="False">
+            <TextBlock Text="Search"
+                       Foreground="#64748B"
+                       FontWeight="SemiBold"
+                       VerticalAlignment="Center"
+                       Margin="0,0,8,0"/>
+            <Grid Width="320">
+                <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                         Height="36"
+                         Padding="34,0,10,0"
+                         VerticalContentAlignment="Center"
+                         ToolTip="Search exam number, student, father, registration number, class or section"/>
+                <TextBlock Text="&#xE721;"
+                           FontFamily="Segoe MDL2 Assets"
+                           FontSize="15"
+                           Foreground="#64748B"
+                           Margin="10,0,0,0"
+                           HorizontalAlignment="Left"
+                           VerticalAlignment="Center"
+                           IsHitTestVisible="False"/>
+            </Grid>
+        </DockPanel>
+
+        <DataGrid Grid.Row="4"
                   ItemsSource="{Binding ExamSlips}"
                   SelectedItem="{Binding SelectedSlip}"
                   MinHeight="260"
@@ -212,7 +236,7 @@
             </DataGrid.Columns>
         </DataGrid>
 
-        <DockPanel Grid.Row="4" Margin="0,8,0,0">
+        <DockPanel Grid.Row="5" Margin="0,8,0,0">
             <TextBlock Text="{Binding StatusMessage}"
                        Foreground="#DC2626"
                        VerticalAlignment="Center"/>

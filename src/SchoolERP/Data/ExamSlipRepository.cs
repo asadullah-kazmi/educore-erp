@@ -35,7 +35,9 @@ END;
 IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'UX_ExamSlips_Student_Term_Month' AND object_id = OBJECT_ID('dbo.ExamSlips'))
     CREATE UNIQUE INDEX UX_ExamSlips_Student_Term_Month ON dbo.ExamSlips(StudentID, TermName, FeeMonth);
 IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'UX_ExamSlips_Term_Month_Number' AND object_id = OBJECT_ID('dbo.ExamSlips'))
-    CREATE UNIQUE INDEX UX_ExamSlips_Term_Month_Number ON dbo.ExamSlips(TermName, FeeMonth, ExamNumber);";
+    CREATE UNIQUE INDEX UX_ExamSlips_Term_Month_Number ON dbo.ExamSlips(TermName, FeeMonth, ExamNumber);
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_ExamSlips_GeneratedOn' AND object_id = OBJECT_ID('dbo.ExamSlips'))
+    CREATE INDEX IX_ExamSlips_GeneratedOn ON dbo.ExamSlips(GeneratedOn);";
 
             using (var connection = Database.GetConnection())
             using (var command = new SqlCommand(sql, connection))
@@ -49,6 +51,7 @@ IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'UX_ExamSlips_Term_Month_N
         public async Task<int> GenerateSlipsAsync(string termName, string feeMonth, string className, string section)
         {
             await EnsureSchemaAsync().ConfigureAwait(false);
+            await DeleteExpiredSlipsAsync().ConfigureAwait(false);
 
             var eligibleStudents = await GetEligibleStudentsWithoutSlipAsync(termName, feeMonth, className, section).ConfigureAwait(false);
             if (eligibleStudents.Count == 0)
@@ -98,6 +101,7 @@ VALUES (@StudentID, @TermName, @FeeMonth, @ExamNumber, GETDATE());";
         public async Task<List<ExamSlip>> GetSlipsAsync(string termName, string feeMonth, string className, string section)
         {
             await EnsureSchemaAsync().ConfigureAwait(false);
+            await DeleteExpiredSlipsAsync().ConfigureAwait(false);
 
             var sql = @"
 SELECT es.ExamSlipID,
@@ -306,6 +310,20 @@ WHERE LTRIM(RTRIM(TermName)) = LTRIM(RTRIM(@TermName))
             }
 
             return numbers;
+        }
+
+        private static async Task DeleteExpiredSlipsAsync()
+        {
+            const string sql = @"
+DELETE FROM dbo.ExamSlips
+WHERE GeneratedOn < DATEADD(MONTH, -2, GETDATE());";
+
+            using (var connection = Database.GetConnection())
+            using (var command = new SqlCommand(sql, connection))
+            {
+                await connection.OpenAsync().ConfigureAwait(false);
+                await command.ExecuteNonQueryAsync().ConfigureAwait(false);
+            }
         }
 
         private static string CreateExamNumber(HashSet<string> usedNumbers)

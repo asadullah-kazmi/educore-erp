@@ -175,6 +175,7 @@ BEGIN
     );
     CREATE UNIQUE INDEX UX_ExamSlips_Student_Term_Month ON dbo.ExamSlips(StudentID, TermName, FeeMonth);
     CREATE UNIQUE INDEX UX_ExamSlips_Term_Month_Number ON dbo.ExamSlips(TermName, FeeMonth, ExamNumber);
+    CREATE INDEX IX_ExamSlips_GeneratedOn ON dbo.ExamSlips(GeneratedOn);
 END
 GO
 

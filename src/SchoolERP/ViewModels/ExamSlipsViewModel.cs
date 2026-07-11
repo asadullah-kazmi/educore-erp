@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
@@ -13,6 +14,7 @@ namespace SchoolERP.ViewModels
     {
         private readonly ExamSlipRepository examSlipRepository = new ExamSlipRepository();
         private readonly StudentRepository studentRepository = new StudentRepository();
+        private readonly List<ExamSlip> loadedExamSlips = new List<ExamSlip>();
 
         private string selectedTerm;
         private string selectedFeeMonth;
@@ -22,6 +24,7 @@ namespace SchoolERP.ViewModels
         private string statusMessage;
         private bool isBusy;
         private int eligibleStudentCount;
+        private string searchText;
 
         public ExamSlipsViewModel()
         {
@@ -145,6 +148,18 @@ namespace SchoolERP.ViewModels
             set => SetProperty(ref eligibleStudentCount, value);
         }
 
+        public string SearchText
+        {
+            get => searchText;
+            set
+            {
+                if (SetProperty(ref searchText, value))
+                {
+                    ApplySearch();
+                }
+            }
+        }
+
         public bool CanGenerate =>
             !string.IsNullOrWhiteSpace(SelectedTerm) &&
             !string.IsNullOrWhiteSpace(SelectedFeeMonth);
@@ -243,17 +258,15 @@ namespace SchoolERP.ViewModels
                     .GetSlipsAsync(SelectedTerm, SelectedFeeMonth, SelectedClass, SelectedSection)
                     .ConfigureAwait(true);
 
-                ExamSlips.Clear();
-                foreach (var slip in slips)
-                {
-                    ExamSlips.Add(slip);
-                }
+                loadedExamSlips.Clear();
+                loadedExamSlips.AddRange(slips);
+                ApplySearch();
 
                 EligibleStudentCount = await examSlipRepository
                     .GetEligibleStudentCountAsync(SelectedFeeMonth, SelectedClass, SelectedSection)
                     .ConfigureAwait(true);
 
-                StatusMessage = "Showing " + ExamSlips.Count + " generated slips. Eligible paid students: " + EligibleStudentCount + ".";
+                UpdateStatusMessage();
                 RefreshCommands();
             }
             catch (Exception ex)
@@ -273,6 +286,44 @@ namespace SchoolERP.ViewModels
             {
                 ReportPrintService.PrintExamSlips(new[] { SelectedSlip }, SelectedTerm, SelectedFeeMonth);
             }
+        }
+
+        private void ApplySearch()
+        {
+            var query = (SearchText ?? string.Empty).Trim();
+            var filtered = string.IsNullOrWhiteSpace(query)
+                ? loadedExamSlips
+                : loadedExamSlips.Where(slip =>
+                    Contains(slip.ExamNumber, query) ||
+                    Contains(slip.StudentName, query) ||
+                    Contains(slip.FatherName, query) ||
+                    Contains(slip.RegistrationNo, query) ||
+                    Contains(slip.ClassName, query) ||
+                    Contains(slip.Section, query));
+
+            ExamSlips.Clear();
+            foreach (var slip in filtered)
+            {
+                ExamSlips.Add(slip);
+            }
+
+            UpdateStatusMessage();
+            RefreshCommands();
+        }
+
+        private static bool Contains(string value, string query)
+        {
+            return !string.IsNullOrWhiteSpace(value) &&
+                   value.IndexOf(query, StringComparison.OrdinalIgnoreCase) >= 0;
+        }
+
+        private void UpdateStatusMessage()
+        {
+            var prefix = string.IsNullOrWhiteSpace(SearchText)
+                ? "Showing " + ExamSlips.Count + " generated slips."
+                : "Showing " + ExamSlips.Count + " of " + loadedExamSlips.Count + " generated slips.";
+
+            StatusMessage = prefix + " Eligible paid students: " + EligibleStudentCount + ".";
         }
 
         private void RefreshCommands()
