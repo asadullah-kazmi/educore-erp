@@ -161,6 +161,25 @@ BEGIN
 END
 GO
 
+-- Fee Receipts (one permanent record per submitted payment)
+IF OBJECT_ID('dbo.FeeReceipts') IS NULL
+BEGIN
+    CREATE TABLE dbo.FeeReceipts (
+        ReceiptID INT IDENTITY(1,1) PRIMARY KEY,
+        ReceiptNumber NVARCHAR(40) NOT NULL,
+        StudentID INT NOT NULL,
+        PaymentDate DATETIME NOT NULL,
+        AmountPaid DECIMAL(18,2) NOT NULL,
+        BalanceAfter DECIMAL(18,2) NOT NULL DEFAULT 0,
+        Details NVARCHAR(1000) NULL,
+        CreatedOn DATETIME NOT NULL DEFAULT(GETDATE()),
+        CONSTRAINT FK_FeeReceipts_Students FOREIGN KEY(StudentID) REFERENCES dbo.Students(StudentID) ON DELETE CASCADE
+    );
+    CREATE UNIQUE INDEX UX_FeeReceipts_ReceiptNumber ON dbo.FeeReceipts(ReceiptNumber);
+    CREATE INDEX IX_FeeReceipts_Student_PaymentDate ON dbo.FeeReceipts(StudentID, PaymentDate DESC);
+END
+GO
+
 -- Exam Slips
 IF OBJECT_ID('dbo.ExamSlips') IS NULL
 BEGIN

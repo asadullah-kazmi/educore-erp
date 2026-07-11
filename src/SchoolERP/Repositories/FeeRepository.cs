@@ -349,9 +349,10 @@ ORDER BY FeeType;";
             }
         }
 
-        public async Task<bool> ApplyPaymentAsync(IList<FeeRecord> fees, decimal paymentAmount, DateTime paymentDate)
+        public async Task<FeeReceipt> ApplyPaymentAsync(IList<FeeRecord> fees, decimal paymentAmount, DateTime paymentDate)
         {
             await EnsureFeePaymentColumnsAsync().ConfigureAwait(false);
+            await ReceiptRepository.EnsureSchemaAsync().ConfigureAwait(false);
 
             if (fees == null)
             {
@@ -369,11 +370,19 @@ SET PaidAmount = @PaidAmount,
     PaymentDate = @PaymentDate
 WHERE FeeID = @FeeID;";
 
+            const string receiptSql = @"
+INSERT INTO dbo.FeeReceipts
+    (ReceiptNumber, StudentID, PaymentDate, AmountPaid, BalanceAfter, Details, CreatedOn)
+VALUES
+    (@ReceiptNumber, @StudentID, @ReceiptPaymentDate, @AmountPaid, @BalanceAfter, @Details, GETDATE());
+SELECT CAST(SCOPE_IDENTITY() AS INT);";
+
             using (var connection = Database.GetConnection())
             {
                 await connection.OpenAsync().ConfigureAwait(false);
                 using (var transaction = connection.BeginTransaction())
                 using (var command = new SqlCommand(sql, connection, transaction))
+                using (var receiptCommand = new SqlCommand(receiptSql, connection, transaction))
                 {
                     command.Parameters.Add("@FeeID", System.Data.SqlDbType.Int);
                     var paidAmountParameter = command.Parameters.Add("@PaidAmount", System.Data.SqlDbType.Decimal);
@@ -386,12 +395,15 @@ WHERE FeeID = @FeeID;";
                     {
                         var remainingPayment = paymentAmount;
                         var updated = 0;
+                        var balanceAfter = 0m;
+                        var receiptDetails = new List<string>();
 
                         foreach (var fee in fees)
                         {
                             if (remainingPayment <= 0)
                             {
-                                break;
+                                balanceAfter += Math.Max(fee.Amount - fee.PaidAmount, 0);
+                                continue;
                             }
 
                             var balance = Math.Max(fee.Amount - fee.PaidAmount, 0);
@@ -410,10 +422,42 @@ WHERE FeeID = @FeeID;";
 
                             updated += await command.ExecuteNonQueryAsync().ConfigureAwait(false);
                             remainingPayment -= amountToApply;
+                            balanceAfter += Math.Max(fee.Amount - newPaidAmount, 0);
+                            receiptDetails.Add((fee.Month ?? "") + " - " + (fee.FeeType ?? "Fee") + " (Rs " + amountToApply.ToString("N0") + ")");
                         }
 
+                        if (updated == 0)
+                        {
+                            transaction.Rollback();
+                            return null;
+                        }
+
+                        var firstFee = fees[0];
+                        var receiptNumber = CreateReceiptNumber(paymentDate);
+                        receiptCommand.Parameters.AddWithValue("@ReceiptNumber", receiptNumber);
+                        receiptCommand.Parameters.AddWithValue("@StudentID", firstFee.StudentID);
+                        receiptCommand.Parameters.AddWithValue("@ReceiptPaymentDate", paymentDate);
+                        receiptCommand.Parameters.AddWithValue("@AmountPaid", paymentAmount - remainingPayment);
+                        receiptCommand.Parameters.AddWithValue("@BalanceAfter", balanceAfter);
+                        receiptCommand.Parameters.AddWithValue("@Details", string.Join(", ", receiptDetails));
+                        var receiptId = Convert.ToInt32(await receiptCommand.ExecuteScalarAsync().ConfigureAwait(false));
+
                         transaction.Commit();
-                        return updated > 0;
+                        return new FeeReceipt
+                        {
+                            ReceiptID = receiptId,
+                            ReceiptNumber = receiptNumber,
+                            StudentID = firstFee.StudentID,
+                            StudentName = firstFee.StudentName,
+                            RegistrationNo = firstFee.RegistrationNo,
+                            ClassName = firstFee.ClassName,
+                            Section = firstFee.Section,
+                            PaymentDate = paymentDate,
+                            AmountPaid = paymentAmount - remainingPayment,
+                            BalanceAfter = balanceAfter,
+                            Details = string.Join(", ", receiptDetails),
+                            CreatedOn = DateTime.Now
+                        };
                     }
                     catch
                     {
@@ -422,6 +466,12 @@ WHERE FeeID = @FeeID;";
                     }
                 }
             }
+        }
+
+        private static string CreateReceiptNumber(DateTime paymentDate)
+        {
+            return "RCP-" + paymentDate.ToString("yyyyMMdd") + "-" +
+                   Guid.NewGuid().ToString("N").Substring(0, 6).ToUpperInvariant();
         }
 
         public async Task<List<FeeRecord>> GetMonthlyTuitionStatusAsync(string month, int? classId = null, string section = null)

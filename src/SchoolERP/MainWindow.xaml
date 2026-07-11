@@ -39,6 +39,9 @@
         <DataTemplate x:Key="ExamSlipsTemplate">
             <views:ExamSlipsView/>
         </DataTemplate>
+        <DataTemplate x:Key="ReceiptsTemplate">
+            <views:ReceiptsView/>
+        </DataTemplate>
 
                 <local:PageTemplateSelector x:Key="PageTemplateSelector"
                                                                         DashboardTemplate="{StaticResource DashboardTemplate}"
@@ -48,7 +51,8 @@
                                                                         AttendanceTemplate="{StaticResource AttendanceTemplate}"
                                                                         StaffTemplate="{StaticResource StaffTemplate}"
                                                                         ReportsTemplate="{StaticResource ReportsTemplate}"
-                                                                        ExamSlipsTemplate="{StaticResource ExamSlipsTemplate}" />
+                                                                        ExamSlipsTemplate="{StaticResource ExamSlipsTemplate}"
+                                                                        ReceiptsTemplate="{StaticResource ReceiptsTemplate}" />
 
                 <Style x:Key="PageContentStyle"
                            TargetType="ContentControl">
@@ -248,6 +252,11 @@
                                                         <Style TargetType="Button" BasedOn="{StaticResource SidebarButtonStyle}">
                                                                 <Style.Triggers>
                                                                         <DataTrigger Binding="{Binding Navigation.CurrentPage}" Value="Fees">
+                                                                                <Setter Property="Background" Value="#EAF0F8"/>
+                                                                                <Setter Property="Foreground" Value="#001A3F"/>
+                                                                                <Setter Property="FontWeight" Value="Bold"/>
+                                                                        </DataTrigger>
+                                                                        <DataTrigger Binding="{Binding Navigation.CurrentPage}" Value="Receipts">
                                                                                 <Setter Property="Background" Value="#EAF0F8"/>
                                                                                 <Setter Property="Foreground" Value="#001A3F"/>
                                                                                 <Setter Property="FontWeight" Value="Bold"/>

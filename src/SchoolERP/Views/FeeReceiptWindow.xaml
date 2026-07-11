@@ -76,7 +76,7 @@
 
                         <StackPanel Grid.Row="0" Grid.Column="0" Margin="0,0,8,0">
                             <TextBlock Text="Receipt No" Style="{StaticResource ReceiptLabelStyle}"/>
-                            <TextBlock Text="{Binding FeeID}" Style="{StaticResource ReceiptValueStyle}"/>
+                            <TextBlock Text="{Binding ReceiptNumber}" Style="{StaticResource ReceiptValueStyle}" TextWrapping="Wrap"/>
                         </StackPanel>
                         <StackPanel Grid.Row="0" Grid.Column="1" Margin="8,0,0,0">
                             <TextBlock Text="Date" Style="{StaticResource ReceiptLabelStyle}"/>
@@ -98,30 +98,26 @@
                         </StackPanel>
 
                         <StackPanel Grid.Row="3" Grid.Column="0" Margin="0,0,8,0">
-                            <TextBlock Text="Month" Style="{StaticResource ReceiptLabelStyle}"/>
-                            <TextBlock Text="{Binding Month}" Style="{StaticResource ReceiptValueStyle}"/>
+                            <TextBlock Text="Section" Style="{StaticResource ReceiptLabelStyle}"/>
+                            <TextBlock Text="{Binding Section}" Style="{StaticResource ReceiptValueStyle}"/>
                         </StackPanel>
                         <StackPanel Grid.Row="3" Grid.Column="1" Margin="8,0,0,0">
-                            <TextBlock Text="Fee Type" Style="{StaticResource ReceiptLabelStyle}"/>
-                            <TextBlock Text="{Binding FeeType}" Style="{StaticResource ReceiptValueStyle}"/>
-                        </StackPanel>
-
-                        <StackPanel Grid.Row="4" Grid.Column="0" Margin="0,0,8,0">
-                            <TextBlock Text="Total Fee" Style="{StaticResource ReceiptLabelStyle}"/>
-                            <TextBlock Text="{Binding Amount, StringFormat='Rs {0:N0}'}" Style="{StaticResource ReceiptValueStyle}"/>
-                        </StackPanel>
-                        <StackPanel Grid.Row="4" Grid.Column="1" Margin="8,0,0,0">
                             <TextBlock Text="Amount Paid" Style="{StaticResource ReceiptLabelStyle}"/>
                             <TextBlock Text="{Binding PaidAmount, StringFormat='Rs {0:N0}'}" Style="{StaticResource ReceiptValueStyle}"/>
                         </StackPanel>
 
+                        <StackPanel Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2">
+                            <TextBlock Text="Payment Details" Style="{StaticResource ReceiptLabelStyle}"/>
+                            <TextBlock Text="{Binding Details}" Style="{StaticResource ReceiptValueStyle}" TextWrapping="Wrap"/>
+                        </StackPanel>
+
                         <StackPanel Grid.Row="5" Grid.Column="0" Margin="0,0,8,0">
-                            <TextBlock Text="Balance" Style="{StaticResource ReceiptLabelStyle}"/>
+                            <TextBlock Text="Remaining Balance" Style="{StaticResource ReceiptLabelStyle}"/>
                             <TextBlock Text="{Binding Balance, StringFormat='Rs {0:N0}'}" Style="{StaticResource ReceiptValueStyle}"/>
                         </StackPanel>
                         <StackPanel Grid.Row="5" Grid.Column="1" Margin="8,0,0,0">
                             <TextBlock Text="Status" Style="{StaticResource ReceiptLabelStyle}"/>
-                            <TextBlock Text="{Binding Status}" FontSize="14" FontWeight="Bold" Foreground="#10B981" Margin="0,0,0,12"/>
+                            <TextBlock Text="Received" FontSize="14" FontWeight="Bold" Foreground="#10B981" Margin="0,0,0,12"/>
                         </StackPanel>
                     </Grid>
 

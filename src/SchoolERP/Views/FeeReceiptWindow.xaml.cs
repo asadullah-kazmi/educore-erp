@@ -7,39 +7,35 @@ namespace SchoolERP.Views
 {
     public class FeeReceiptViewModel
     {
-        public FeeReceiptViewModel(FeeRecord fee)
+        public FeeReceiptViewModel(FeeReceipt receipt)
         {
-            FeeID = fee.FeeID;
-            StudentName = fee.StudentName;
-            RegistrationNo = fee.RegistrationNo;
-            ClassName = fee.ClassName;
-            Month = fee.Month;
-            FeeType = fee.FeeType;
-            Amount = fee.Amount;
-            PaidAmount = fee.PaidAmount;
-            Balance = fee.Balance;
-            Status = fee.Status;
-            ReceiptDate = DateTime.Today;
+            ReceiptNumber = receipt.ReceiptNumber;
+            StudentName = receipt.StudentName;
+            RegistrationNo = receipt.RegistrationNo;
+            ClassName = receipt.ClassName;
+            Section = receipt.Section;
+            Details = receipt.Details;
+            PaidAmount = receipt.AmountPaid;
+            Balance = receipt.BalanceAfter;
+            ReceiptDate = receipt.PaymentDate;
         }
 
-        public int FeeID { get; }
+        public string ReceiptNumber { get; }
         public string StudentName { get; }
         public string RegistrationNo { get; }
         public string ClassName { get; }
-        public string Month { get; }
-        public string FeeType { get; }
-        public decimal Amount { get; }
+        public string Section { get; }
+        public string Details { get; }
         public decimal PaidAmount { get; }
         public decimal Balance { get; }
-        public string Status { get; }
         public DateTime ReceiptDate { get; }
     }
 
     public partial class FeeReceiptWindow : Window
     {
-        public FeeReceiptWindow(FeeRecord fee)
+        public FeeReceiptWindow(FeeReceipt receipt)
         {
-            DataContext = new FeeReceiptViewModel(fee);
+            DataContext = new FeeReceiptViewModel(receipt);
             InitializeComponent();
         }
 

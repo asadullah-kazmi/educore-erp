@@ -17,6 +17,7 @@ namespace SchoolERP.ViewModels
     public class FeesViewModel : ViewModelBase
     {
         private readonly FeeRepository repository = new FeeRepository();
+        private readonly ReceiptRepository receiptRepository = new ReceiptRepository();
         private readonly StudentRepository studentRepository = new StudentRepository();
         private string searchText = string.Empty;
         private string statusFilter = "All";
@@ -60,7 +61,7 @@ namespace SchoolERP.ViewModels
             EditFeeCommand = new RelayCommand<FeeRecord>(fee => OnEditFee(fee));
             DeleteFeeCommand = new RelayCommand<FeeRecord>(async fee => await OnDeleteFeeAsync(fee));
             ViewFeeDetailCommand = new RelayCommand<FeeRecord>(fee => OpenFeeDetail(fee));
-            PrintReceiptCommand = new RelayCommand<FeeRecord>(fee => OpenFeeReceipt(fee));
+            PrintReceiptCommand = new RelayCommand<FeeRecord>(async fee => await OpenFeeReceiptAsync(fee));
 
             StatusFilter = "All";
             FeeTypeFilter = "All Fee Types";
@@ -346,10 +347,11 @@ namespace SchoolERP.ViewModels
                     return;
                 }
 
-                var success = await repository.ApplyPaymentAsync(payableFees, window.PaymentAmount, window.PaymentDate).ConfigureAwait(true);
-                if (success)
+                var receipt = await repository.ApplyPaymentAsync(payableFees, window.PaymentAmount, window.PaymentDate).ConfigureAwait(true);
+                if (receipt != null)
                 {
                     await LoadFeesAsync().ConfigureAwait(true);
+                    new FeeReceiptWindow(receipt) { Owner = Application.Current.MainWindow }.ShowDialog();
                 }
             }
             catch (Exception ex)
@@ -479,7 +481,7 @@ namespace SchoolERP.ViewModels
             window.ShowDialog();
         }
 
-        private void OpenFeeReceipt(FeeRecord fee)
+        private async Task OpenFeeReceiptAsync(FeeRecord fee)
         {
             if (fee == null) return;
             if (!fee.HasFeeRecord || fee.PaidAmount <= 0)
@@ -488,7 +490,14 @@ namespace SchoolERP.ViewModels
                 return;
             }
 
-            var window = new FeeReceiptWindow(fee) { Owner = Application.Current.MainWindow };
+            var receipt = await receiptRepository.GetLatestForStudentAsync(fee.StudentID).ConfigureAwait(true);
+            if (receipt == null)
+            {
+                MessageBox.Show("No stored receipt was found for this student.", "Receipt Not Available", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
+            var window = new FeeReceiptWindow(receipt) { Owner = Application.Current.MainWindow };
             window.ShowDialog();
         }
 
