@@ -38,6 +38,7 @@ namespace SchoolERP.ViewModels
         public string EmergencyContactNumber { get; set; }
         public DateTime? AdmissionDate { get; set; }
         public decimal MonthlyFee { get; set; }
+        public bool IsActive { get; set; } = true;
 
         public string AdmissionDateDisplay =>
             AdmissionDate.HasValue ? AdmissionDate.Value.ToString("dd MMM yyyy") : string.Empty;
@@ -88,7 +89,8 @@ namespace SchoolERP.ViewModels
                 GuardianPhone = student.GuardianPhone,
                 EmergencyContactNumber = student.EmergencyContactNumber,
                 AdmissionDate = student.AdmissionDate,
-                MonthlyFee = student.MonthlyFee
+                MonthlyFee = student.MonthlyFee,
+                IsActive = student.IsActive
             };
         }
 
@@ -125,7 +127,8 @@ namespace SchoolERP.ViewModels
                 GuardianPhone = GuardianPhone,
                 EmergencyContactNumber = EmergencyContactNumber,
                 AdmissionDate = AdmissionDate,
-                MonthlyFee = MonthlyFee
+                MonthlyFee = MonthlyFee,
+                IsActive = IsActive
             };
         }
 

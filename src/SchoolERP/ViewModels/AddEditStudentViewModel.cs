@@ -42,6 +42,7 @@ namespace SchoolERP.ViewModels
         private string guardianPhone;
         private string emergencyContactNumber;
         private DateTime? admissionDate = DateTime.Today;
+        private bool isActive = true;
         private string registrationNoError;
         private string nameError;
         private bool isSaving;
@@ -193,6 +194,12 @@ namespace SchoolERP.ViewModels
             set => SetProperty(ref monthlyFee, value);
         }
 
+        public bool IsActive
+        {
+            get => isActive;
+            set => SetProperty(ref isActive, value);
+        }
+
         public string RegistrationNoError
         {
             get => registrationNoError;
@@ -271,6 +278,7 @@ namespace SchoolERP.ViewModels
                         GuardianPhone = student.GuardianPhone;
                         EmergencyContactNumber = student.EmergencyContactNumber;
                         AdmissionDate = student.AdmissionDate ?? DateTime.Today;
+                        IsActive = student.IsActive;
                     }
                 }
             }
@@ -349,7 +357,8 @@ namespace SchoolERP.ViewModels
                     GuardianCnicBackPictureFileName = guardianBackImage.FileName,
                     GuardianPhone = string.IsNullOrWhiteSpace(GuardianPhone) ? null : GuardianPhone.Trim(),
                     EmergencyContactNumber = string.IsNullOrWhiteSpace(EmergencyContactNumber) ? null : EmergencyContactNumber.Trim(),
-                    AdmissionDate = AdmissionDate ?? DateTime.Today
+                    AdmissionDate = AdmissionDate ?? DateTime.Today,
+                    IsActive = IsActive
                 };
 
                 bool success;

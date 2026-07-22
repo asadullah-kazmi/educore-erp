@@ -40,7 +40,8 @@ SELECT s.StudentID,
        s.GuardianPhone,
        s.EmergencyContactNumber,
        s.AdmissionDate,
-       s.MonthlyFee
+       s.MonthlyFee,
+       s.IsActive
 FROM dbo.Students s
 LEFT JOIN dbo.Classes c ON s.ClassID = c.ClassID";
 
@@ -105,8 +106,8 @@ WHERE s.StudentID = @StudentID;";
             await EnsureStudentProfileColumnsAsync().ConfigureAwait(false);
 
             const string sql = @"
-INSERT INTO dbo.Students (RegistrationNo, Name, FatherName, DOB, ClassID, Section, Address, Phone, StudentFormBOrCnicNumber, StudentFormBOrCnicPicturePath, StudentFormBOrCnicFrontPicturePath, StudentFormBOrCnicFrontPictureData, StudentFormBOrCnicFrontPictureFileName, StudentFormBOrCnicBackPicturePath, StudentFormBOrCnicBackPictureData, StudentFormBOrCnicBackPictureFileName, GuardianCnicNumber, GuardianCnicPicturePath, GuardianCnicFrontPicturePath, GuardianCnicFrontPictureData, GuardianCnicFrontPictureFileName, GuardianCnicBackPicturePath, GuardianCnicBackPictureData, GuardianCnicBackPictureFileName, GuardianPhone, EmergencyContactNumber, AdmissionDate, MonthlyFee)
-VALUES (@RegistrationNo, @Name, @FatherName, @DOB, @ClassID, @Section, @Address, @Phone, @StudentFormBOrCnicNumber, @StudentFormBOrCnicPicturePath, @StudentFormBOrCnicFrontPicturePath, @StudentFormBOrCnicFrontPictureData, @StudentFormBOrCnicFrontPictureFileName, @StudentFormBOrCnicBackPicturePath, @StudentFormBOrCnicBackPictureData, @StudentFormBOrCnicBackPictureFileName, @GuardianCnicNumber, @GuardianCnicPicturePath, @GuardianCnicFrontPicturePath, @GuardianCnicFrontPictureData, @GuardianCnicFrontPictureFileName, @GuardianCnicBackPicturePath, @GuardianCnicBackPictureData, @GuardianCnicBackPictureFileName, @GuardianPhone, @EmergencyContactNumber, @AdmissionDate, @MonthlyFee);";
+INSERT INTO dbo.Students (RegistrationNo, Name, FatherName, DOB, ClassID, Section, Address, Phone, StudentFormBOrCnicNumber, StudentFormBOrCnicPicturePath, StudentFormBOrCnicFrontPicturePath, StudentFormBOrCnicFrontPictureData, StudentFormBOrCnicFrontPictureFileName, StudentFormBOrCnicBackPicturePath, StudentFormBOrCnicBackPictureData, StudentFormBOrCnicBackPictureFileName, GuardianCnicNumber, GuardianCnicPicturePath, GuardianCnicFrontPicturePath, GuardianCnicFrontPictureData, GuardianCnicFrontPictureFileName, GuardianCnicBackPicturePath, GuardianCnicBackPictureData, GuardianCnicBackPictureFileName, GuardianPhone, EmergencyContactNumber, AdmissionDate, MonthlyFee, IsActive)
+VALUES (@RegistrationNo, @Name, @FatherName, @DOB, @ClassID, @Section, @Address, @Phone, @StudentFormBOrCnicNumber, @StudentFormBOrCnicPicturePath, @StudentFormBOrCnicFrontPicturePath, @StudentFormBOrCnicFrontPictureData, @StudentFormBOrCnicFrontPictureFileName, @StudentFormBOrCnicBackPicturePath, @StudentFormBOrCnicBackPictureData, @StudentFormBOrCnicBackPictureFileName, @GuardianCnicNumber, @GuardianCnicPicturePath, @GuardianCnicFrontPicturePath, @GuardianCnicFrontPictureData, @GuardianCnicFrontPictureFileName, @GuardianCnicBackPicturePath, @GuardianCnicBackPictureData, @GuardianCnicBackPictureFileName, @GuardianPhone, @EmergencyContactNumber, @AdmissionDate, @MonthlyFee, @IsActive);";
 
             using (var connection = Database.GetConnection())
             using (var command = new SqlCommand(sql, connection))
@@ -155,7 +156,8 @@ SET RegistrationNo = @RegistrationNo,
     GuardianPhone = @GuardianPhone,
     EmergencyContactNumber = @EmergencyContactNumber,
     AdmissionDate = @AdmissionDate,
-    MonthlyFee = @MonthlyFee
+    MonthlyFee = @MonthlyFee,
+    IsActive = @IsActive
 WHERE StudentID = @StudentID;";
 
             using (var connection = Database.GetConnection())
@@ -171,6 +173,7 @@ WHERE StudentID = @StudentID;";
         public async Task<bool> DeleteStudentAsync(int studentId)
         {
             await EnsureStudentProfileColumnsAsync().ConfigureAwait(false);
+            await new FamilyReceiptRepository().EnsureSchemaAsync().ConfigureAwait(false);
 
             const string sql = "DELETE FROM dbo.Students WHERE StudentID = @StudentID;";
 
@@ -292,6 +295,7 @@ ORDER BY
             command.Parameters.AddWithValue("@EmergencyContactNumber", (object)student.EmergencyContactNumber ?? DBNull.Value);
             command.Parameters.AddWithValue("@AdmissionDate", (object)student.AdmissionDate ?? DBNull.Value);
             command.Parameters.AddWithValue("@MonthlyFee", student.MonthlyFee);
+            command.Parameters.AddWithValue("@IsActive", student.IsActive);
         }
 
         private static Student MapStudent(SqlDataReader reader)
@@ -332,7 +336,8 @@ ORDER BY
                 GuardianPhone = reader["GuardianPhone"] as string,
                 EmergencyContactNumber = reader["EmergencyContactNumber"] as string,
                 AdmissionDate = reader["AdmissionDate"] == DBNull.Value ? (DateTime?)null : Convert.ToDateTime(reader["AdmissionDate"]),
-                MonthlyFee = reader["MonthlyFee"] == DBNull.Value ? 0m : Convert.ToDecimal(reader["MonthlyFee"])
+                MonthlyFee = reader["MonthlyFee"] == DBNull.Value ? 0m : Convert.ToDecimal(reader["MonthlyFee"]),
+                IsActive = reader["IsActive"] == DBNull.Value || Convert.ToBoolean(reader["IsActive"])
             };
         }
 
@@ -381,7 +386,9 @@ IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('dbo.Studen
 IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('dbo.Students') AND name = 'GuardianPhone')
     ALTER TABLE dbo.Students ADD GuardianPhone NVARCHAR(50) NULL;
 IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('dbo.Students') AND name = 'EmergencyContactNumber')
-    ALTER TABLE dbo.Students ADD EmergencyContactNumber NVARCHAR(50) NULL;";
+    ALTER TABLE dbo.Students ADD EmergencyContactNumber NVARCHAR(50) NULL;
+IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('dbo.Students') AND name = 'IsActive')
+    ALTER TABLE dbo.Students ADD IsActive BIT NOT NULL CONSTRAINT DF_Students_IsActive DEFAULT 1;";
 
             using (var connection = Database.GetConnection())
             using (var command = new SqlCommand(sql, connection))

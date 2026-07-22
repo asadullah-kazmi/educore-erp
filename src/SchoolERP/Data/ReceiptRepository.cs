@@ -49,15 +49,22 @@ IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_FeeReceipts_Student_Pa
         public async Task<List<FeeReceipt>> GetAllAsync()
         {
             await EnsureSchemaAsync().ConfigureAwait(false);
+            await new FamilyReceiptRepository().EnsureSchemaAsync().ConfigureAwait(false);
 
             const string sql = @"
 SELECT r.ReceiptID, r.ReceiptNumber, r.StudentID, r.PaymentDate,
        r.AmountPaid, r.BalanceAfter, r.Details, r.CreatedOn,
-       s.Name AS StudentName, s.RegistrationNo, c.ClassName, s.Section
+       s.Name AS StudentName, s.RegistrationNo, s.FatherName, c.ClassName, s.Section,
+       CAST(0 AS BIT) AS IsFamily, CAST(NULL AS INT) AS FamilyReceiptID
 FROM dbo.FeeReceipts r
 INNER JOIN dbo.Students s ON s.StudentID = r.StudentID
 LEFT JOIN dbo.Classes c ON c.ClassID = s.ClassID
-ORDER BY r.PaymentDate DESC, r.ReceiptID DESC;";
+UNION ALL
+SELECT fr.FamilyReceiptID, fr.ReceiptNumber, 0, fr.PaymentDate,
+       fr.TotalPaid, fr.TotalBalanceAfter, 'Multiple siblings', fr.CreatedOn,
+       'Family Receipt', fr.GuardianCnic, '', '', '', CAST(1 AS BIT), fr.FamilyReceiptID
+FROM dbo.FamilyFeeReceipts fr
+ORDER BY PaymentDate DESC, ReceiptID DESC;";
 
             var receipts = new List<FeeReceipt>();
             using (var connection = Database.GetConnection())
@@ -83,7 +90,8 @@ ORDER BY r.PaymentDate DESC, r.ReceiptID DESC;";
             const string sql = @"
 SELECT TOP 1 r.ReceiptID, r.ReceiptNumber, r.StudentID, r.PaymentDate,
        r.AmountPaid, r.BalanceAfter, r.Details, r.CreatedOn,
-       s.Name AS StudentName, s.RegistrationNo, c.ClassName, s.Section
+       s.Name AS StudentName, s.RegistrationNo, s.FatherName, c.ClassName, s.Section,
+       CAST(0 AS BIT) AS IsFamily, CAST(NULL AS INT) AS FamilyReceiptID
 FROM dbo.FeeReceipts r
 INNER JOIN dbo.Students s ON s.StudentID = r.StudentID
 LEFT JOIN dbo.Classes c ON c.ClassID = s.ClassID
@@ -111,6 +119,7 @@ ORDER BY r.PaymentDate DESC, r.ReceiptID DESC;";
                 StudentID = Convert.ToInt32(reader["StudentID"]),
                 StudentName = reader["StudentName"] as string,
                 RegistrationNo = reader["RegistrationNo"] as string,
+                FatherName = reader["FatherName"] == DBNull.Value ? string.Empty : reader["FatherName"] as string,
                 ClassName = reader["ClassName"] as string,
                 Section = reader["Section"] as string,
                 PaymentDate = Convert.ToDateTime(reader["PaymentDate"]),
@@ -118,6 +127,8 @@ ORDER BY r.PaymentDate DESC, r.ReceiptID DESC;";
                 BalanceAfter = Convert.ToDecimal(reader["BalanceAfter"]),
                 Details = reader["Details"] == DBNull.Value ? string.Empty : reader["Details"] as string,
                 CreatedOn = Convert.ToDateTime(reader["CreatedOn"])
+                ,IsFamily = Convert.ToBoolean(reader["IsFamily"])
+                ,FamilyReceiptID = reader["FamilyReceiptID"] == DBNull.Value ? (int?)null : Convert.ToInt32(reader["FamilyReceiptID"])
             };
         }
     }

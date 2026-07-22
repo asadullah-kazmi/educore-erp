@@ -503,7 +503,8 @@ LEFT JOIN dbo.Fees f
   ON f.StudentID = s.StudentID
  AND LTRIM(RTRIM(f.Month)) = LTRIM(RTRIM(@Month))
  AND LTRIM(RTRIM(ISNULL(f.FeeType, 'Monthly Tuition'))) = 'Monthly Tuition'
-WHERE (@ClassID IS NULL OR s.ClassID = @ClassID)
+WHERE s.IsActive = 1
+  AND (@ClassID IS NULL OR s.ClassID = @ClassID)
   AND (@Section IS NULL OR LTRIM(RTRIM(ISNULL(s.Section, ''))) = @Section)
 ORDER BY c.ClassName, s.Section, s.Name;";
 
@@ -547,7 +548,7 @@ INSERT INTO dbo.Fees (StudentID, Month, FeeType, Amount, PaidAmount, Status, Pay
 SELECT s.StudentID, @Month, @FeeType, COALESCE(s.MonthlyFee, 0), 0, 'Due', NULL
 FROM dbo.Students s
 LEFT JOIN dbo.Classes c ON s.ClassID = c.ClassID
-WHERE NOT EXISTS (
+WHERE s.IsActive = 1 AND NOT EXISTS (
     SELECT 1 FROM dbo.Fees f
     WHERE f.StudentID = s.StudentID
       AND f.Month = @Month

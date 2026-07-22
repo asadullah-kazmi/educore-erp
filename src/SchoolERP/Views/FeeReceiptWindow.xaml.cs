@@ -35,7 +35,7 @@ namespace SchoolERP.Views
     {
         public FeeReceiptWindow(FeeReceipt receipt)
         {
-            DataContext = new FeeReceiptViewModel(receipt);
+            DataContext = receipt;
             InitializeComponent();
         }
 

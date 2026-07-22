@@ -9,6 +9,7 @@ namespace SchoolERP.Models
         public int StudentID { get; set; }
         public string StudentName { get; set; }
         public string RegistrationNo { get; set; }
+        public string FatherName { get; set; }
         public string ClassName { get; set; }
         public string Section { get; set; }
         public DateTime PaymentDate { get; set; }
@@ -16,7 +17,10 @@ namespace SchoolERP.Models
         public decimal BalanceAfter { get; set; }
         public string Details { get; set; }
         public DateTime CreatedOn { get; set; }
+        public bool IsFamily { get; set; }
+        public int? FamilyReceiptID { get; set; }
 
         public string PaymentDateDisplay => PaymentDate.ToString("dd MMM yyyy");
+        public decimal TotalCalculated => AmountPaid + BalanceAfter;
     }
 }

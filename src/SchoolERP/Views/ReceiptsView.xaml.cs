@@ -13,10 +13,19 @@ namespace SchoolERP.Views
             DataContext = new ReceiptsViewModel();
         }
 
-        private void ViewReceipt_Click(object sender, RoutedEventArgs e)
+        private async void ViewReceipt_Click(object sender, RoutedEventArgs e)
         {
             if ((sender as FrameworkElement)?.DataContext is FeeReceipt receipt)
             {
+                if (receipt.IsFamily && receipt.FamilyReceiptID.HasValue)
+                {
+                    var familyReceipt = await new Data.FamilyReceiptRepository().GetByIdAsync(receipt.FamilyReceiptID.Value);
+                    if (familyReceipt != null)
+                    {
+                        new FamilyFeeReceiptWindow(familyReceipt) { Owner = Window.GetWindow(this) }.ShowDialog();
+                    }
+                    return;
+                }
                 new FeeReceiptWindow(receipt)
                 {
                     Owner = Window.GetWindow(this)

@@ -29,5 +29,14 @@ namespace SchoolERP.Views
                 mainViewModel.Navigation.CurrentPage = "Receipts";
             }
         }
+
+        private async void FamilyReceiptButton_Click(object sender, RoutedEventArgs e)
+        {
+            var window = new CustomFamilyReceiptWindow { Owner = Application.Current.MainWindow };
+            if (window.ShowDialog() == true && DataContext is FeesViewModel viewModel)
+            {
+                await viewModel.LoadFeesAsync();
+            }
+        }
     }
 }

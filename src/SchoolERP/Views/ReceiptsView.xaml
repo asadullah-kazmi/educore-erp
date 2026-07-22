@@ -51,14 +51,23 @@
         <DockPanel Grid.Row="1" Margin="0,0,0,12" LastChildFill="False">
             <TextBlock Text="Search" Foreground="#64748B" FontWeight="SemiBold"
                        VerticalAlignment="Center" Margin="0,0,8,0"/>
-            <Grid Width="420">
+            <Grid Width="250">
                 <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
                          Height="38" Padding="34,0,10,0" VerticalContentAlignment="Center"
-                         ToolTip="Search receipt number, student, registration number, class, date or fee details"/>
+                         ToolTip="Search receipt number, student, registration number or details"/>
                 <TextBlock Text="&#xE721;" FontFamily="Segoe MDL2 Assets" FontSize="15"
                            Foreground="#64748B" Margin="10,0,0,0" VerticalAlignment="Center"
                            IsHitTestVisible="False"/>
             </Grid>
+            
+            <ComboBox ItemsSource="{Binding AvailableClasses}" SelectedItem="{Binding SelectedClass}" Width="120" Height="38" Margin="10,0,0,0" VerticalContentAlignment="Center" ToolTip="Filter by class"/>
+            <ComboBox ItemsSource="{Binding AvailableSections}" SelectedItem="{Binding SelectedSection}" Width="100" Height="38" Margin="10,0,0,0" VerticalContentAlignment="Center" ToolTip="Filter by section"/>
+            
+            <Grid Margin="10,0,0,0">
+                <DatePicker SelectedDate="{Binding SelectedDate}" Width="120" Height="38" VerticalContentAlignment="Center" ToolTip="Filter by payment date"/>
+            </Grid>
+
+            <Button Content="Clear Filters" Command="{Binding ClearFiltersCommand}" Height="38" Margin="10,0,0,0" Padding="15,0" Background="Transparent" Foreground="#001A3F" BorderBrush="#E2E8F0" BorderThickness="1" Cursor="Hand" VerticalAlignment="Center"/>
         </DockPanel>
 
         <DataGrid Grid.Row="2" ItemsSource="{Binding Receipts}" MinHeight="300"

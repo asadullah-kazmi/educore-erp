@@ -122,6 +122,8 @@
                     <TextBlock Text="Admission Date" Style="{StaticResource FieldLabelStyle}" Margin="0,12,0,6"/>
                     <DatePicker SelectedDate="{Binding AdmissionDate}" Style="{StaticResource FieldDateStyle}"/>
 
+                    <CheckBox IsChecked="{Binding IsActive}" Content="Student is Active" Margin="0,16,0,6" Foreground="#1E293B" FontWeight="SemiBold" FontSize="14" ToolTip="Uncheck to mark the student as inactive. Inactive students do not generate fees."/>
+
                     <TextBlock Text="Student Identity" Style="{StaticResource SectionHeaderStyle}"/>
 
                     <TextBlock Text="Student Form-B / CNIC Number" Style="{StaticResource FieldLabelStyle}"/>

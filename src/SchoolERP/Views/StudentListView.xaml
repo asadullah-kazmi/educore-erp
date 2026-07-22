@@ -98,6 +98,52 @@
                         </Style>
                     </Button.Resources>
                 </Button>
+            
+            <Button Command="{Binding ClearFiltersCommand}"
+                    Content="Clear"
+                    DockPanel.Dock="Right"
+                    Background="Transparent"
+                    Foreground="#64748B"
+                    BorderThickness="1"
+                    BorderBrush="#CBD5E1"
+                    Margin="8,0,0,0"
+                    Padding="12,0"
+                    Height="38"
+                    Cursor="Hand">
+                <Button.Resources>
+                    <Style TargetType="Border">
+                        <Setter Property="CornerRadius" Value="6"/>
+                    </Style>
+                </Button.Resources>
+            </Button>
+
+            <ComboBox ItemsSource="{Binding StatusFilterOptions}" 
+                      SelectedItem="{Binding StatusFilter}" 
+                      DockPanel.Dock="Right"
+                      Width="100"
+                      Height="38"
+                      Margin="8,0,0,0"
+                      VerticalContentAlignment="Center"
+                      ToolTip="Status"/>
+
+            <ComboBox ItemsSource="{Binding SectionFilterOptions}" 
+                      SelectedItem="{Binding SectionFilter}" 
+                      DockPanel.Dock="Right"
+                      Width="100"
+                      Height="38"
+                      Margin="8,0,0,0"
+                      VerticalContentAlignment="Center"
+                      ToolTip="Section"/>
+
+            <ComboBox ItemsSource="{Binding ClassFilterOptions}" 
+                      SelectedItem="{Binding ClassFilter}" 
+                      DockPanel.Dock="Right"
+                      Width="120"
+                      Height="38"
+                      Margin="8,0,0,0"
+                      VerticalContentAlignment="Center"
+                      ToolTip="Class"/>
+
             <Border DockPanel.Dock="Right"
                     Width="260"
                     Background="#F8FAFC"
@@ -132,6 +178,24 @@
                 <DataGridTextColumn Header="Class" Binding="{Binding ClassName}" Width="90"/>
                 <DataGridTextColumn Header="Phone" Binding="{Binding Phone}" Width="120"/>
                 <DataGridTextColumn Header="Admission Date" Binding="{Binding AdmissionDateDisplay}" Width="130"/>
+                
+                <DataGridTemplateColumn Header="Status" Width="90">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Border x:Name="StatusBorder" CornerRadius="4" Padding="8,4" Background="#DCFCE7" HorizontalAlignment="Left">
+                                <TextBlock x:Name="StatusText" Text="Active" Foreground="#166534" FontSize="12" FontWeight="SemiBold"/>
+                            </Border>
+                            <DataTemplate.Triggers>
+                                <DataTrigger Binding="{Binding IsActive}" Value="False">
+                                    <Setter TargetName="StatusBorder" Property="Background" Value="#FEE2E2"/>
+                                    <Setter TargetName="StatusText" Property="Text" Value="Inactive"/>
+                                    <Setter TargetName="StatusText" Property="Foreground" Value="#991B1B"/>
+                                </DataTrigger>
+                            </DataTemplate.Triggers>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+
                 <DataGridTemplateColumn Header="Actions" Width="128">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>

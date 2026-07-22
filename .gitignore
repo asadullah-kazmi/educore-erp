@@ -23,3 +23,9 @@ Thumbs.db
 ehthumbs.db
 Desktop.ini
 $RECYCLE.BIN/
+
+# Ignore large build artifacts and executables
+*.exe
+installers/output/
+installers/staging/App/
+installers/staging/DatabaseSetup/

@@ -34,5 +34,6 @@ namespace SchoolERP.Models
         public string EmergencyContactNumber { get; set; }
         public DateTime? AdmissionDate { get; set; }
         public decimal MonthlyFee { get; set; }
+        public bool IsActive { get; set; } = true;
     }
 }

@@ -349,7 +349,7 @@ namespace SchoolERP.ViewModels
         {
             const string sql = @"
 SELECT
-    (SELECT COUNT(*) FROM dbo.Students) AS TotalStudents,
+    (SELECT COUNT(*) FROM dbo.Students WHERE IsActive = 1) AS TotalStudents,
     (SELECT COUNT(*) FROM dbo.Teachers) AS TotalTeachers;";
 
             using (var connection = Database.GetConnection())

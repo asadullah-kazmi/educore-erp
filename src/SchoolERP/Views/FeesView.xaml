@@ -96,6 +96,18 @@
                        DockPanel.Dock="Left"/>
             
             <StackPanel Orientation="Horizontal" DockPanel.Dock="Right" FlowDirection="RightToLeft" VerticalAlignment="Center">
+                <Button Content="Family Receipt"
+                        Click="FamilyReceiptButton_Click"
+                        Padding="16,10"
+                        Margin="8,0,0,0"
+                        Background="#6366F1"
+                        Foreground="White"
+                        FontWeight="SemiBold"
+                        FontSize="13"
+                        BorderThickness="0"
+                        Cursor="Hand"
+                        FlowDirection="LeftToRight"/>
+
                 <Button Content="Receipts"
                         Click="ReceiptsButton_Click"
                         Padding="16,10"
