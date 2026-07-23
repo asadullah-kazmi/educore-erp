@@ -20,15 +20,14 @@
         <Border Background="White" BorderBrush="Gray" BorderThickness="1" Padding="15">
             <StackPanel x:Name="ReceiptContent">
                 <!-- Header -->
-                <Grid Margin="0,0,0,20">
-                    <Image Source="pack://application:,,,/Assets/logo.png" Width="90" Height="90" Stretch="Uniform" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-                    
-                    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                        <TextBlock Text="GRAMMAR PUBLIC SCHOOL" FontSize="18" FontWeight="Bold" FontFamily="Arial" TextAlignment="Center" Margin="0,0,0,5"/>
-                        <TextBlock Text="GHAZIKOT MANSEHRA" FontSize="16" FontWeight="Bold" FontFamily="Arial" TextAlignment="Center" Margin="0,0,0,10"/>
-                        <TextBlock Text="FEE RECEIPT" FontSize="16" FontFamily="Arial" TextAlignment="Center" Foreground="#555"/>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,20">
+                    <Image Source="pack://application:,,,/Assets/logo.png" Width="120" Height="120" Stretch="Uniform" Margin="0,0,20,0" VerticalAlignment="Center"/>
+                    <StackPanel VerticalAlignment="Center">
+                        <TextBlock Text="GRAMMAR PUBLIC SCHOOL" FontSize="18" FontWeight="Bold" FontFamily="Arial" TextAlignment="Left" Margin="0,0,0,5"/>
+                        <TextBlock Text="GHAZIKOT MANSEHRA" FontSize="16" FontWeight="Bold" FontFamily="Arial" TextAlignment="Left" Margin="0,0,0,10"/>
+                        <TextBlock Text="FEE RECEIPT" FontSize="16" FontFamily="Arial" TextAlignment="Left" Foreground="#555"/>
                     </StackPanel>
-                </Grid>
+                </StackPanel>
 
                 <!-- Date line -->
                 <Grid Margin="0,0,0,10">
