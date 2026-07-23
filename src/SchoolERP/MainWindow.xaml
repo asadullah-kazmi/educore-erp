@@ -173,7 +173,7 @@
                                                         Height="48"
                                                         Background="Transparent"
                                                         Margin="0,0,14,0">
-                                                <Image Source="pack://application:,,,/Assets/logo1.png" Width="48" Height="48" Stretch="Uniform" />
+                                                <Image Source="pack://application:,,,/Assets/logo.png" Width="48" Height="48" Stretch="Uniform" />
                                         </Border>
                     <StackPanel VerticalAlignment="Center">
                         <TextBlock Text="GRAMMAR PUBLIC SCHOOL, GHAZIKOT, MANSEHRA"

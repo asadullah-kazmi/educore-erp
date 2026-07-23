@@ -162,7 +162,7 @@
                 </Grid.RowDefinitions>
 
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Top">
-                    <Image Source="pack://application:,,,/Assets/logo1.png"
+                    <Image Source="pack://application:,,,/Assets/logo.png"
                            Width="74"
                            Height="74"
                            Stretch="Uniform"
