@@ -69,81 +69,87 @@
                                 <Setter Property="BorderBrush" Value="Black"/>
                                 <Setter Property="BorderThickness" Value="0,0,1,1"/>
                             </Style>
-                            <Style TargetType="TextBlock" x:Key="LabelStyle">
+                            <Style TargetType="TextBox" x:Key="LabelStyle">
                                 <Setter Property="FontWeight" Value="Bold"/>
                                 <Setter Property="VerticalAlignment" Value="Center"/>
                                 <Setter Property="Margin" Value="8,0"/>
                                 <Setter Property="FontSize" Value="13"/>
+                                <Setter Property="IsReadOnly" Value="True"/>
+                                <Setter Property="BorderThickness" Value="0"/>
+                                <Setter Property="Background" Value="Transparent"/>
                             </Style>
-                            <Style TargetType="TextBlock" x:Key="ValueStyle">
+                            <Style TargetType="TextBox" x:Key="ValueStyle">
                                 <Setter Property="VerticalAlignment" Value="Center"/>
                                 <Setter Property="Margin" Value="8,0"/>
                                 <Setter Property="FontSize" Value="13"/>
+                                <Setter Property="IsReadOnly" Value="True"/>
+                                <Setter Property="BorderThickness" Value="0"/>
+                                <Setter Property="Background" Value="Transparent"/>
                             </Style>
                         </Grid.Resources>
 
                         <!-- Row 0 -->
                         <Border Grid.Row="0" Grid.Column="0" Style="{StaticResource ColBorderStyle}">
-                            <TextBlock Text="REG NO" Style="{StaticResource LabelStyle}"/>
+                            <TextBox Text="REG NO" Style="{StaticResource LabelStyle}"/>
                         </Border>
                         <Border Grid.Row="0" Grid.Column="1" Style="{StaticResource RowBorderStyle}">
-                            <TextBlock Text="{Binding RegistrationNo}" Style="{StaticResource ValueStyle}"/>
+                            <TextBox Text="{Binding RegistrationNo}" Style="{StaticResource ValueStyle}"/>
                         </Border>
 
                         <!-- Row 1 -->
                         <Border Grid.Row="1" Grid.Column="0" Style="{StaticResource ColBorderStyle}">
-                            <TextBlock Text="STUDENTS NAME" Style="{StaticResource LabelStyle}"/>
+                            <TextBox Text="STUDENTS NAME" Style="{StaticResource LabelStyle}"/>
                         </Border>
                         <Border Grid.Row="1" Grid.Column="1" Style="{StaticResource RowBorderStyle}">
-                            <TextBlock Text="{Binding StudentName}" Style="{StaticResource ValueStyle}"/>
+                            <TextBox Text="{Binding StudentName}" Style="{StaticResource ValueStyle}"/>
                         </Border>
 
                         <!-- Row 2 -->
                         <Border Grid.Row="2" Grid.Column="0" Style="{StaticResource ColBorderStyle}">
-                            <TextBlock Text="FATHER NAME" Style="{StaticResource LabelStyle}"/>
+                            <TextBox Text="FATHER NAME" Style="{StaticResource LabelStyle}"/>
                         </Border>
                         <Border Grid.Row="2" Grid.Column="1" Style="{StaticResource RowBorderStyle}">
-                            <TextBlock Text="{Binding FatherName}" Style="{StaticResource ValueStyle}" TextWrapping="Wrap"/>
+                            <TextBox Text="{Binding FatherName}" Style="{StaticResource ValueStyle}" TextWrapping="Wrap"/>
                         </Border>
 
                         <!-- Row 3 -->
                         <Border Grid.Row="3" Grid.Column="0" Style="{StaticResource ColBorderStyle}">
-                            <TextBlock Text="CLASS" Style="{StaticResource LabelStyle}"/>
+                            <TextBox Text="CLASS" Style="{StaticResource LabelStyle}"/>
                         </Border>
                         <Border Grid.Row="3" Grid.Column="1" Style="{StaticResource RowBorderStyle}">
-                            <TextBlock Text="{Binding ClassName}" Style="{StaticResource ValueStyle}"/>
+                            <TextBox Text="{Binding ClassName}" Style="{StaticResource ValueStyle}"/>
                         </Border>
 
                         <!-- Row 4 -->
                         <Border Grid.Row="4" Grid.Column="0" Style="{StaticResource ColBorderStyle}">
-                            <TextBlock Text="TOTAL" Style="{StaticResource LabelStyle}"/>
+                            <TextBox Text="TOTAL" Style="{StaticResource LabelStyle}"/>
                         </Border>
                         <Border Grid.Row="4" Grid.Column="1" Style="{StaticResource RowBorderStyle}">
-                            <TextBlock Text="{Binding TotalCalculated, StringFormat={}{0:N0}}" Style="{StaticResource ValueStyle}"/>
+                            <TextBox Text="{Binding TotalCalculated, StringFormat={}{0:N0}}" Style="{StaticResource ValueStyle}"/>
                         </Border>
 
                         <!-- Row 5 -->
                         <Border Grid.Row="5" Grid.Column="0" Style="{StaticResource ColBorderStyle}">
-                            <TextBlock Text="FEE PAID" Style="{StaticResource LabelStyle}"/>
+                            <TextBox Text="FEE PAID" Style="{StaticResource LabelStyle}"/>
                         </Border>
                         <Border Grid.Row="5" Grid.Column="1" Style="{StaticResource RowBorderStyle}">
-                            <TextBlock Text="{Binding AmountPaid, StringFormat={}{0:N0}}" Style="{StaticResource ValueStyle}"/>
+                            <TextBox Text="{Binding AmountPaid, StringFormat={}{0:N0}}" Style="{StaticResource ValueStyle}"/>
                         </Border>
 
                         <!-- Row 6 -->
                         <Border Grid.Row="6" Grid.Column="0" Style="{StaticResource ColBorderStyle}">
-                            <TextBlock Text="BALANCE" Style="{StaticResource LabelStyle}"/>
+                            <TextBox Text="BALANCE" Style="{StaticResource LabelStyle}"/>
                         </Border>
                         <Border Grid.Row="6" Grid.Column="1" Style="{StaticResource RowBorderStyle}">
-                            <TextBlock Text="{Binding BalanceAfter, StringFormat={}{0:N0}}" Style="{StaticResource ValueStyle}"/>
+                            <TextBox Text="{Binding BalanceAfter, StringFormat={}{0:N0}}" Style="{StaticResource ValueStyle}"/>
                         </Border>
 
                         <!-- Row 7 (Description) -->
                         <Border Grid.Row="7" Grid.Column="0" Style="{StaticResource ColBorderStyle}">
-                            <TextBlock Text="DESCRIPTION" Style="{StaticResource LabelStyle}"/>
+                            <TextBox Text="DESCRIPTION" Style="{StaticResource LabelStyle}"/>
                         </Border>
                         <Border Grid.Row="7" Grid.Column="1" Style="{StaticResource RowBorderStyle}">
-                            <TextBlock Text="{Binding Details}" Style="{StaticResource ValueStyle}" TextWrapping="Wrap"/>
+                            <TextBox Text="{Binding Details}" Style="{StaticResource ValueStyle}" TextWrapping="Wrap"/>
                         </Border>
                     </Grid>
                 </Border>

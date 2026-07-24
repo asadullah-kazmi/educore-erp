@@ -58,20 +58,25 @@
             <Setter Property="BorderBrush" Value="#CBD5E1"/>
             <Setter Property="BorderThickness" Value="0,1,0,1"/>
         </Style>
-        <Style TargetType="TextBlock" x:Key="TableLabelStyle">
+        <Style TargetType="TextBox" x:Key="TableLabelStyle">
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="Foreground" Value="#64748B"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
             <Setter Property="Margin" Value="12,0"/>
-            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="IsReadOnly" Value="True"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Background" Value="Transparent"/>
         </Style>
-        <Style TargetType="TextBlock" x:Key="TableValueStyle">
+        <Style TargetType="TextBox" x:Key="TableValueStyle">
             <Setter Property="VerticalAlignment" Value="Center"/>
             <Setter Property="Margin" Value="12,0"/>
             <Setter Property="FontSize" Value="14"/>
-            <Setter Property="Foreground" Value="#0F172A"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="TextWrapping" Value="Wrap"/>
+            <Setter Property="FontWeight" Value="Medium"/>
+            <Setter Property="Foreground" Value="#334155"/>
+            <Setter Property="IsReadOnly" Value="True"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Background" Value="Transparent"/>
         </Style>
     </Window.Resources>
 
@@ -134,47 +139,47 @@
 
                     <!-- Row 0 -->
                     <Border Grid.Row="0" Grid.Column="0" Style="{StaticResource TopColBorderStyle}" Background="#F8FAFC">
-                        <TextBlock Text="EXAM NUMBER" Style="{StaticResource TableLabelStyle}"/>
+                        <TextBox Text="EXAM NUMBER" Style="{StaticResource TableLabelStyle}"/>
                     </Border>
                     <Border Grid.Row="0" Grid.Column="1" Style="{StaticResource TopColBorderStyle}">
-                        <TextBlock Text="{Binding ExamNumber}" Style="{StaticResource TableValueStyle}" FontSize="18" FontWeight="Bold" Foreground="#001A3F"/>
+                        <TextBox Text="{Binding ExamNumber}" Style="{StaticResource TableValueStyle}" FontSize="18" FontWeight="Bold" Foreground="#001A3F"/>
                     </Border>
                     <Border Grid.Row="0" Grid.Column="2" Style="{StaticResource TopColBorderStyle}" Background="#F8FAFC">
-                        <TextBlock Text="GENERATED" Style="{StaticResource TableLabelStyle}"/>
+                        <TextBox Text="GENERATED" Style="{StaticResource TableLabelStyle}"/>
                     </Border>
                     <Border Grid.Row="0" Grid.Column="3" Style="{StaticResource TopRowBorderStyle}">
-                        <TextBlock Text="{Binding GeneratedOnDisplay}" Style="{StaticResource TableValueStyle}"/>
+                        <TextBox Text="{Binding GeneratedOnDisplay}" Style="{StaticResource TableValueStyle}"/>
                     </Border>
 
                     <!-- Row 1 -->
                     <Border Grid.Row="1" Grid.Column="0" Style="{StaticResource ColBorderStyle}" Background="#F8FAFC">
-                        <TextBlock Text="STUDENT" Style="{StaticResource TableLabelStyle}"/>
+                        <TextBox Text="STUDENT" Style="{StaticResource TableLabelStyle}"/>
                     </Border>
                     <Border Grid.Row="1" Grid.Column="1" Style="{StaticResource ColBorderStyle}">
-                        <TextBlock Text="{Binding StudentName}" Style="{StaticResource TableValueStyle}"/>
+                        <TextBox Text="{Binding StudentName}" Style="{StaticResource TableValueStyle}"/>
                     </Border>
                     <Border Grid.Row="1" Grid.Column="2" Style="{StaticResource ColBorderStyle}" Background="#F8FAFC">
-                        <TextBlock Text="FATHER" Style="{StaticResource TableLabelStyle}"/>
+                        <TextBox Text="FATHER" Style="{StaticResource TableLabelStyle}"/>
                     </Border>
                     <Border Grid.Row="1" Grid.Column="3" Style="{StaticResource RowBorderStyle}">
-                        <TextBlock Text="{Binding FatherName}" Style="{StaticResource TableValueStyle}"/>
+                        <TextBox Text="{Binding FatherName}" Style="{StaticResource TableValueStyle}"/>
                     </Border>
 
                     <!-- Row 2 -->
                     <Border Grid.Row="2" Grid.Column="0" Style="{StaticResource ColBorderStyle}" Background="#F8FAFC">
-                        <TextBlock Text="REGISTRATION NO" Style="{StaticResource TableLabelStyle}"/>
+                        <TextBox Text="REGISTRATION NO" Style="{StaticResource TableLabelStyle}"/>
                     </Border>
                     <Border Grid.Row="2" Grid.Column="1" Style="{StaticResource ColBorderStyle}">
-                        <TextBlock Text="{Binding RegistrationNo}" Style="{StaticResource TableValueStyle}"/>
+                        <TextBox Text="{Binding RegistrationNo}" Style="{StaticResource TableValueStyle}"/>
                     </Border>
                     <Border Grid.Row="2" Grid.Column="2" Style="{StaticResource ColBorderStyle}" Background="#F8FAFC">
-                        <TextBlock Text="CLASS / SECTION" Style="{StaticResource TableLabelStyle}"/>
+                        <TextBox Text="CLASS / SECTION" Style="{StaticResource TableLabelStyle}"/>
                     </Border>
                     <Border Grid.Row="2" Grid.Column="3" Style="{StaticResource RowBorderStyle}">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <TextBlock Text="{Binding ClassName}" Style="{StaticResource TableValueStyle}" Margin="12,0,4,0"/>
-                            <TextBlock Text="-" Foreground="#64748B" VerticalAlignment="Center" FontWeight="Bold"/>
-                            <TextBlock Text="{Binding Section}" Style="{StaticResource TableValueStyle}" Margin="4,0,12,0"/>
+                            <TextBox Text="{Binding ClassName}" Style="{StaticResource TableValueStyle}" Margin="12,0,4,0"/>
+                            <TextBox Text="-" Foreground="#64748B" VerticalAlignment="Center" FontWeight="Bold" BorderThickness="0" Background="Transparent" IsReadOnly="True"/>
+                            <TextBox Text="{Binding Section}" Style="{StaticResource TableValueStyle}" Margin="4,0,12,0"/>
                         </StackPanel>
                     </Border>
                 </Grid>
