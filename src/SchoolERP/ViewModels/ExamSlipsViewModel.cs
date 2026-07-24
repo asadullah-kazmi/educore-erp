@@ -249,6 +249,24 @@ namespace SchoolERP.ViewModels
                     .GenerateSlipsAsync(window.SelectedExamType, window.SelectedFeeMonth, targetClass, targetSection, targetStudentId)
                     .ConfigureAwait(true);
 
+                // Update filters to show the newly generated slips
+                if (!TermOptions.Contains(window.SelectedExamType))
+                {
+                    TermOptions.Add(window.SelectedExamType);
+                }
+                
+                selectedTerm = window.SelectedExamType;
+                OnPropertyChanged(nameof(SelectedTerm));
+                
+                selectedFeeMonth = window.SelectedFeeMonth;
+                OnPropertyChanged(nameof(SelectedFeeMonth));
+                
+                selectedClass = targetClass;
+                OnPropertyChanged(nameof(SelectedClass));
+                
+                selectedSection = targetSection;
+                OnPropertyChanged(nameof(SelectedSection));
+
                 await RefreshAsync().ConfigureAwait(true);
 
                 StatusMessage = created == 0
