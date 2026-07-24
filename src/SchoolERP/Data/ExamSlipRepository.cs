@@ -120,7 +120,7 @@ SELECT es.ExamSlipID,
 FROM dbo.ExamSlips es
 INNER JOIN dbo.Students s ON s.StudentID = es.StudentID
 LEFT JOIN dbo.Classes c ON c.ClassID = s.ClassID
-INNER JOIN dbo.Fees f ON f.StudentID = s.StudentID
+LEFT JOIN dbo.Fees f ON f.StudentID = s.StudentID
     AND LTRIM(RTRIM(f.Month)) = LTRIM(RTRIM(es.FeeMonth))
     AND LTRIM(RTRIM(ISNULL(f.FeeType, 'Monthly Tuition'))) = 'Monthly Tuition'
 WHERE LTRIM(RTRIM(es.TermName)) = LTRIM(RTRIM(@TermName))
@@ -171,11 +171,7 @@ WHERE LTRIM(RTRIM(es.TermName)) = LTRIM(RTRIM(@TermName))
 SELECT COUNT(DISTINCT s.StudentID)
 FROM dbo.Students s
 LEFT JOIN dbo.Classes c ON c.ClassID = s.ClassID
-INNER JOIN dbo.Fees f ON f.StudentID = s.StudentID
-WHERE LTRIM(RTRIM(f.Month)) = LTRIM(RTRIM(@FeeMonth))
-  AND LTRIM(RTRIM(ISNULL(f.FeeType, 'Monthly Tuition'))) = 'Monthly Tuition'
-  AND ISNULL(f.PaidAmount, CASE WHEN f.Status = 'Paid' THEN f.Amount ELSE 0 END) >= f.Amount
-  AND f.Amount > 0";
+WHERE ISNULL(s.IsActive, 1) = 1";
 
             var conditions = new List<string>();
             if (!string.IsNullOrWhiteSpace(className) && className != "All Classes")
@@ -234,11 +230,7 @@ ORDER BY Section;";
 SELECT DISTINCT s.StudentID
 FROM dbo.Students s
 LEFT JOIN dbo.Classes c ON c.ClassID = s.ClassID
-INNER JOIN dbo.Fees f ON f.StudentID = s.StudentID
-WHERE LTRIM(RTRIM(f.Month)) = LTRIM(RTRIM(@FeeMonth))
-  AND LTRIM(RTRIM(ISNULL(f.FeeType, 'Monthly Tuition'))) = 'Monthly Tuition'
-  AND ISNULL(f.PaidAmount, CASE WHEN f.Status = 'Paid' THEN f.Amount ELSE 0 END) >= f.Amount
-  AND f.Amount > 0
+WHERE ISNULL(s.IsActive, 1) = 1
   AND NOT EXISTS (
       SELECT 1
       FROM dbo.ExamSlips es

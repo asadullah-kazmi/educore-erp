@@ -164,6 +164,11 @@ namespace SchoolERP.ViewModels
                     Students.Add(student);
                 }
 
+                // Save current filters
+                var currentClassFilter = ClassFilter ?? "All";
+                var currentSectionFilter = SectionFilter ?? "All";
+                var currentStatusFilter = StatusFilter ?? "Active";
+
                 // Update Class Filter Options
                 var classes = Students.Where(s => !string.IsNullOrEmpty(s.ClassName)).Select(s => s.ClassName).Distinct().OrderBy(c => c).ToList();
                 ClassFilterOptions.Clear();
@@ -175,6 +180,11 @@ namespace SchoolERP.ViewModels
                 SectionFilterOptions.Clear();
                 SectionFilterOptions.Add("All");
                 foreach (var s in sections) SectionFilterOptions.Add(s);
+
+                // Restore filters
+                ClassFilter = ClassFilterOptions.Contains(currentClassFilter) ? currentClassFilter : "All";
+                SectionFilter = SectionFilterOptions.Contains(currentSectionFilter) ? currentSectionFilter : "All";
+                StatusFilter = StatusFilterOptions.Contains(currentStatusFilter) ? currentStatusFilter : "Active";
 
                 ApplyFilter();
                 OnPropertyChanged(nameof(StatusText));
