@@ -48,12 +48,12 @@ IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_ExamSlips_GeneratedOn'
             }
         }
 
-        public async Task<int> GenerateSlipsAsync(string termName, string feeMonth, string className, string section)
+        public async Task<int> GenerateSlipsAsync(string termName, string feeMonth, string className, string section, int? studentId = null)
         {
             await EnsureSchemaAsync().ConfigureAwait(false);
             await DeleteExpiredSlipsAsync().ConfigureAwait(false);
 
-            var eligibleStudents = await GetEligibleStudentsWithoutSlipAsync(termName, feeMonth, className, section).ConfigureAwait(false);
+            var eligibleStudents = await GetEligibleStudentsWithoutSlipAsync(termName, feeMonth, className, section, studentId).ConfigureAwait(false);
             if (eligibleStudents.Count == 0)
             {
                 return 0;
@@ -79,9 +79,9 @@ VALUES (@StudentID, @TermName, @FeeMonth, @ExamNumber, GETDATE());";
                     try
                     {
                         var inserted = 0;
-                        foreach (var studentId in eligibleStudents)
+                        foreach (var id in eligibleStudents)
                         {
-                            command.Parameters["@StudentID"].Value = studentId;
+                            command.Parameters["@StudentID"].Value = id;
                             command.Parameters["@ExamNumber"].Value = CreateExamNumber(usedNumbers);
                             inserted += await command.ExecuteNonQueryAsync().ConfigureAwait(false);
                         }
@@ -224,7 +224,7 @@ ORDER BY Section;";
             return sections;
         }
 
-        private async Task<List<int>> GetEligibleStudentsWithoutSlipAsync(string termName, string feeMonth, string className, string section)
+        private async Task<List<int>> GetEligibleStudentsWithoutSlipAsync(string termName, string feeMonth, string className, string section, int? studentId = null)
         {
             var sql = @"
 SELECT DISTINCT s.StudentID
@@ -252,6 +252,10 @@ WHERE ISNULL(s.IsActive, 1) = 1
             {
                 sql += " AND " + string.Join(" AND ", conditions);
             }
+            if (studentId.HasValue)
+            {
+                sql += " AND s.StudentID = @StudentID";
+            }
 
             sql += " ORDER BY s.StudentID;";
 
@@ -261,6 +265,10 @@ WHERE ISNULL(s.IsActive, 1) = 1
             {
                 command.Parameters.AddWithValue("@TermName", termName ?? string.Empty);
                 command.Parameters.AddWithValue("@FeeMonth", feeMonth ?? string.Empty);
+                if (studentId.HasValue)
+                {
+                    command.Parameters.AddWithValue("@StudentID", studentId.Value);
+                }
                 AddFilterParameters(command, className, section);
                 await connection.OpenAsync().ConfigureAwait(false);
 

@@ -1,0 +1,113 @@
+<Window x:Class="SchoolERP.Views.GenerateExamSlipsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Generate Exam Slips"
+        Width="500"
+        Height="550"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize"
+        Background="#EEF2F7"
+        FontFamily="Segoe UI">
+    <Window.Resources>
+        <Style x:Key="FieldLabelStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="#0F172A"/>
+            <Setter Property="Margin" Value="0,0,0,6"/>
+        </Style>
+        <Style x:Key="FieldInputStyle" TargetType="Control">
+            <Setter Property="Height" Value="38"/>
+            <Setter Property="BorderBrush" Value="#CBD5E1"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Background" Value="#F8FAFC"/>
+            <Setter Property="FontSize" Value="14"/>
+        </Style>
+    </Window.Resources>
+
+    <Border Background="White"
+            CornerRadius="18"
+            Margin="16"
+            Padding="24">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <TextBlock Grid.Row="0"
+                       Text="Generate Exam Slips"
+                       FontSize="22"
+                       FontWeight="Bold"
+                       Foreground="#0F172A"
+                       Margin="0,0,0,20"/>
+
+            <!-- Exam Type -->
+            <StackPanel Grid.Row="1" Margin="0,0,0,16">
+                <TextBlock Text="Exam Type" Style="{StaticResource FieldLabelStyle}"/>
+                <ComboBox x:Name="CmbExamType" IsEditable="True" Style="{StaticResource FieldInputStyle}" Padding="10,8">
+                    <ComboBoxItem Content="1st Term" IsSelected="True"/>
+                    <ComboBoxItem Content="2nd Term"/>
+                    <ComboBoxItem Content="Mid Term"/>
+                    <ComboBoxItem Content="Final Term"/>
+                    <ComboBoxItem Content="Monthly Test"/>
+                </ComboBox>
+            </StackPanel>
+
+            <!-- Fee Month -->
+            <StackPanel Grid.Row="2" Margin="0,0,0,16">
+                <TextBlock Text="Session / Fee Month" Style="{StaticResource FieldLabelStyle}"/>
+                <ComboBox x:Name="CmbFeeMonth" Style="{StaticResource FieldInputStyle}" Padding="10,8"/>
+            </StackPanel>
+
+            <!-- Scope -->
+            <StackPanel Grid.Row="3" Margin="0,0,0,16">
+                <TextBlock Text="Generation Scope" Style="{StaticResource FieldLabelStyle}"/>
+                <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                    <RadioButton x:Name="RadioAll" Content="All Students" IsChecked="True" Margin="0,0,15,0" Checked="Scope_Checked"/>
+                    <RadioButton x:Name="RadioClass" Content="Specific Class" Margin="0,0,15,0" Checked="Scope_Checked"/>
+                    <RadioButton x:Name="RadioSection" Content="Specific Section" Margin="0,0,15,0" Checked="Scope_Checked"/>
+                    <RadioButton x:Name="RadioStudent" Content="Specific Student" Checked="Scope_Checked"/>
+                </StackPanel>
+            </StackPanel>
+
+            <!-- Target Fields (Dynamic) -->
+            <StackPanel Grid.Row="4" x:Name="PanelTarget" Margin="0,0,0,16" Visibility="Collapsed">
+                <TextBlock x:Name="LblTarget" Text="Select Target" Style="{StaticResource FieldLabelStyle}"/>
+                
+                <ComboBox x:Name="CmbClass" Visibility="Collapsed" Style="{StaticResource FieldInputStyle}" Padding="10,8" DisplayMemberPath="ClassName" SelectedValuePath="ClassName"/>
+                
+                <ComboBox x:Name="CmbSection" Visibility="Collapsed" Style="{StaticResource FieldInputStyle}" Padding="10,8"/>
+                
+                <ComboBox x:Name="CmbStudent" Visibility="Collapsed" Style="{StaticResource FieldInputStyle}" Padding="10,8" 
+                          IsEditable="False"/>
+            </StackPanel>
+            
+            <TextBlock Grid.Row="5" x:Name="TxtStatus" Foreground="#EF4444" TextWrapping="Wrap" Margin="0,10,0,0"/>
+
+            <StackPanel Grid.Row="6" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,20,0,0">
+                <Button Content="Cancel"
+                        Width="100"
+                        Height="38"
+                        Margin="0,0,10,0"
+                        Background="#F1F5F9"
+                        Foreground="#334155"
+                        BorderThickness="0"
+                        Cursor="Hand"
+                        Click="Cancel_Click"/>
+                <Button Content="Generate"
+                        Width="120"
+                        Height="38"
+                        Background="#2563EB"
+                        Foreground="White"
+                        BorderThickness="0"
+                        Cursor="Hand"
+                        Click="Generate_Click"/>
+            </StackPanel>
+        </Grid>
+    </Border>
+</Window>

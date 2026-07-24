@@ -218,18 +218,42 @@ namespace SchoolERP.ViewModels
 
         private async Task GenerateAsync()
         {
+            var window = new Views.GenerateExamSlipsWindow();
+            if (window.ShowDialog() != true)
+            {
+                return;
+            }
+
             try
             {
                 IsBusy = true;
+                
+                string targetClass = "All Classes";
+                string targetSection = "All Sections";
+                int? targetStudentId = null;
+
+                if (window.GenerationScope == "Class")
+                {
+                    targetClass = window.SelectedClass;
+                }
+                else if (window.GenerationScope == "Section")
+                {
+                    targetSection = window.SelectedSection;
+                }
+                else if (window.GenerationScope == "Student")
+                {
+                    targetStudentId = window.SelectedStudentId;
+                }
+
                 var created = await examSlipRepository
-                    .GenerateSlipsAsync(SelectedTerm, SelectedFeeMonth, SelectedClass, SelectedSection)
+                    .GenerateSlipsAsync(window.SelectedExamType, window.SelectedFeeMonth, targetClass, targetSection, targetStudentId)
                     .ConfigureAwait(true);
 
                 await RefreshAsync().ConfigureAwait(true);
 
                 StatusMessage = created == 0
-                    ? "No new slips generated. Either no eligible paid students were found or slips already exist."
-                    : "Generated " + created + " exam slips for paid students.";
+                    ? "No new slips generated. Either no eligible students were found or slips already exist."
+                    : "Generated " + created + " exam slips.";
             }
             catch (Exception ex)
             {
