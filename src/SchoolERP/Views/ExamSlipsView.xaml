@@ -158,29 +158,7 @@
                     Margin="0,20,0,8"/>
         </WrapPanel>
 
-        <Border Grid.Row="2"
-                BorderBrush="#10B981"
-                BorderThickness="4,1,1,1"
-                CornerRadius="12"
-                Padding="12"
-                Margin="0,0,0,8"
-                Background="White">
-            <WrapPanel>
-                <StackPanel MinWidth="180" Margin="0,0,24,0">
-                    <TextBlock Text="Eligible Paid Students" Foreground="#64748B"/>
-                    <TextBlock Text="{Binding EligibleStudentCount}" FontSize="22" FontWeight="Bold" Foreground="#0F172A"/>
-                </StackPanel>
-                <StackPanel MinWidth="180" Margin="0,0,24,0">
-                    <TextBlock Text="Generated Slips" Foreground="#64748B"/>
-                    <TextBlock Text="{Binding ExamSlips.Count}" FontSize="22" FontWeight="Bold" Foreground="#0F172A"/>
-                </StackPanel>
-                <TextBlock Text="Only students with fully paid monthly tuition for the selected fee month are eligible."
-                           Foreground="#64748B"
-                           VerticalAlignment="Center"
-                           TextWrapping="Wrap"
-                           MaxWidth="560"/>
-            </WrapPanel>
-        </Border>
+
 
         <DockPanel Grid.Row="3" Margin="0,0,0,8" LastChildFill="False">
             <TextBlock Text="Search"

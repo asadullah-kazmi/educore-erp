@@ -23,7 +23,7 @@ namespace SchoolERP.ViewModels
         private ExamSlip selectedSlip;
         private string statusMessage;
         private bool isBusy;
-        private int eligibleStudentCount;
+
         private string searchText;
 
         public ExamSlipsViewModel()
@@ -142,11 +142,7 @@ namespace SchoolERP.ViewModels
             }
         }
 
-        public int EligibleStudentCount
-        {
-            get => eligibleStudentCount;
-            set => SetProperty(ref eligibleStudentCount, value);
-        }
+
 
         public string SearchText
         {
@@ -262,10 +258,6 @@ namespace SchoolERP.ViewModels
                 loadedExamSlips.AddRange(slips);
                 ApplySearch();
 
-                EligibleStudentCount = await examSlipRepository
-                    .GetEligibleStudentCountAsync(SelectedFeeMonth, SelectedClass, SelectedSection)
-                    .ConfigureAwait(true);
-
                 UpdateStatusMessage();
                 RefreshCommands();
             }
@@ -323,7 +315,7 @@ namespace SchoolERP.ViewModels
                 ? "Showing " + ExamSlips.Count + " generated slips."
                 : "Showing " + ExamSlips.Count + " of " + loadedExamSlips.Count + " generated slips.";
 
-            StatusMessage = prefix + " Eligible paid students: " + EligibleStudentCount + ".";
+            StatusMessage = prefix;
         }
 
         private void RefreshCommands()
