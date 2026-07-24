@@ -42,6 +42,37 @@
             <Setter Property="TextWrapping" Value="Wrap"/>
             <Setter Property="Margin" Value="0,0,0,14"/>
         </Style>
+        <Style TargetType="Border" x:Key="RowBorderStyle">
+            <Setter Property="BorderBrush" Value="#CBD5E1"/>
+            <Setter Property="BorderThickness" Value="0,0,0,1"/>
+        </Style>
+        <Style TargetType="Border" x:Key="ColBorderStyle">
+            <Setter Property="BorderBrush" Value="#CBD5E1"/>
+            <Setter Property="BorderThickness" Value="0,0,1,1"/>
+        </Style>
+        <Style TargetType="Border" x:Key="TopColBorderStyle">
+            <Setter Property="BorderBrush" Value="#CBD5E1"/>
+            <Setter Property="BorderThickness" Value="0,1,1,1"/>
+        </Style>
+        <Style TargetType="Border" x:Key="TopRowBorderStyle">
+            <Setter Property="BorderBrush" Value="#CBD5E1"/>
+            <Setter Property="BorderThickness" Value="0,1,0,1"/>
+        </Style>
+        <Style TargetType="TextBlock" x:Key="TableLabelStyle">
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="#64748B"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="12,0"/>
+            <Setter Property="FontSize" Value="13"/>
+        </Style>
+        <Style TargetType="TextBlock" x:Key="TableValueStyle">
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="12,0"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Foreground" Value="#0F172A"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+        </Style>
     </Window.Resources>
 
     <Grid Margin="22">
@@ -85,71 +116,67 @@
                     </StackPanel>
                 </StackPanel>
 
-                <Border Grid.Row="1"
-                        Background="#F8FAFC"
-                        BorderBrush="#E2E8F0"
-                        BorderThickness="1"
-                        CornerRadius="14"
-                        Padding="20"
-                        Margin="0,0,0,24">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        <StackPanel>
-                            <TextBlock Text="Exam Number" Style="{StaticResource LabelStyle}"/>
-                            <TextBlock Text="{Binding ExamNumber}"
-                                       FontSize="36"
-                                       FontWeight="Bold"
-                                       Foreground="#001A3F"/>
-                        </StackPanel>
-                        <StackPanel Grid.Column="1" Margin="24,0,0,0" MinWidth="140" VerticalAlignment="Center">
-                            <TextBlock Text="Generated" Style="{StaticResource LabelStyle}"/>
-                            <TextBlock Text="{Binding GeneratedOnDisplay}"
-                                       FontSize="16"
-                                       FontWeight="SemiBold"
-                                       Foreground="#0F172A"/>
-                        </StackPanel>
-                    </Grid>
-                </Border>
 
-                <Grid Grid.Row="2" Margin="10,0,10,20">
+
+                <!-- Grid Details in Tabular Form -->
+                <Grid Grid.Row="1" Margin="0,0,0,10">
                     <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="130"/>
                         <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="130"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" MinHeight="45"/>
+                        <RowDefinition Height="Auto" MinHeight="45"/>
+                        <RowDefinition Height="Auto" MinHeight="45"/>
+                    </Grid.RowDefinitions>
 
-                    <StackPanel Grid.Column="0" Margin="0,0,24,0">
-                        <TextBlock Text="Student" Style="{StaticResource LabelStyle}"/>
-                        <TextBlock Text="{Binding StudentName}" Style="{StaticResource ValueStyle}"/>
-                        <TextBlock Text="Father" Style="{StaticResource LabelStyle}"/>
-                        <TextBlock Text="{Binding FatherName}" Style="{StaticResource ValueStyle}"/>
-                        <TextBlock Text="Registration No" Style="{StaticResource LabelStyle}"/>
-                        <TextBlock Text="{Binding RegistrationNo}" Style="{StaticResource ValueStyle}"/>
-                    </StackPanel>
+                    <!-- Row 0 -->
+                    <Border Grid.Row="0" Grid.Column="0" Style="{StaticResource TopColBorderStyle}" Background="#F8FAFC">
+                        <TextBlock Text="EXAM NUMBER" Style="{StaticResource TableLabelStyle}"/>
+                    </Border>
+                    <Border Grid.Row="0" Grid.Column="1" Style="{StaticResource TopColBorderStyle}">
+                        <TextBlock Text="{Binding ExamNumber}" Style="{StaticResource TableValueStyle}" FontSize="18" FontWeight="Bold" Foreground="#001A3F"/>
+                    </Border>
+                    <Border Grid.Row="0" Grid.Column="2" Style="{StaticResource TopColBorderStyle}" Background="#F8FAFC">
+                        <TextBlock Text="GENERATED" Style="{StaticResource TableLabelStyle}"/>
+                    </Border>
+                    <Border Grid.Row="0" Grid.Column="3" Style="{StaticResource TopRowBorderStyle}">
+                        <TextBlock Text="{Binding GeneratedOnDisplay}" Style="{StaticResource TableValueStyle}"/>
+                    </Border>
 
-                    <StackPanel Grid.Column="1">
-                        <TextBlock Text="Class" Style="{StaticResource LabelStyle}"/>
-                        <TextBlock Text="{Binding ClassName}" Style="{StaticResource ValueStyle}"/>
-                        <TextBlock Text="Section" Style="{StaticResource LabelStyle}"/>
-                        <TextBlock Text="{Binding Section}" Style="{StaticResource ValueStyle}"/>
-                    </StackPanel>
-                </Grid>
+                    <!-- Row 1 -->
+                    <Border Grid.Row="1" Grid.Column="0" Style="{StaticResource ColBorderStyle}" Background="#F8FAFC">
+                        <TextBlock Text="STUDENT" Style="{StaticResource TableLabelStyle}"/>
+                    </Border>
+                    <Border Grid.Row="1" Grid.Column="1" Style="{StaticResource ColBorderStyle}">
+                        <TextBlock Text="{Binding StudentName}" Style="{StaticResource TableValueStyle}"/>
+                    </Border>
+                    <Border Grid.Row="1" Grid.Column="2" Style="{StaticResource ColBorderStyle}" Background="#F8FAFC">
+                        <TextBlock Text="FATHER" Style="{StaticResource TableLabelStyle}"/>
+                    </Border>
+                    <Border Grid.Row="1" Grid.Column="3" Style="{StaticResource RowBorderStyle}">
+                        <TextBlock Text="{Binding FatherName}" Style="{StaticResource TableValueStyle}"/>
+                    </Border>
 
-                <Grid Grid.Row="3" Margin="20,40,20,10">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-                    <StackPanel Grid.Column="0" HorizontalAlignment="Left" Width="160">
-                        <Border BorderBrush="#94A3B8" BorderThickness="0,0,0,1" Margin="0,0,0,8" Height="1" />
-                        <TextBlock Text="Class Teacher" Foreground="#64748B" FontWeight="SemiBold" TextAlignment="Center"/>
-                    </StackPanel>
-                    <StackPanel Grid.Column="1" HorizontalAlignment="Right" Width="160">
-                        <Border BorderBrush="#94A3B8" BorderThickness="0,0,0,1" Margin="0,0,0,8" Height="1" />
-                        <TextBlock Text="Principal" Foreground="#64748B" FontWeight="SemiBold" TextAlignment="Center"/>
-                    </StackPanel>
+                    <!-- Row 2 -->
+                    <Border Grid.Row="2" Grid.Column="0" Style="{StaticResource ColBorderStyle}" Background="#F8FAFC">
+                        <TextBlock Text="REGISTRATION NO" Style="{StaticResource TableLabelStyle}"/>
+                    </Border>
+                    <Border Grid.Row="2" Grid.Column="1" Style="{StaticResource ColBorderStyle}">
+                        <TextBlock Text="{Binding RegistrationNo}" Style="{StaticResource TableValueStyle}"/>
+                    </Border>
+                    <Border Grid.Row="2" Grid.Column="2" Style="{StaticResource ColBorderStyle}" Background="#F8FAFC">
+                        <TextBlock Text="CLASS / SECTION" Style="{StaticResource TableLabelStyle}"/>
+                    </Border>
+                    <Border Grid.Row="2" Grid.Column="3" Style="{StaticResource RowBorderStyle}">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock Text="{Binding ClassName}" Style="{StaticResource TableValueStyle}" Margin="12,0,4,0"/>
+                            <TextBlock Text="-" Foreground="#64748B" VerticalAlignment="Center" FontWeight="Bold"/>
+                            <TextBlock Text="{Binding Section}" Style="{StaticResource TableValueStyle}" Margin="4,0,12,0"/>
+                        </StackPanel>
+                    </Border>
                 </Grid>
             </Grid>
         </Border>
