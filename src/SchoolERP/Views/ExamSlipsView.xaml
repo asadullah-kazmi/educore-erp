@@ -82,8 +82,8 @@
             <Setter Property="Background" Value="White"/>
             <Setter Property="RowHeight" Value="42"/>
             <Setter Property="ColumnHeaderHeight" Value="40"/>
-            <Setter Property="HorizontalScrollBarVisibility" Value="Auto"/>
-            <Setter Property="VerticalScrollBarVisibility" Value="Auto"/>
+            <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Auto"/>
+            <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto"/>
         </Style>
     </UserControl.Resources>
 
@@ -186,7 +186,6 @@
         <DataGrid Grid.Row="4"
                   ItemsSource="{Binding ExamSlips}"
                   SelectedItem="{Binding SelectedSlip}"
-                  MinHeight="260"
                   Style="{StaticResource ModuleDataGridStyle}">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Exam No" Binding="{Binding ExamNumber}" Width="100"/>
