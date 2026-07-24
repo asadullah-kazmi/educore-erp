@@ -142,13 +142,13 @@
                         <TextBox Text="EXAM NUMBER" Style="{StaticResource TableLabelStyle}"/>
                     </Border>
                     <Border Grid.Row="0" Grid.Column="1" Style="{StaticResource TopColBorderStyle}">
-                        <TextBox Text="{Binding ExamNumber}" Style="{StaticResource TableValueStyle}" FontSize="18" FontWeight="Bold" Foreground="#001A3F"/>
+                        <TextBox Text="{Binding ExamNumber, Mode=OneWay}" Style="{StaticResource TableValueStyle}" FontSize="18" FontWeight="Bold" Foreground="#001A3F"/>
                     </Border>
                     <Border Grid.Row="0" Grid.Column="2" Style="{StaticResource TopColBorderStyle}" Background="#F8FAFC">
                         <TextBox Text="GENERATED" Style="{StaticResource TableLabelStyle}"/>
                     </Border>
                     <Border Grid.Row="0" Grid.Column="3" Style="{StaticResource TopRowBorderStyle}">
-                        <TextBox Text="{Binding GeneratedOnDisplay}" Style="{StaticResource TableValueStyle}"/>
+                        <TextBox Text="{Binding GeneratedOnDisplay, Mode=OneWay}" Style="{StaticResource TableValueStyle}"/>
                     </Border>
 
                     <!-- Row 1 -->
@@ -156,13 +156,13 @@
                         <TextBox Text="STUDENT" Style="{StaticResource TableLabelStyle}"/>
                     </Border>
                     <Border Grid.Row="1" Grid.Column="1" Style="{StaticResource ColBorderStyle}">
-                        <TextBox Text="{Binding StudentName}" Style="{StaticResource TableValueStyle}"/>
+                        <TextBox Text="{Binding StudentName, Mode=OneWay}" Style="{StaticResource TableValueStyle}"/>
                     </Border>
                     <Border Grid.Row="1" Grid.Column="2" Style="{StaticResource ColBorderStyle}" Background="#F8FAFC">
                         <TextBox Text="FATHER" Style="{StaticResource TableLabelStyle}"/>
                     </Border>
                     <Border Grid.Row="1" Grid.Column="3" Style="{StaticResource RowBorderStyle}">
-                        <TextBox Text="{Binding FatherName}" Style="{StaticResource TableValueStyle}"/>
+                        <TextBox Text="{Binding FatherName, Mode=OneWay}" Style="{StaticResource TableValueStyle}"/>
                     </Border>
 
                     <!-- Row 2 -->
@@ -170,16 +170,16 @@
                         <TextBox Text="REGISTRATION NO" Style="{StaticResource TableLabelStyle}"/>
                     </Border>
                     <Border Grid.Row="2" Grid.Column="1" Style="{StaticResource ColBorderStyle}">
-                        <TextBox Text="{Binding RegistrationNo}" Style="{StaticResource TableValueStyle}"/>
+                        <TextBox Text="{Binding RegistrationNo, Mode=OneWay}" Style="{StaticResource TableValueStyle}"/>
                     </Border>
                     <Border Grid.Row="2" Grid.Column="2" Style="{StaticResource ColBorderStyle}" Background="#F8FAFC">
                         <TextBox Text="CLASS / SECTION" Style="{StaticResource TableLabelStyle}"/>
                     </Border>
                     <Border Grid.Row="2" Grid.Column="3" Style="{StaticResource RowBorderStyle}">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <TextBox Text="{Binding ClassName}" Style="{StaticResource TableValueStyle}" Margin="12,0,4,0"/>
+                            <TextBox Text="{Binding ClassName, Mode=OneWay}" Style="{StaticResource TableValueStyle}" Margin="12,0,4,0"/>
                             <TextBox Text="-" Foreground="#64748B" VerticalAlignment="Center" FontWeight="Bold" BorderThickness="0" Background="Transparent" IsReadOnly="True"/>
-                            <TextBox Text="{Binding Section}" Style="{StaticResource TableValueStyle}" Margin="4,0,12,0"/>
+                            <TextBox Text="{Binding Section, Mode=OneWay}" Style="{StaticResource TableValueStyle}" Margin="4,0,12,0"/>
                         </StackPanel>
                     </Border>
                 </Grid>

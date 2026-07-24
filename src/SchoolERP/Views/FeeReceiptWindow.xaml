@@ -93,7 +93,7 @@
                             <TextBox Text="REG NO" Style="{StaticResource LabelStyle}"/>
                         </Border>
                         <Border Grid.Row="0" Grid.Column="1" Style="{StaticResource RowBorderStyle}">
-                            <TextBox Text="{Binding RegistrationNo}" Style="{StaticResource ValueStyle}"/>
+                            <TextBox Text="{Binding RegistrationNo, Mode=OneWay}" Style="{StaticResource ValueStyle}"/>
                         </Border>
 
                         <!-- Row 1 -->
@@ -101,7 +101,7 @@
                             <TextBox Text="STUDENTS NAME" Style="{StaticResource LabelStyle}"/>
                         </Border>
                         <Border Grid.Row="1" Grid.Column="1" Style="{StaticResource RowBorderStyle}">
-                            <TextBox Text="{Binding StudentName}" Style="{StaticResource ValueStyle}"/>
+                            <TextBox Text="{Binding StudentName, Mode=OneWay}" Style="{StaticResource ValueStyle}"/>
                         </Border>
 
                         <!-- Row 2 -->
@@ -109,7 +109,7 @@
                             <TextBox Text="FATHER NAME" Style="{StaticResource LabelStyle}"/>
                         </Border>
                         <Border Grid.Row="2" Grid.Column="1" Style="{StaticResource RowBorderStyle}">
-                            <TextBox Text="{Binding FatherName}" Style="{StaticResource ValueStyle}" TextWrapping="Wrap"/>
+                            <TextBox Text="{Binding FatherName, Mode=OneWay}" Style="{StaticResource ValueStyle}" TextWrapping="Wrap"/>
                         </Border>
 
                         <!-- Row 3 -->
@@ -117,7 +117,7 @@
                             <TextBox Text="CLASS" Style="{StaticResource LabelStyle}"/>
                         </Border>
                         <Border Grid.Row="3" Grid.Column="1" Style="{StaticResource RowBorderStyle}">
-                            <TextBox Text="{Binding ClassName}" Style="{StaticResource ValueStyle}"/>
+                            <TextBox Text="{Binding ClassName, Mode=OneWay}" Style="{StaticResource ValueStyle}"/>
                         </Border>
 
                         <!-- Row 4 -->
@@ -125,7 +125,7 @@
                             <TextBox Text="TOTAL" Style="{StaticResource LabelStyle}"/>
                         </Border>
                         <Border Grid.Row="4" Grid.Column="1" Style="{StaticResource RowBorderStyle}">
-                            <TextBox Text="{Binding TotalCalculated, StringFormat={}{0:N0}}" Style="{StaticResource ValueStyle}"/>
+                            <TextBox Text="{Binding TotalCalculated, StringFormat={}{0:N0}, Mode=OneWay}" Style="{StaticResource ValueStyle}"/>
                         </Border>
 
                         <!-- Row 5 -->
@@ -133,7 +133,7 @@
                             <TextBox Text="FEE PAID" Style="{StaticResource LabelStyle}"/>
                         </Border>
                         <Border Grid.Row="5" Grid.Column="1" Style="{StaticResource RowBorderStyle}">
-                            <TextBox Text="{Binding AmountPaid, StringFormat={}{0:N0}}" Style="{StaticResource ValueStyle}"/>
+                            <TextBox Text="{Binding AmountPaid, StringFormat={}{0:N0}, Mode=OneWay}" Style="{StaticResource ValueStyle}"/>
                         </Border>
 
                         <!-- Row 6 -->
@@ -141,7 +141,7 @@
                             <TextBox Text="BALANCE" Style="{StaticResource LabelStyle}"/>
                         </Border>
                         <Border Grid.Row="6" Grid.Column="1" Style="{StaticResource RowBorderStyle}">
-                            <TextBox Text="{Binding BalanceAfter, StringFormat={}{0:N0}}" Style="{StaticResource ValueStyle}"/>
+                            <TextBox Text="{Binding BalanceAfter, StringFormat={}{0:N0}, Mode=OneWay}" Style="{StaticResource ValueStyle}"/>
                         </Border>
 
                         <!-- Row 7 (Description) -->
@@ -149,7 +149,7 @@
                             <TextBox Text="DESCRIPTION" Style="{StaticResource LabelStyle}"/>
                         </Border>
                         <Border Grid.Row="7" Grid.Column="1" Style="{StaticResource RowBorderStyle}">
-                            <TextBox Text="{Binding Details}" Style="{StaticResource ValueStyle}" TextWrapping="Wrap"/>
+                            <TextBox Text="{Binding Details, Mode=OneWay}" Style="{StaticResource ValueStyle}" TextWrapping="Wrap"/>
                         </Border>
                     </Grid>
                 </Border>
