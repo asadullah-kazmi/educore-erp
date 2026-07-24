@@ -39,15 +39,19 @@ BEGIN
         StudentID INT NOT NULL,
         AmountPaid DECIMAL(18,2) NOT NULL,
         BalanceAfter DECIMAL(18,2) NOT NULL,
-        CONSTRAINT FK_FamilyReceiptItems_Receipt FOREIGN KEY(FamilyReceiptID) REFERENCES dbo.FamilyFeeReceipts(FamilyReceiptID) ON DELETE CASCADE,
-        CONSTRAINT FK_FamilyReceiptItems_Student FOREIGN KEY(StudentID) REFERENCES dbo.Students(StudentID) ON DELETE CASCADE
+        FeeDetails NVARCHAR(MAX) NULL,
+        CONSTRAINT FK_FamilyFeeReceiptItems_Receipt FOREIGN KEY(FamilyReceiptID) REFERENCES dbo.FamilyFeeReceipts(FamilyReceiptID) ON DELETE CASCADE,
+        CONSTRAINT FK_FamilyFeeReceiptItems_Student FOREIGN KEY(StudentID) REFERENCES dbo.Students(StudentID) ON DELETE CASCADE
     );
 END;
-
+IF COL_LENGTH('dbo.FamilyFeeReceiptItems', 'FeeDetails') IS NULL
+BEGIN
+    ALTER TABLE dbo.FamilyFeeReceiptItems ADD FeeDetails NVARCHAR(MAX) NULL;
+END;
 IF EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = 'FK_FamilyReceiptItems_Student' AND delete_referential_action = 0)
 BEGIN
     ALTER TABLE dbo.FamilyFeeReceiptItems DROP CONSTRAINT FK_FamilyReceiptItems_Student;
-    ALTER TABLE dbo.FamilyFeeReceiptItems ADD CONSTRAINT FK_FamilyReceiptItems_Student FOREIGN KEY(StudentID) REFERENCES dbo.Students(StudentID) ON DELETE CASCADE;
+    ALTER TABLE dbo.FamilyFeeReceiptItems ADD CONSTRAINT FK_FamilyFeeReceiptItems_Student FOREIGN KEY(StudentID) REFERENCES dbo.Students(StudentID) ON DELETE CASCADE;
 END;";
 
             using (var connection = Database.GetConnection())
@@ -132,10 +136,13 @@ ORDER BY s.ClassID ASC, s.Name ASC;";
                         foreach (var row in rows)
                         {
                             if (row.AllocatedAmount <= 0) continue;
-                            var balanceAfter = await ApplyStudentPaymentAsync(connection, transaction, row.StudentID, row.AllocatedAmount, paymentDate).ConfigureAwait(false);
+                            var paymentResult = await ApplyStudentPaymentAsync(connection, transaction, row.StudentID, row.AllocatedAmount, paymentDate).ConfigureAwait(false);
                             receipt.TotalPaid += row.AllocatedAmount;
-                            receipt.TotalBalanceAfter += balanceAfter;
-                            receipt.Items.Add(row.ToReceiptItem(balanceAfter));
+                            receipt.TotalBalanceAfter += paymentResult.BalanceAfter;
+                            
+                            var item = row.ToReceiptItem(paymentResult.BalanceAfter);
+                            item.FeeDetails = paymentResult.Details;
+                            receipt.Items.Add(item);
                         }
 
                         if (receipt.Items.Count == 0) throw new InvalidOperationException("Enter a payment amount greater than zero.");
@@ -156,7 +163,7 @@ SELECT CAST(SCOPE_IDENTITY() AS INT);";
                         }
 
                         // Insert family receipt items
-                        const string itemSql = @"INSERT INTO dbo.FamilyFeeReceiptItems (FamilyReceiptID, StudentID, AmountPaid, BalanceAfter) VALUES (@ReceiptID, @StudentID, @AmountPaid, @BalanceAfter);";
+                        const string itemSql = @"INSERT INTO dbo.FamilyFeeReceiptItems (FamilyReceiptID, StudentID, AmountPaid, BalanceAfter, FeeDetails) VALUES (@ReceiptID, @StudentID, @AmountPaid, @BalanceAfter, @FeeDetails);";
                         foreach (var item in receipt.Items)
                         {
                             using (var command = new SqlCommand(itemSql, connection, transaction))
@@ -165,6 +172,7 @@ SELECT CAST(SCOPE_IDENTITY() AS INT);";
                                 command.Parameters.AddWithValue("@StudentID", item.StudentID);
                                 command.Parameters.AddWithValue("@AmountPaid", item.AmountPaid);
                                 command.Parameters.AddWithValue("@BalanceAfter", item.BalanceAfter);
+                                command.Parameters.AddWithValue("@FeeDetails", (object)item.FeeDetails ?? DBNull.Value);
                                 await command.ExecuteNonQueryAsync().ConfigureAwait(false);
                             }
                         }
@@ -224,7 +232,7 @@ VALUES (@ReceiptNumber, @StudentID, @PaymentDate, @AmountPaid, @BalanceAfter, @D
                 }
 
                 const string itemSql = @"
-SELECT i.StudentID, s.Name AS StudentName, s.RegistrationNo, s.FatherName, c.ClassName, s.Section, i.AmountPaid, i.BalanceAfter
+SELECT i.StudentID, s.Name AS StudentName, s.RegistrationNo, s.FatherName, c.ClassName, s.Section, i.AmountPaid, i.BalanceAfter, i.FeeDetails
 FROM dbo.FamilyFeeReceiptItems i
 INNER JOIN dbo.Students s ON s.StudentID = i.StudentID
 LEFT JOIN dbo.Classes c ON c.ClassID = s.ClassID
@@ -242,7 +250,8 @@ WHERE i.FamilyReceiptID=@ReceiptID ORDER BY s.ClassID ASC, s.Name;";
                                 FatherName = reader["FatherName"] == DBNull.Value ? string.Empty : reader["FatherName"] as string,
                                 RegistrationNo = reader["RegistrationNo"] as string, ClassName = reader["ClassName"] as string,
                                 Section = reader["Section"] as string, AmountPaid = Convert.ToDecimal(reader["AmountPaid"]),
-                                BalanceAfter = Convert.ToDecimal(reader["BalanceAfter"])
+                                BalanceAfter = Convert.ToDecimal(reader["BalanceAfter"]),
+                                FeeDetails = reader["FeeDetails"] == DBNull.Value ? null : reader["FeeDetails"] as string
                             });
                         }
                     }
@@ -251,39 +260,51 @@ WHERE i.FamilyReceiptID=@ReceiptID ORDER BY s.ClassID ASC, s.Name;";
             return receipt;
         }
 
-        private static async Task<decimal> ApplyStudentPaymentAsync(SqlConnection connection, SqlTransaction transaction, int studentId, decimal payment, DateTime paymentDate)
+        private static async Task<(decimal BalanceAfter, string Details)> ApplyStudentPaymentAsync(SqlConnection connection, SqlTransaction transaction, int studentId, decimal payment, DateTime paymentDate)
         {
-            var fees = new List<Tuple<int, decimal, decimal>>();
-            const string selectSql = @"SELECT FeeID, Amount, ISNULL(PaidAmount, 0) PaidAmount FROM dbo.Fees WHERE StudentID=@StudentID AND Amount > ISNULL(PaidAmount,0) ORDER BY FeeID;";
+            var fees = new List<(int FeeID, decimal Amount, decimal PaidAmount, string FeeType, string Month)>();
+            const string selectSql = @"SELECT FeeID, Amount, ISNULL(PaidAmount, 0) PaidAmount, FeeType, Month FROM dbo.Fees WHERE StudentID=@StudentID AND Amount > ISNULL(PaidAmount,0) ORDER BY FeeID;";
             using (var command = new SqlCommand(selectSql, connection, transaction))
             {
                 command.Parameters.AddWithValue("@StudentID", studentId);
                 using (var reader = await command.ExecuteReaderAsync().ConfigureAwait(false))
                     while (await reader.ReadAsync().ConfigureAwait(false))
-                        fees.Add(Tuple.Create(Convert.ToInt32(reader["FeeID"]), Convert.ToDecimal(reader["Amount"]), Convert.ToDecimal(reader["PaidAmount"])));
+                        fees.Add((
+                            Convert.ToInt32(reader["FeeID"]), 
+                            Convert.ToDecimal(reader["Amount"]), 
+                            Convert.ToDecimal(reader["PaidAmount"]),
+                            reader["FeeType"] as string,
+                            reader["Month"] as string
+                        ));
             }
 
             var available = 0m;
-            foreach (var fee in fees) available += fee.Item2 - fee.Item3;
+            foreach (var fee in fees) available += fee.Amount - fee.PaidAmount;
             if (payment > available) throw new InvalidOperationException("Payment cannot exceed the student's outstanding balance.");
 
             var remaining = payment;
+            var detailsList = new List<string>();
+
             foreach (var fee in fees)
             {
                 if (remaining <= 0) break;
-                var applied = Math.Min(fee.Item2 - fee.Item3, remaining);
-                var paid = fee.Item3 + applied;
+                var applied = Math.Min(fee.Amount - fee.PaidAmount, remaining);
+                var paid = fee.PaidAmount + applied;
+                
+                var feeDesc = string.IsNullOrWhiteSpace(fee.Month) ? fee.FeeType : $"{fee.FeeType} ({fee.Month})";
+                detailsList.Add($"{feeDesc}: {applied:N0}");
+
                 const string updateSql = @"UPDATE dbo.Fees SET PaidAmount=@Paid, Status=CASE WHEN @Paid >= Amount THEN 'Paid' ELSE 'Partial' END, PaymentDate=@PaymentDate WHERE FeeID=@FeeID;";
                 using (var command = new SqlCommand(updateSql, connection, transaction))
                 {
                     command.Parameters.AddWithValue("@Paid", paid);
                     command.Parameters.AddWithValue("@PaymentDate", paymentDate);
-                    command.Parameters.AddWithValue("@FeeID", fee.Item1);
+                    command.Parameters.AddWithValue("@FeeID", fee.FeeID);
                     await command.ExecuteNonQueryAsync().ConfigureAwait(false);
                 }
                 remaining -= applied;
             }
-            return available - payment;
+            return (available - payment, string.Join(", ", detailsList));
         }
 
         private static string NormalizeCnic(string value) => (value ?? string.Empty).Replace("-", string.Empty).Replace(" ", string.Empty).Trim();

@@ -19,7 +19,19 @@ namespace SchoolERP.Models
         public string AggregatedFatherNames => string.Join(" + ", Items.Select(i => i.FatherName).Where(n => !string.IsNullOrWhiteSpace(n)).Distinct());
         public string AggregatedClasses => string.Join(" + ", Items.Select(i => i.ClassName));
         public decimal TotalCalculated => TotalPaid + TotalBalanceAfter;
-        public string Description => "Combined Family Fee Payment for: " + AggregatedStudentNames;
+        public string Description 
+        {
+            get 
+            {
+                var parts = new List<string> { "Combined Family Fee Payment:" };
+                foreach (var item in Items)
+                {
+                    var feeDesc = string.IsNullOrWhiteSpace(item.FeeDetails) ? $"Rs {item.AmountPaid:N0}" : item.FeeDetails;
+                    parts.Add($"{item.StudentName} - {feeDesc}");
+                }
+                return string.Join(Environment.NewLine, parts);
+            }
+        }
     }
 
     public class FamilyFeeReceiptItem
@@ -32,5 +44,6 @@ namespace SchoolERP.Models
         public string Section { get; set; }
         public decimal AmountPaid { get; set; }
         public decimal BalanceAfter { get; set; }
+        public string FeeDetails { get; set; }
     }
 }
