@@ -62,7 +62,8 @@
             <Setter Property="Background" Value="White"/>
             <Setter Property="RowHeight" Value="42"/>
             <Setter Property="ColumnHeaderHeight" Value="40"/>
-            <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled"/>
+            <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Auto"/>
+            <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto"/>
         </Style>
     </UserControl.Resources>
 
