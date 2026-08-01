@@ -18,7 +18,7 @@ The generated setup runs as administrator, checks and installs .NET Framework
 instance and database, creates shortcuts, and optionally launches the program.
 
 Initial login:
-  Username: admin
-  Password: admin123
+  Username: admin@grammer.com
+  Password: grammer@123
 
 Change the default password before production handover.
