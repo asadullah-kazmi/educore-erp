@@ -56,7 +56,6 @@
                             <RowDefinition Height="35"/>
                             <RowDefinition Height="35"/>
                             <RowDefinition Height="35"/>
-                            <RowDefinition Height="Auto" MinHeight="35"/>
                         </Grid.RowDefinitions>
 
                         <!-- Table Styles -->
@@ -144,13 +143,6 @@
                             <TextBox Text="{Binding BalanceAfter, StringFormat={}{0:N0}, Mode=OneWay}" Style="{StaticResource ValueStyle}"/>
                         </Border>
 
-                        <!-- Row 7 (Description) -->
-                        <Border Grid.Row="7" Grid.Column="0" Style="{StaticResource ColBorderStyle}">
-                            <TextBox Text="DESCRIPTION" Style="{StaticResource LabelStyle}"/>
-                        </Border>
-                        <Border Grid.Row="7" Grid.Column="1" Style="{StaticResource RowBorderStyle}">
-                            <TextBox Text="{Binding Details, Mode=OneWay}" Style="{StaticResource ValueStyle}" TextWrapping="Wrap"/>
-                        </Border>
                     </Grid>
                 </Border>
 
