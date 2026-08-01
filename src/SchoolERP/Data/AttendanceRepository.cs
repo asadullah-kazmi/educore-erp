@@ -189,8 +189,15 @@ AND YEAR(Date) = @Year AND MONTH(Date) = @Month;";
                 }
             }
 
-            // Calculate working days in the month (excluding weekends, but we'll count all days for now)
-            var totalWorkingDays = DateTime.DaysInMonth(year, month);
+            var totalWorkingDays = 0;
+            for (var day = 1; day <= DateTime.DaysInMonth(year, month); day++)
+            {
+                var current = new DateTime(year, month, day);
+                if (current.DayOfWeek != DayOfWeek.Sunday)
+                {
+                    totalWorkingDays++;
+                }
+            }
 
             foreach (var teacher in teachers)
             {
@@ -205,7 +212,7 @@ AND YEAR(Date) = @Year AND MONTH(Date) = @Month;";
                 {
                     row.PresentDays = statuses.Count(s => s == "Present");
                     row.AbsentDays = statuses.Count(s => s == "Absent");
-                    row.NotMarkedDays = totalWorkingDays - statuses.Count;
+                    row.NotMarkedDays = Math.Max(0, totalWorkingDays - statuses.Count);
                 }
                 else
                 {

@@ -74,10 +74,7 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
         <!-- Header row -->
@@ -111,145 +108,238 @@
             </StackPanel>
         </DockPanel>
 
-        <!-- Date navigator row -->
-        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,16" VerticalAlignment="Center">
-            <Button Command="{Binding PreviousDayCommand}"
-                    Style="{StaticResource IconButtonStyle}">
-                <TextBlock Text="&#xE76B;"
-                           FontFamily="Segoe MDL2 Assets"
-                           FontSize="18"
-                           Foreground="#0F172A"/>
-            </Button>
+        <TabControl Grid.Row="1"
+                    Background="Transparent"
+                    BorderThickness="0">
+            <TabItem Header="Daily Attendance">
+                <Grid Margin="0,16,0,0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
 
-            <DatePicker Width="160"
-                        Height="36"
-                        SelectedDate="{Binding SelectedDate}"
-                        VerticalContentAlignment="Center"
-                        Margin="8,0"/>
+                    <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,16" VerticalAlignment="Center">
+                        <Button Command="{Binding PreviousDayCommand}"
+                                Style="{StaticResource IconButtonStyle}">
+                            <TextBlock Text="&#xE76B;"
+                                       FontFamily="Segoe MDL2 Assets"
+                                       FontSize="18"
+                                       Foreground="#0F172A"/>
+                        </Button>
 
-            <Button Command="{Binding NextDayCommand}"
-                    Style="{StaticResource IconButtonStyle}">
-                <TextBlock Text="&#xE76C;"
-                           FontFamily="Segoe MDL2 Assets"
-                           FontSize="18"
-                           Foreground="#0F172A"/>
-            </Button>
+                        <DatePicker Width="160"
+                                    Height="36"
+                                    SelectedDate="{Binding SelectedDate}"
+                                    VerticalContentAlignment="Center"
+                                    Margin="8,0"/>
 
-            <TextBlock Text="{Binding SyncStatusMessage}"
-                       Foreground="#10B981"
-                       FontSize="13"
-                       FontWeight="SemiBold"
-                       Margin="16,0,0,0"
-                       VerticalAlignment="Center"/>
-        </StackPanel>
+                        <Button Command="{Binding NextDayCommand}"
+                                Style="{StaticResource IconButtonStyle}">
+                            <TextBlock Text="&#xE76C;"
+                                       FontFamily="Segoe MDL2 Assets"
+                                       FontSize="18"
+                                       Foreground="#0F172A"/>
+                        </Button>
 
-        <!-- Summary strip -->
-        <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,0,0,20">
-            <!-- Present Today -->
-            <Border Background="White" CornerRadius="12" BorderThickness="4,1,1,1" BorderBrush="#10B981" Padding="18,14" Margin="0,0,16,0" Width="240" Height="82">
-                <StackPanel VerticalAlignment="Center">
-                    <TextBlock Text="Present Today" FontSize="12" Foreground="#64748B" FontWeight="SemiBold"/>
-                    <TextBlock Text="{Binding PresentTodayCount}" FontSize="20" FontWeight="Bold" Foreground="#10B981" Margin="0,4,0,0"/>
-                </StackPanel>
-            </Border>
+                        <TextBlock Text="{Binding SyncStatusMessage}"
+                                   Foreground="#10B981"
+                                   FontSize="13"
+                                   FontWeight="SemiBold"
+                                   Margin="16,0,0,0"
+                                   VerticalAlignment="Center"/>
+                    </StackPanel>
 
-            <!-- Absent Today -->
-            <Border Background="White" CornerRadius="12" BorderThickness="4,1,1,1" BorderBrush="#EF4444" Padding="18,14" Margin="0,0,16,0" Width="240" Height="82">
-                <StackPanel VerticalAlignment="Center">
-                    <TextBlock Text="Absent Today" FontSize="12" Foreground="#64748B" FontWeight="SemiBold"/>
-                    <TextBlock Text="{Binding AbsentTodayCount}" FontSize="20" FontWeight="Bold" Foreground="#EF4444" Margin="0,4,0,0"/>
-                </StackPanel>
-            </Border>
-
-            <!-- Not Marked -->
-            <Border Background="White" CornerRadius="12" BorderThickness="4,1,1,1" BorderBrush="#94A3B8" Padding="18,14" Width="240" Height="82">
-                <StackPanel VerticalAlignment="Center">
-                    <TextBlock Text="Not Marked" FontSize="12" Foreground="#64748B" FontWeight="SemiBold"/>
-                    <TextBlock Text="{Binding NotMarkedCount}" FontSize="20" FontWeight="Bold" Foreground="#64748B" Margin="0,4,0,0"/>
-                </StackPanel>
-            </Border>
-        </StackPanel>
-
-        <!-- DataGrid -->
-        <DataGrid x:Name="AttendanceDataGrid"
-                  Grid.Row="3"
-                  ItemsSource="{Binding TeacherRows}"
-                  Style="{StaticResource ModuleDataGridStyle}"
-                  MouseDoubleClick="DataGrid_MouseDoubleClick">
-            <DataGrid.Columns>
-                <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="*"/>
-                <DataGridTextColumn Header="Designation" Binding="{Binding Designation}" Width="140"/>
-                
-                <DataGridTemplateColumn Header="Fingerprint ID" Width="110">
-                    <DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate>
-                            <TextBlock Text="{Binding FingerprintID, Converter={StaticResource FingerprintIdConverter}}"
-                                       VerticalAlignment="Center"/>
-                        </DataTemplate>
-                    </DataGridTemplateColumn.CellTemplate>
-                </DataGridTemplateColumn>
-                
-                <DataGridTemplateColumn Header="In Time" Width="110">
-                    <DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate>
-                            <TextBlock Text="{Binding InTime, Converter={StaticResource InTimeConverter}}"
-                                       VerticalAlignment="Center"/>
-                        </DataTemplate>
-                    </DataGridTemplateColumn.CellTemplate>
-                </DataGridTemplateColumn>
-                
-                <DataGridTemplateColumn Header="Status" Width="95">
-                    <DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate>
-                            <Border x:Name="StatusBorder" CornerRadius="6" Padding="6,2" Margin="4" Width="70" HorizontalAlignment="Center">
-                                <TextBlock Text="{Binding StatusDisplay}" Foreground="White" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="11"/>
-                            </Border>
-                            <DataTemplate.Triggers>
-                                <DataTrigger Binding="{Binding StatusDisplay}" Value="Present">
-                                    <Setter TargetName="StatusBorder" Property="Background" Value="#10B981"/>
-                                </DataTrigger>
-                                <DataTrigger Binding="{Binding StatusDisplay}" Value="Absent">
-                                    <Setter TargetName="StatusBorder" Property="Background" Value="#EF4444"/>
-                                </DataTrigger>
-                                <DataTrigger Binding="{Binding StatusDisplay}" Value="Not Marked">
-                                    <Setter TargetName="StatusBorder" Property="Background" Value="#94A3B8"/>
-                                </DataTrigger>
-                            </DataTemplate.Triggers>
-                        </DataTemplate>
-                    </DataGridTemplateColumn.CellTemplate>
-                </DataGridTemplateColumn>
-                
-                <DataGridTemplateColumn Header="Actions" Width="120">
-                    <DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate>
-                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                <!-- Mark Present button -->
-                                <Button Style="{StaticResource IconButtonStyle}"
-                                        Command="{Binding DataContext.MarkPresentCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                        CommandParameter="{Binding}"
-                                        ToolTip="Mark Present">
-                                    <TextBlock Text="&#xE73E;" FontFamily="Segoe MDL2 Assets" FontSize="16" Foreground="#10B981"/>
-                                </Button>
-
-                                <!-- Mark Absent button -->
-                                <Button Style="{StaticResource IconButtonStyle}"
-                                        Command="{Binding DataContext.MarkAbsentCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                        CommandParameter="{Binding}"
-                                        ToolTip="Mark Absent">
-                                    <TextBlock Text="&#xE711;" FontFamily="Segoe MDL2 Assets" FontSize="16" Foreground="#EF4444"/>
-                                </Button>
+                    <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,20">
+                        <Border Background="White" CornerRadius="12" BorderThickness="4,1,1,1" BorderBrush="#10B981" Padding="18,14" Margin="0,0,16,0" Width="240" Height="82">
+                            <StackPanel VerticalAlignment="Center">
+                                <TextBlock Text="Present Today" FontSize="12" Foreground="#64748B" FontWeight="SemiBold"/>
+                                <TextBlock Text="{Binding PresentTodayCount}" FontSize="20" FontWeight="Bold" Foreground="#10B981" Margin="0,4,0,0"/>
                             </StackPanel>
-                        </DataTemplate>
-                    </DataGridTemplateColumn.CellTemplate>
-                </DataGridTemplateColumn>
-            </DataGrid.Columns>
-        </DataGrid>
+                        </Border>
 
-        <!-- Footer TextBlock -->
-        <TextBlock Grid.Row="4"
-                   Text="{Binding FooterText}"
-                   Foreground="#64748B"
-                   FontSize="13"
-                   Margin="0,12,0,0"/>
+                        <Border Background="White" CornerRadius="12" BorderThickness="4,1,1,1" BorderBrush="#EF4444" Padding="18,14" Margin="0,0,16,0" Width="240" Height="82">
+                            <StackPanel VerticalAlignment="Center">
+                                <TextBlock Text="Absent Today" FontSize="12" Foreground="#64748B" FontWeight="SemiBold"/>
+                                <TextBlock Text="{Binding AbsentTodayCount}" FontSize="20" FontWeight="Bold" Foreground="#EF4444" Margin="0,4,0,0"/>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Background="White" CornerRadius="12" BorderThickness="4,1,1,1" BorderBrush="#94A3B8" Padding="18,14" Width="240" Height="82">
+                            <StackPanel VerticalAlignment="Center">
+                                <TextBlock Text="Not Marked" FontSize="12" Foreground="#64748B" FontWeight="SemiBold"/>
+                                <TextBlock Text="{Binding NotMarkedCount}" FontSize="20" FontWeight="Bold" Foreground="#64748B" Margin="0,4,0,0"/>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+
+                    <DataGrid x:Name="AttendanceDataGrid"
+                              Grid.Row="2"
+                              ItemsSource="{Binding TeacherRows}"
+                              Style="{StaticResource ModuleDataGridStyle}"
+                              MouseDoubleClick="DataGrid_MouseDoubleClick">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="*"/>
+                            <DataGridTextColumn Header="Designation" Binding="{Binding Designation}" Width="140"/>
+
+                            <DataGridTemplateColumn Header="Fingerprint ID" Width="110">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding FingerprintID, Converter={StaticResource FingerprintIdConverter}}"
+                                                   VerticalAlignment="Center"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+
+                            <DataGridTemplateColumn Header="In Time" Width="110">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding InTime, Converter={StaticResource InTimeConverter}}"
+                                                   VerticalAlignment="Center"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+
+                            <DataGridTemplateColumn Header="Status" Width="95">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Border x:Name="StatusBorder" CornerRadius="6" Padding="6,2" Margin="4" Width="70" HorizontalAlignment="Center">
+                                            <TextBlock Text="{Binding StatusDisplay}" Foreground="White" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="11"/>
+                                        </Border>
+                                        <DataTemplate.Triggers>
+                                            <DataTrigger Binding="{Binding StatusDisplay}" Value="Present">
+                                                <Setter TargetName="StatusBorder" Property="Background" Value="#10B981"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding StatusDisplay}" Value="Absent">
+                                                <Setter TargetName="StatusBorder" Property="Background" Value="#EF4444"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding StatusDisplay}" Value="Not Marked">
+                                                <Setter TargetName="StatusBorder" Property="Background" Value="#94A3B8"/>
+                                            </DataTrigger>
+                                        </DataTemplate.Triggers>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+
+                            <DataGridTemplateColumn Header="Actions" Width="120">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                            <Button Style="{StaticResource IconButtonStyle}"
+                                                    Command="{Binding DataContext.MarkPresentCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                    CommandParameter="{Binding}"
+                                                    ToolTip="Mark Present">
+                                                <TextBlock Text="&#xE73E;" FontFamily="Segoe MDL2 Assets" FontSize="16" Foreground="#10B981"/>
+                                            </Button>
+
+                                            <Button Style="{StaticResource IconButtonStyle}"
+                                                    Command="{Binding DataContext.MarkAbsentCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                    CommandParameter="{Binding}"
+                                                    ToolTip="Mark Absent">
+                                                <TextBlock Text="&#xE711;" FontFamily="Segoe MDL2 Assets" FontSize="16" Foreground="#EF4444"/>
+                                            </Button>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <TextBlock Grid.Row="3"
+                               Text="{Binding FooterText}"
+                               Foreground="#64748B"
+                               FontSize="13"
+                               Margin="0,12,0,0"/>
+                </Grid>
+            </TabItem>
+
+            <TabItem Header="Monthly Sheet">
+                <Grid Margin="0,16,0,0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,16" VerticalAlignment="Center">
+                        <Button Command="{Binding PreviousMonthCommand}"
+                                Style="{StaticResource IconButtonStyle}">
+                            <TextBlock Text="&#xE76B;"
+                                       FontFamily="Segoe MDL2 Assets"
+                                       FontSize="18"
+                                       Foreground="#0F172A"/>
+                        </Button>
+
+                        <TextBlock Text="{Binding MonthlyMonthLabel}"
+                                   FontSize="18"
+                                   FontWeight="SemiBold"
+                                   Foreground="#0F172A"
+                                   VerticalAlignment="Center"
+                                   Margin="8,0"/>
+
+                        <Button Command="{Binding NextMonthCommand}"
+                                Style="{StaticResource IconButtonStyle}">
+                            <TextBlock Text="&#xE76C;"
+                                       FontFamily="Segoe MDL2 Assets"
+                                       FontSize="18"
+                                       Foreground="#0F172A"/>
+                        </Button>
+
+                        <TextBlock Text="{Binding MonthlyStatusMessage}"
+                                   Foreground="#64748B"
+                                   FontSize="13"
+                                   FontWeight="SemiBold"
+                                   Margin="16,0,0,0"
+                                   VerticalAlignment="Center"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,20">
+                        <Border Background="White" CornerRadius="12" BorderThickness="4,1,1,1" BorderBrush="#10B981" Padding="18,14" Margin="0,0,16,0" Width="240" Height="82">
+                            <StackPanel VerticalAlignment="Center">
+                                <TextBlock Text="Present Days" FontSize="12" Foreground="#64748B" FontWeight="SemiBold"/>
+                                <TextBlock Text="{Binding MonthlyPresentDaysTotal}" FontSize="20" FontWeight="Bold" Foreground="#10B981" Margin="0,4,0,0"/>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Background="White" CornerRadius="12" BorderThickness="4,1,1,1" BorderBrush="#EF4444" Padding="18,14" Margin="0,0,16,0" Width="240" Height="82">
+                            <StackPanel VerticalAlignment="Center">
+                                <TextBlock Text="Absent Days" FontSize="12" Foreground="#64748B" FontWeight="SemiBold"/>
+                                <TextBlock Text="{Binding MonthlyAbsentDaysTotal}" FontSize="20" FontWeight="Bold" Foreground="#EF4444" Margin="0,4,0,0"/>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Background="White" CornerRadius="12" BorderThickness="4,1,1,1" BorderBrush="#94A3B8" Padding="18,14" Width="240" Height="82">
+                            <StackPanel VerticalAlignment="Center">
+                                <TextBlock Text="Not Marked" FontSize="12" Foreground="#64748B" FontWeight="SemiBold"/>
+                                <TextBlock Text="{Binding MonthlyNotMarkedDaysTotal}" FontSize="20" FontWeight="Bold" Foreground="#64748B" Margin="0,4,0,0"/>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+
+                    <DataGrid Grid.Row="2"
+                              ItemsSource="{Binding MonthlySummaryRows}"
+                              Style="{StaticResource ModuleDataGridStyle}">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Teacher" Binding="{Binding Name}" Width="*"/>
+                            <DataGridTextColumn Header="Present" Binding="{Binding PresentDays}" Width="90"/>
+                            <DataGridTextColumn Header="Absent" Binding="{Binding AbsentDays}" Width="90"/>
+                            <DataGridTextColumn Header="Not Marked" Binding="{Binding NotMarkedDays}" Width="110"/>
+                            <DataGridTextColumn Header="Working Days" Binding="{Binding TotalWorkingDays}" Width="110"/>
+                            <DataGridTextColumn Header="Attendance %" Binding="{Binding AttendancePercentage, StringFormat={}{0:P0}}" Width="110"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <TextBlock Grid.Row="3"
+                               Text="{Binding MonthlyFooterText}"
+                               Foreground="#64748B"
+                               FontSize="13"
+                               Margin="0,12,0,0"/>
+                </Grid>
+            </TabItem>
+        </TabControl>
     </Grid>
 </UserControl>

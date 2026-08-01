@@ -84,11 +84,13 @@ namespace SchoolERP.ViewModels
             get => isPresent;
             set
             {
-                if (SetProperty(ref isPresent, value) && value)
+                if (SetProperty(ref isPresent, value))
                 {
-                    IsAbsent = false;
-                    Status = "Present";
-                    _ = UpsertStatusAsync();
+                    if (value)
+                    {
+                        IsAbsent = false;
+                        Status = "Present";
+                    }
                 }
             }
         }
@@ -98,11 +100,13 @@ namespace SchoolERP.ViewModels
             get => isAbsent;
             set
             {
-                if (SetProperty(ref isAbsent, value) && value)
+                if (SetProperty(ref isAbsent, value))
                 {
-                    IsPresent = false;
-                    Status = "Absent";
-                    _ = UpsertStatusAsync();
+                    if (value)
+                    {
+                        IsPresent = false;
+                        Status = "Absent";
+                    }
                 }
             }
         }
@@ -162,6 +166,20 @@ namespace SchoolERP.ViewModels
                     System.Windows.MessageBoxImage.Error
                 );
             }
+        }
+
+        public async System.Threading.Tasks.Task MarkPresentAsync()
+        {
+            IsPresent = true;
+            InTime = DateTime.Now;
+            await UpsertStatusAsync().ConfigureAwait(true);
+        }
+
+        public async System.Threading.Tasks.Task MarkAbsentAsync()
+        {
+            IsAbsent = true;
+            InTime = null;
+            await UpsertStatusAsync().ConfigureAwait(true);
         }
     }
 }

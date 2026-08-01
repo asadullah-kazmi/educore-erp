@@ -234,6 +234,14 @@ SET Status =
         public async Task<List<AttendanceSummaryRow>> GetAttendanceSummaryAsync(DateTime from, DateTime to, string personType)
         {
             string sql;
+            var workingDays = 0;
+            for (var day = from.Date; day <= to.Date; day = day.AddDays(1))
+            {
+                if (day.DayOfWeek != DayOfWeek.Sunday)
+                {
+                    workingDays++;
+                }
+            }
 
             if (personType == "Teacher")
             {
@@ -284,7 +292,7 @@ ORDER BY s.Name;";
                             Name = reader["Name"] as string,
                             PresentDays = reader["PresentDays"] == DBNull.Value ? 0 : Convert.ToInt32(reader["PresentDays"]),
                             AbsentDays = reader["AbsentDays"] == DBNull.Value ? 0 : Convert.ToInt32(reader["AbsentDays"]),
-                            TotalDays = reader["TotalDays"] == DBNull.Value ? 0 : Convert.ToInt32(reader["TotalDays"])
+                            TotalDays = reader["TotalDays"] == DBNull.Value ? 0 : Math.Min(workingDays, Convert.ToInt32(reader["TotalDays"]))
                         });
                     }
                 }

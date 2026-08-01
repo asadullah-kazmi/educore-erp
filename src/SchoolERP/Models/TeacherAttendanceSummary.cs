@@ -8,5 +8,9 @@ namespace SchoolERP.Models
         public int AbsentDays { get; set; }
         public int NotMarkedDays { get; set; }
         public int TotalWorkingDays { get; set; }
+
+        public double AttendancePercentage => TotalWorkingDays <= 0
+            ? 0
+            : (double)PresentDays / TotalWorkingDays;
     }
 }
